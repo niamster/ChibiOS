@@ -62,6 +62,9 @@ void halInit(void) {
 
   hal_lld_init();
 
+#if HAL_USE_PIC || defined(__DOXYGEN__)
+  picInit();
+#endif
 #if HAL_USE_TM || defined(__DOXYGEN__)
   tmInit();
 #endif
