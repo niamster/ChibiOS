@@ -1,0 +1,246 @@
+/*
+    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
+                 2011,2012 Giovanni Di Sirio.
+
+    This file is part of ChibiOS/RT.
+
+    ChibiOS/RT is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 3 of the License, or
+    (at your option) any later version.
+
+    ChibiOS/RT is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "ch.h"
+#include "hal.h"
+#include "shell.h"
+#include "chprintf.h"
+#include "chheap.h"
+#include "test.h"
+
+#define printc(c) sdPut(&SD1, c)
+
+static void print(const char *msgp) {
+  while (*msgp) {
+    char c = *msgp++;
+    if ('\n' == c)
+      printc('\r');
+    printc(c);
+  }
+}
+
+uint32_t hardJob(uint32_t arg) {
+  return chTimeNow() + US2ST(arg);
+}
+
+static WORKING_AREA(waThread0, 128);
+static msg_t Thread0(void *p) {
+  uint32_t c = 0;
+
+  (void)p;
+
+  chRegSetThreadName("T0");
+
+  print("T0\n");
+
+  while (TRUE) {
+    c = hardJob(++c);
+    chThdSleepMicroseconds(0);
+  }
+
+  return 0;
+}
+
+static WORKING_AREA(waThread1, 128);
+static msg_t Thread1(void *p) {
+  uint32_t c = 0;
+
+  (void)p;
+
+  chRegSetThreadName("T1");
+
+  print("T1\n");
+
+  while (TRUE) {
+    c = hardJob(c += 2);
+    chThdSleepMicroseconds(0);
+  }
+
+  return 0;
+}
+
+void boardInfo(void) {
+  print("*** Kernel:       " CH_KERNEL_VERSION "\n");
+#ifdef CH_COMPILER_NAME
+  print("*** Compiler:     " CH_COMPILER_NAME "\n");
+#endif
+  print("*** Architecture: " CH_ARCHITECTURE_NAME "\n");
+#ifdef CH_CORE_VARIANT_NAME
+  print("*** Core Variant: " CH_CORE_VARIANT_NAME "\n");
+#endif
+#ifdef CH_PORT_INFO
+  print("*** Port Info:    " CH_PORT_INFO "\n");
+#endif
+#ifdef PLATFORM_NAME
+  print("*** Platform:     " PLATFORM_NAME "\n");
+#endif
+#ifdef BOARD_NAME
+  print("*** Test Board:   " BOARD_NAME "\n");
+#endif
+}
+
+#define SHELL_WA_SIZE   THD_WA_SIZE(1024)
+
+static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
+  extern uint8_t __heap_base__[];
+  extern uint8_t __heap_end__[];
+  extern uint8_t __data_start__[];
+  extern uint8_t __data_end__[];
+  extern uint8_t __bss_start__[];
+  extern uint8_t __bss_end__[];
+
+#if CH_USE_HEAP
+  size_t n, size;
+
+  n = chHeapStatus(NULL, &size);
+  chprintf(chp, "heap fragments   : %u\r\n", n);
+  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+#else
+  chprintf(chp, "Heap was not built in\r\n");
+#endif
+#if CH_USE_MEMCORE
+  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+#endif
+  chprintf(chp, "data: %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__data_start__, (uint32_t)(uint8_t *)__data_end__, (uint32_t)(uint8_t *)__data_end__ - (uint32_t)(uint8_t *)__data_start__);
+  chprintf(chp, "bss : %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__bss_start__, (uint32_t)(uint8_t *)__bss_end__, (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
+  chprintf(chp, "heap: %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__heap_base__, (uint32_t)(uint8_t *)__heap_end__, (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__);
+
+  chprintf(chp, "total: %d bytes\r\n",
+      (uint32_t)(uint8_t *)__data_end__ - (uint32_t)(uint8_t *)__data_start__
+      + (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__
+      + (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
+
+  (void)argc;
+  (void)argv;
+}
+
+static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
+#if CH_USE_REGISTRY
+  static const char *states[] = {
+    "READY",
+    "CURRENT",
+    "SUSPENDED",
+    "WTSEM",
+    "WTMTX",
+    "WTCOND",
+    "SLEEPING",
+    "WTEXIT",
+    "WTOREVT",
+    "WTANDEVT",
+    "SNDMSGQ",
+    "SNDMSG",
+    "WTMSG",
+    "WTQUEUE",
+    "FINAL"
+  };
+  Thread *tp;
+
+  chprintf(chp, "    addr       name    stack prio refs     state time\r\n");
+  tp = chRegFirstThread();
+  do {
+#if CH_DBG_THREADS_PROFILING
+    systime_t p_time = tp->p_time;
+#else
+    systime_t p_time = 0;
+#endif
+    chprintf(chp, "%.8x %10s %.8x %4lu %4lu %9s %lu\r\n",
+        (uint32_t)tp, tp->p_name, (uint32_t)tp->p_ctx.sp,
+        (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
+        states[tp->p_state], (uint32_t)p_time);
+    tp = chRegNextThread(tp);
+  } while (tp != NULL);
+#else
+  chprintf(chp, "Registry was not built in\r\n");
+#endif
+
+  (void)argc;
+  (void)argv;
+}
+
+static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
+  TestThread(chp);
+
+  (void)argc;
+  (void)argv;
+}
+
+static const ShellCommand shCmds[] = {
+  {"mem",       cmd_mem},
+  {"threads",   cmd_threads},
+  {"test",      cmd_test},
+  {NULL, NULL}
+};
+
+static const ShellConfig shCfg = {
+  (BaseSequentialStream *)&SD1,
+  shCmds
+};
+
+/*
+ * Application entry point.
+ */
+int main(void) {
+  Thread *sh = NULL;
+
+  /*
+   * System initializations.
+   * - HAL initialization, this also initializes the configured device drivers
+   *   and performs the board-specific initializations.
+   * - Kernel initialization, the main() function becomes a thread and the
+   *   RTOS is active.
+   */
+  halInit();
+  chSysInit();
+
+  /*
+   * Activates the serial driver 1 using the driver default configuration.
+   */
+  sdStart(&SD1, NULL);
+
+  boardInfo();
+
+  shellInit();
+
+  /*
+   * Creates the threads.
+   */
+  chThdCreateStatic(waThread0, sizeof(waThread0), NORMALPRIO-2, Thread0, NULL);
+  chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO-1, Thread1, NULL);
+
+  /*
+   * Normal main() thread activity ;).
+   */
+
+  for (;;) {
+    if (!sh)
+      sh = shellCreate(&shCfg, SHELL_WA_SIZE, NORMALPRIO);
+    else if (chThdTerminated(sh)) {
+      chThdRelease(sh);    /* Recovers memory of the previous shell. */
+      sh = NULL;           /* Triggers spawning of a new shell.      */
+    }
+
+    chThdSleepMilliseconds(1000/* TIME_INFINITE */);
+  }
+
+  return 0;
+}
