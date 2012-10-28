@@ -101,35 +101,50 @@ void boardInfo(void) {
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
   extern uint8_t __heap_base__[];
   extern uint8_t __heap_end__[];
-  extern uint8_t __data_start__[];
-  extern uint8_t __data_end__[];
+  extern uint8_t __init_start__[];
+  extern uint8_t __init_end__[];
+  extern uint8_t __vectors_start__[];
+  extern uint8_t __vectors_end__[];
+  extern uint8_t __text_start__[];
+  extern uint8_t __text_end__[];
+  extern uint8_t __rom_data_start__[];
+  extern uint8_t __ram_data_start__[];
+  extern uint8_t __ram_data_end__[];
+  extern uint8_t __rodata_start__[];
+  extern uint8_t __rodata_end__[];
   extern uint8_t __bss_start__[];
   extern uint8_t __bss_end__[];
 
 #if CH_USE_HEAP
-  size_t n, size;
+  size_t n, hSize;
 
-  n = chHeapStatus(NULL, &size);
+  n = chHeapStatus(NULL, &hSize);
   chprintf(chp, "heap fragments   : %u\r\n", n);
-  chprintf(chp, "heap free total  : %u bytes\r\n", size);
+  chprintf(chp, "heap total fragmented free space : %u bytes\r\n", hSize);
 #else
   chprintf(chp, "Heap was not built in\r\n");
 #endif
 #if CH_USE_MEMCORE
   chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
 #endif
-  chprintf(chp, "data: %.8x:%.8x(%d bytes)\r\n",
-      (uint32_t)(uint8_t *)__data_start__, (uint32_t)(uint8_t *)__data_end__, (uint32_t)(uint8_t *)__data_end__ - (uint32_t)(uint8_t *)__data_start__);
-  chprintf(chp, "bss : %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "init:    %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__init_start__, (uint32_t)(uint8_t *)__init_end__, (uint32_t)(uint8_t *)__init_end__ - (uint32_t)(uint8_t *)__init_start__);
+  chprintf(chp, "vectors: %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__vectors_start__, (uint32_t)(uint8_t *)__vectors_end__, (uint32_t)(uint8_t *)__vectors_end__ - (uint32_t)(uint8_t *)__vectors_start__);
+  chprintf(chp, "text:    %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__text_start__, (uint32_t)(uint8_t *)__text_end__, (uint32_t)(uint8_t *)__text_end__ - (uint32_t)(uint8_t *)__text_start__);
+  chprintf(chp, "ro-data: %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__rodata_start__, (uint32_t)(uint8_t *)__rodata_end__, (uint32_t)(uint8_t *)__rodata_end__ - (uint32_t)(uint8_t *)__rodata_start__);
+  chprintf(chp, "data:    %.8x:%.8x(%d bytes)\r\n",
+      (uint32_t)(uint8_t *)__ram_data_start__, (uint32_t)(uint8_t *)__ram_data_end__, (uint32_t)(uint8_t *)__ram_data_end__ - (uint32_t)(uint8_t *)__ram_data_start__);
+  chprintf(chp, "bss :    %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__bss_start__, (uint32_t)(uint8_t *)__bss_end__, (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
-  chprintf(chp, "heap: %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "heap:    %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__heap_base__, (uint32_t)(uint8_t *)__heap_end__, (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__);
 
-  chprintf(chp, "total: %d bytes\r\n",
-      (uint32_t)(uint8_t *)__data_end__ - (uint32_t)(uint8_t *)__data_start__
-      + (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__
-      + (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
-
+  if ((uint8_t *)__rom_data_start__ != (uint8_t *)__ram_data_start__)
+      chprintf(chp, " ROM .data was relocated to RAM at %.8x\r\n", (uint32_t)(uint8_t *)__ram_data_start__);
+  
   (void)argc;
   (void)argv;
 }

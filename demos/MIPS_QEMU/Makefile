@@ -7,6 +7,8 @@
 ifeq ($(USE_OPT),)
   USE_OPT = -G0 -fno-pic -fno-PIC -mno-abicalls -msoft-float -O2 -ggdb -fomit-frame-pointer
   USE_OPT += -march=mips32r2 -mtune=24kc
+  # usually gives very good i-cache hit rate
+  USE_OPT += -falign-functions=32
 endif
 
 # C specific options here (added to USE_OPT).
@@ -16,7 +18,7 @@ endif
 
 # LD specific options here (added to USE_OPT).
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = -G0 -fno-pic -fno-PIC -static -n -nostdlib -Wl,--defsym=__heap_end__=0x88000000
+  USE_LDOPT = -G0 -fno-pic -fno-PIC -static -n -nostdlib
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -55,7 +57,7 @@ include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/test/test.mk
 
 # Define linker script file here
-LDSCRIPT= ld/mips.lds
+LDSCRIPT= ld/mips_rom.lds
 
 # List C source files here
 CSRC = $(PORTSRC) \
@@ -99,6 +101,7 @@ CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 STRIP= $(TRGT)strip --strip-all
+BIN	 = $(CP) -O binary
 
 # Define C warning options here
 CWARN = -Wall -Wextra -Wstrict-prototypes

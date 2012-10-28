@@ -26,40 +26,60 @@ OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradlittlemips")
 
 OUTPUT_ARCH(mips)
 ENTRY(_start)
+PROVIDE(__heap_end__ = 0x88000000);
 SECTIONS
 {
   . = 0x80000000;
 
-  . = ALIGN(32);
   .text : {
+    __init_start__ = .;
     KEEP (*(.entry*))
+    __init_end__ = .;
+
     ASSERT(. < 0x180, "entry point too long");
-    . = . + 0x100; . = ALIGN(0x80); KEEP (*(.vectors*))
+    . = 0x180;
+    ASSERT(. == 0x180, "wrong location of vectors");
+    __vectors_start__ = .;
+    KEEP (*(.vectors*))
+    __vectors_end__ = .;
+
+    . = ALIGN(32);
+    __text_start__ = .;
     KEEP (*(.context*))
     *(.text*)
     *(.gcc*)
     *(.ctors)
-    *(.dtors)
+    __text_end__ = .;
   }
 
-  . = ALIGN(32);
-  .data : {
-    __data_start__ = .;
-    . = .;
+  .rodata ALIGN(32) : {
+    __rodata_start__ = .;
     *(.rodata*)
+    __rodata_end__ = .;
+  }
+
+  .data ALIGN(32) : {
+    __rom_data_start__ = .;
+    __ram_data_start__ = .;
     *(.data*)
     *(.sdata*)
-    __data_end__ = .;
+    . = ALIGN(4);
+    __ram_data_end__ = .;
   }
 
-  . = ALIGN(32);
-  .bss : { 
+  .bss ALIGN(32) : {
     __bss_start__ = .;
-    *(.sbss*)
     *(.bss*)
+    *(.sbss*)
+    *(COMMON)
+    . = ALIGN(4);
     __bss_end__ = .;
   }
 
   . = ALIGN(32);
   __heap_base__ = .;
+
+  /DISCARD/ : {
+    *(.rel.dyn);
+  }
 }
