@@ -33,8 +33,6 @@
 
 #include "mipsarch.h"
 
-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 /**
  * Halts the system.
  */
