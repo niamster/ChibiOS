@@ -196,6 +196,25 @@ MIPS_FUNC_START(_start)
     addiu   $t0, $t0, 4
     /* </clear:bss> */
 
+    /* <copy:data> */
+    /* Copy .data from ROM to RAM if needed */
+    /* Strongly assume that .data START and END are word aligned */
+    la      $t0, __rom_data_start__
+    la      $t1, __ram_data_start__
+    beq     $t0, $t1, _early_init
+    nop
+
+    la      $t2, __ram_data_end__
+    addiu   $t2, $t2, -4
+
+2:  lw      $t3, 0($t0)
+    sw      $t3, 0($t1)
+    addiu   $t0, $t0, 4
+    bne     $t1, $t2, 2b
+    addiu   $t1, $t1, 4
+    /* </copy:data> */
+
+_early_init:
     /* FIXME: execute ctors */
 
     .extern port_early_init

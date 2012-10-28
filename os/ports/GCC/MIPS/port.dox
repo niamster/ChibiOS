@@ -159,9 +159,14 @@
  * @section MIPS_STARTUP_2 Expected linker symbols
  * The startup code starts at the symbol @p _start and expects the
  * following symbols to be defined in the linker script:
- * - @p __bss_start__ BSS start location.
- * - @p __bss_end__   BSS end location.
+ * - @p __rom_data_start__ start location of .data in ROM.
+ * - @p __ram_data_start__ start location of .data in RAM for relocation from ROM.
+ * - @p __ram_data_end__   end location of .data in RAM for relocation from ROM.
+ * - @p __bss_start__      start location of .bss.
+ * - @p __bss_end__        end location of .bss.
  * .
+ * @note if .data section is already in RAM no relocation is performed(i.e. in case chibi was loaded by external loader)
+ * in this case __rom_data_start__ and __ram_data_start__ should point to the same location
  * @ingroup MIPS
  */
 

@@ -7,7 +7,10 @@ endif
 ifeq ($(BUILDDIR),.)
   BUILDDIR = build
 endif
-OUTFILES = $(BUILDDIR)/$(PROJECT).elf $(BUILDDIR)/$(PROJECT).elf.strip $(BUILDDIR)/$(PROJECT).dmp
+OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
+            $(BUILDDIR)/$(PROJECT).elf.strip \
+            $(BUILDDIR)/$(PROJECT).dmp \
+            $(BUILDDIR)/$(PROJECT).bin
 
 # Automatic compiler options
 OPT       = $(USE_OPT)
@@ -132,6 +135,14 @@ else
 	@echo Creating $@
 	@$(OD) $(ODFLAGS) $< > $@
 	@echo Done
+endif
+
+$(BUILDDIR)/$(PROJECT).bin: $(BUILDDIR)/$(PROJECT).elf $(LDSCRIPT)
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	$(BIN) $< $@
+else
+	@echo Creating $@
+	@$(BIN) $< $@
 endif
 
 clean:
