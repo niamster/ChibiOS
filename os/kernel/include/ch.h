@@ -98,6 +98,14 @@
 #if !defined(CH_FAILED) || defined(__DOXYGEN__)
 #define CH_FAILED   TRUE
 #endif
+
+/**
+ * @name    Common macros
+ */
+/**
+ * @brief   Get size of C array.
+ */
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 /** @} */
 
 #include "chconf.h"
