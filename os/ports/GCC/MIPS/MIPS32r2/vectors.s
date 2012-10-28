@@ -177,6 +177,12 @@ MIPS_FUNC_START(_start)
     mtc0    $zero, status
     mtc0    $zero, status, 1
 
+    /* Set exception base */
+    la      $t0, e_vector
+    lui     $t1, 0xFFFF
+    and     $t0, $t0, $t1
+    mtc0    $t0, $15, 1
+
     /* Setup initial context, run C setup code and finally call main() */
 
     /* <clear:bss> */

@@ -115,9 +115,6 @@
 #define c0_get_intctl()     MFC0($12, 1)
 #define c0_set_intctl(r)    MTC0(r, $12, 1)
 
-#define c0_get_ebase()      MFC0($15, 1)
-#define c0_set_ebase(r)     MTC0(r, $15, 1)
-
 #define c0_get_cause()      MFC0($13, 0)
 #define c0_set_cause(r)     MTC0(r, $13, 0)
 

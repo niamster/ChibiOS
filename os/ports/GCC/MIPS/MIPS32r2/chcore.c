@@ -80,7 +80,6 @@ static void port_init_timer(void) {
 }
 
 static void port_init_cpu(void) {
-  c0_set_ebase(0x80000000);
 }
 
 static void port_init_cache(void) {
