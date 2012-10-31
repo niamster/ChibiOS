@@ -34,6 +34,7 @@ SECTIONS
   .text : {
     __init_start__ = .;
     KEEP (*(.entry*))
+    KEEP (*(.core.entry*))
     __init_end__ = .;
 
     ASSERT(. < 0x180, "entry point too long");

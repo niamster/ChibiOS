@@ -33,6 +33,11 @@
 
 #include "mipsarch.h"
 
+#define __entry \
+  __attribute__ ((__section__(".core.entry")))       \
+  __attribute__ ((__optimize__("-Os")))              \
+  __attribute__ ((__aligned__(4)))
+
 /**
  * Halts the system.
  */
@@ -68,36 +73,40 @@ static void port_timer_isr(void) {
   CH_IRQ_EPILOGUE();
 }
 
-static void port_init_timer(void) {
-  uint32_t ipti = c0_get_intctl() >> 29;
-  uint32_t sr = c0_get_status();
-  sr |= 1 << (ipti + 8); // IM[x] timer
-  c0_set_status(sr);
-
+static void __entry port_init_timer(void) {
   port_reset_timer();
 
-  c0_set_cause(c0_get_cause()&~(1<<27));
+  /* c0_set_cause(c0_get_cause()&~(1<<27)); */
 }
 
-static void port_init_cpu(void) {
+static void __entry port_init_cpu(void) {
 }
 
-static void port_init_cache(void) {
+static void __entry port_init_cache(void) {
   volatile uint8_t *addr;
 
   /* Clear tagLo/tagHi */
   MTC0(0, $28, 0);
   MTC0(0, $29, 0);
 
+#if MIPS_CPU_DCACHE_SIZE == MIPS_CPU_ICACHE_SIZE
   for (addr = (uint8_t *)MIPS_KSEG0_CACHED_BASE;
        addr < (uint8_t *)(MIPS_KSEG0_CACHED_BASE + MIPS_CPU_DCACHE_SIZE);
-       addr += MIPS_CPU_DCACHE_LINE_SIZE )
+       addr += MIPS_CPU_DCACHE_LINE_SIZE) {
+    asm volatile ("cache 9, 0(%0)" : : "r"(addr)); /* D-cache */
+    asm volatile ("cache 8, 0(%0)" : : "r"(addr)); /* I-cache */
+  }
+#else
+  for (addr = (uint8_t *)MIPS_KSEG0_CACHED_BASE;
+       addr < (uint8_t *)(MIPS_KSEG0_CACHED_BASE + MIPS_CPU_DCACHE_SIZE);
+       addr += MIPS_CPU_DCACHE_LINE_SIZE)
     asm volatile ("cache 9, 0(%0)" : : "r"(addr)); /* D-cache */
 
   for (addr = (uint8_t *)MIPS_KSEG0_CACHED_BASE;
        addr < (uint8_t *)(MIPS_KSEG0_CACHED_BASE + MIPS_CPU_ICACHE_SIZE);
-       addr += MIPS_CPU_ICACHE_LINE_SIZE )
+       addr += MIPS_CPU_ICACHE_LINE_SIZE)
     asm volatile ("cache 8, 0(%0)" : : "r"(addr)); /* I-cache */
+#endif
 
   // cached KSEG0
   c0_set_config0(c0_get_config0() & ~3);
@@ -146,9 +155,12 @@ void port_handle_exception(uint32_t cause, uint32_t status/* , uint32_t epc */) 
     chDbgPanic("unhandled exception");
 }
 
-static void port_init_irq(void) {
+static void __entry port_init_irq(void) {
   uint32_t sr = c0_get_status();
+  uint32_t ipti = c0_get_intctl() >> 29;
   unsigned int i;
+
+  sr |= 1 << (ipti + 8); // IM[x] timer
 
   for (i=0; i<ARRAY_SIZE(hw_irq_table); ++i) {
     if (hw_irq_table[i])
@@ -158,7 +170,7 @@ static void port_init_irq(void) {
   c0_set_status(sr);
 }
 
-void port_early_init(void) {
+void __entry port_early_init(void) {
   port_init_cpu();
   port_init_cache();
   port_init_timer();
