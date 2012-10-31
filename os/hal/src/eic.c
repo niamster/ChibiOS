@@ -19,17 +19,17 @@
 */
 
 /**
- * @file    pic.c
- * @brief   PIC Driver code.
+ * @file    eic.c
+ * @brief   EIC Driver code.
  *
- * @addtogroup PIC
+ * @addtogroup EIC
  * @{
  */
 
 #include "ch.h"
 #include "hal.h"
 
-#if HAL_USE_PIC || defined(__DOXYGEN__)
+#if HAL_USE_EIC || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver local definitions.                                                 */
@@ -52,49 +52,49 @@
 /*===========================================================================*/
 
 /**
- * @brief   PIC Driver initialization.
+ * @brief   EIC Driver initialization.
  * @note    This function is implicitly invoked by @p halInit(), there is
  *          no need to explicitly initialize the driver.
  *
  * @init
  */
-void picInit(void) {
+void eicInit(void) {
 
-  pic_lld_init();
+  eic_lld_init();
 }
 
 /**
- * @brief   PIC IRQ handler registration.
+ * @brief   EIC IRQ handler registration.
  *
  * @param[in] irq       irq number.
  * @param[in] handler   ponter to irq handler.
  * @param[in] data      opaque data passed to irq handler.
  */
-void picRegisterIrq(int irq, picIrqHandler handler, void *data) {
+void eicRegisterIrq(int irq, eicIrqHandler handler, void *data) {
 
-  pic_lld_register_irq(irq, handler, data);
+  eic_lld_register_irq(irq, handler, data);
 }
 
 /**
- * @brief   Enable PIC IRQ.
+ * @brief   Enable EIC IRQ.
  *
  * @param[in] irq       irq number.
  */
-void picEnableIrq(int irq) {
+void eicEnableIrq(int irq) {
 
-  pic_lld_enable_irq(irq);
+  eic_lld_enable_irq(irq);
 }
 
 /**
- * @brief   Disable PIC IRQ.
+ * @brief   Disable EIC IRQ.
  *
  * @param[in] irq       irq number.
  */
-void picDisableIrq(int irq) {
+void eicDisableIrq(int irq) {
 
-  pic_lld_disable_irq(irq);
+  eic_lld_disable_irq(irq);
 }
 
-#endif /* HAL_USE_PIC */
+#endif /* HAL_USE_EIC */
 
 /** @} */

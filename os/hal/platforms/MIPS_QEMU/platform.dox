@@ -34,8 +34,8 @@
  */
 
 /**
- * @defgroup MIPS_QEMU_PIC MIPS QEMU PIC Support
- * @details The PIC driver supports i8259 PIC controller used in MIPS QEMU.
+ * @defgroup MIPS_QEMU_PIC MIPS QEMU EIC Support
+ * @details The EIC driver supports i8259 PIC controller used in MIPS QEMU.
  *
  * .
  * @ingroup MIPS_QEMU

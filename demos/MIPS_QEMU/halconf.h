@@ -161,10 +161,10 @@
 #endif
 
 /**
- * @brief   Enables the PIC subsystem.
+ * @brief   Enables the EIC subsystem.
  */
-#if !defined(HAL_USE_PIC) || defined(__DOXYGEN__)
-#define HAL_USE_PIC                 TRUE
+#if !defined(HAL_USE_EIC) || defined(__DOXYGEN__)
+#define HAL_USE_EIC                 TRUE
 #endif
 
 /*===========================================================================*/

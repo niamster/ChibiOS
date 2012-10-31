@@ -151,8 +151,8 @@ void sd_lld_init(void) {
 #if USE_MIPS_QEMU_UART
   SD1.base = (void *)MIPS_UNCACHED(HAL_MIPS_QEMU_UART_BASE);
   sdObjectInit(&SD1, NULL, oNotify);
-#if HAL_USE_PIC
-  picRegisterIrq(PIC_IRQ_UART, sd_lld_serve_interrupt, &SD1);
+#if HAL_USE_EIC
+  eicRegisterIrq(EIC_IRQ_UART, sd_lld_serve_interrupt, &SD1);
 #endif
 #endif
 }
@@ -173,8 +173,8 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
 
 #if USE_MIPS_QEMU_UART
   uartInit(sdp, config);
-#if HAL_USE_PIC
-  picEnableIrq(PIC_IRQ_UART);
+#if HAL_USE_EIC
+  eicEnableIrq(EIC_IRQ_UART);
 #endif
 #endif
 }

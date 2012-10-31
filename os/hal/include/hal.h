@@ -42,8 +42,8 @@
 /* Shared headers.*/
 #include "mmcsd.h"
 
-/* Abstract PIC.*/
-#include "pic.h"
+/* Abstract EIC.*/
+#include "eic.h"
 
 /* Layered drivers.*/
 #include "tm.h"

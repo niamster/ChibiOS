@@ -78,7 +78,7 @@
  * This may be changed once priority/vector interrupt handling is implemented.<br>
  * MIPS core has six hardware interrupt lines, thereby low level code assumes that
  * CH_IRQ_HANDLER macro is used with appropriate definition token listed in mipsparams.h
- * In most cases SoC has some kind of PIC(Programmable Interrupt Controller) to extend
+ * In most cases SoC has some kind of EIC(External Interrupt Controller) to extend
  * amount of interrupt sources which is wired to one of the MIPS hw interrupt lines.
  * Example:
  * @code

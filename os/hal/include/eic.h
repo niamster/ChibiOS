@@ -19,32 +19,21 @@
 */
 
 /**
- * @file    MIPS_QEMU/pic_lld.h
- * @brief   MIPS_QEMU low level pic driver header.
+ * @file    os/hal/include/eic.h
+ * @brief   External Interrupt Controller common header.
  *
- * @addtogroup PIC
+ * @addtogroup EIC
  * @{
  */
 
-#ifndef _PIC_LLD_H_
-#define _PIC_LLD_H_
+#ifndef _EIC_H_
+#define _EIC_H_
 
-#if HAL_USE_PIC || defined(__DOXYGEN__)
+#if HAL_USE_EIC || defined(__DOXYGEN__)
 
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/
-
-/* Max number of IRQs */
-#define PIC_NUM_IRQS    8
-
-/* Well known IRQ numbers */
-#define PIC_IRQ_UART    4
-
-/* i8259A PIC registers */
-#define PIC_MASTER_CMD    0x20
-#define PIC_MASTER_IMR    0x21
-#define PIC_MASTER_ISR    PIC_MASTER_CMD
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
@@ -59,24 +48,9 @@
 /*===========================================================================*/
 
 /**
- * @brief   PIC driver data.
+ * @brief   Type of a callback called to handle IRQ.
  */
-typedef struct PicDriver {
-  /** @brief Current cached IRQ mask.*/
-  uint8_t mask;
-  /** @brief PIC io-memory base.*/
-  void *base;
-} PicDriver;
-
-/**
- * @brief   PIC IRQ handler data.
- */
-typedef struct PicIrqInfo {
-  /** @brief IRQ handle.*/
-  picIrqHandler handler;
-  /** @brief IRQ handler data.*/
-  void *data;
-} PicIrqInfo;
+typedef void (*eicIrqHandler)(void *);
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
@@ -86,19 +60,21 @@ typedef struct PicIrqInfo {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
+#include "eic_lld.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void pic_lld_init(void);
-  void pic_lld_register_irq(int irq, picIrqHandler handler, void *data);
-  void pic_lld_enable_irq(int irq);
-  void pic_lld_disable_irq(int irq);
+  void eicInit(void);
+  void eicRegisterIrq(int irq, eicIrqHandler handler, void *data);
+  void eicEnableIrq(int irq);
+  void eicDisableIrq(int irq);
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* HAL_USE_PIC */
+#endif /* HAL_USE_EIC */
 
-#endif  /* _PIC_LLD_H_ */
+#endif  /* _EIC_H_ */
 
 /** @} */
