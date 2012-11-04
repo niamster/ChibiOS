@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    MIPS_QEMU/serial_lld.c
+ * @file    MIPS-QEMU/serial_lld.c
  * @brief   MIPS_QEMU low level serial driver code.
  *
  * @addtogroup SERIAL

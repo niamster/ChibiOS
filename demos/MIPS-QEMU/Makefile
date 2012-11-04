@@ -49,8 +49,8 @@ PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ../..
-include $(CHIBIOS)/boards/MIPS_QEMU/board.mk
-include $(CHIBIOS)/os/hal/platforms/MIPS_QEMU/platform.mk
+include $(CHIBIOS)/boards/MIPS-QEMU/board.mk
+include $(CHIBIOS)/os/hal/platforms/MIPS-QEMU/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/MIPS/MIPS32r2/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk

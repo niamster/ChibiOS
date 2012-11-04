@@ -19,7 +19,7 @@
 */
 
 /**
- * @file    MIPS_QEMU/eic_lld.h
+ * @file    MIPS-QEMU/eic_lld.h
  * @brief   MIPS_QEMU low level eic driver header.
  *
  * @addtogroup EIC
