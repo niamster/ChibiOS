@@ -223,7 +223,8 @@ _early_init:
     subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
     .extern main
-    jal     main
+    la      $t0, main
+    jalr    $t0
     nop
 _life_after_main:
     b _start
