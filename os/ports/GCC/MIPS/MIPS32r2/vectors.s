@@ -175,13 +175,13 @@ MIPS_FUNC_START(_start)
     /* Clear CPU status */
     mtc0    $zero, cause
     mtc0    $zero, status
-    mtc0    $zero, status, 1
+    mtc0    $zero, intctl
 
     /* Set exception base */
     la      $t0, e_vector
     lui     $t1, 0xFFFF
     and     $t0, $t0, $t1
-    mtc0    $t0, $15, 1
+    mtc0    $t0, ebase
 
     /* Setup initial context, run C setup code and finally call main() */
 

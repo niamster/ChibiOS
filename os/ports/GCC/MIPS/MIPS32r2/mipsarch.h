@@ -71,9 +71,11 @@
 #define tlbhi       $10
 #define compare     $11
 #define status      $12
+#define intctl      $12, 1
 #define cause       $13
 #define epc         $14
 #define prid        $15
+#define ebase       $15, 1
 #define config0     $16
 #define lladdr      $17
 #define xcontext    $20
