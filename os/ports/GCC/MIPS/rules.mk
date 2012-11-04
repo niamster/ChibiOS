@@ -7,14 +7,14 @@ endif
 ifeq ($(BUILDDIR),.)
   BUILDDIR = build
 endif
-OUTFILES = $(BUILDDIR)/$(PROJECT).elf \
+OUTFILES += $(BUILDDIR)/$(PROJECT).elf \
             $(BUILDDIR)/$(PROJECT).elf.strip \
-            $(BUILDDIR)/$(PROJECT).dmp \
-            $(BUILDDIR)/$(PROJECT).bin
+            $(BUILDDIR)/$(PROJECT).dmp
 
 # Automatic compiler options
 OPT       = $(USE_OPT)
 COPT      = $(USE_COPT)
+XCOPT     = $(USE_XCOPT)
 CPPOPT    = $(USE_CPPOPT)
 LDOPT     = $(USE_LDOPT)
 ifeq ($(USE_LINK_GC),yes)
@@ -32,7 +32,8 @@ LSTDIR    = $(BUILDDIR)/lst
 COBJS     = $(addprefix $(OBJDIR)/, $(notdir $(CSRC:.c=.o)))
 CPPOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(CPPSRC:.cpp=.o)))
 ASMOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(ASMSRC:.s=.o)))
-OBJS      = $(ASMOBJS) $(COBJS) $(CPPOBJS)
+XCOBJS    = $(addprefix $(OBJDIR)/, $(notdir $(XCSRC:.xc=.o)))
+OBJS      = $(ASMOBJS) $(COBJS) $(CPPOBJS) $(XCOBJS)
 
 # Paths
 IINCDIR   = $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR))
@@ -46,15 +47,16 @@ ADEFS     = $(DADEFS) $(UADEFS)
 LIBS      = $(DLIBS) $(ULIBS)
 
 # Various settings
-MCFLAGS   = -mips32r2
+MCFLAGS   = -mips32r2 -G0 -fno-pic -fno-PIC -mno-abicalls -msoft-float -fomit-frame-pointer
 ODFLAGS   = -x --syms
 ASFLAGS   = $(MCFLAGS) $(OPT) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)
 CFLAGS    = $(MCFLAGS) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
+XCFLAGS   = $(MCFLAGS) $(OPT) -xc $(XCOPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
 CPPFLAGS  = $(MCFLAGS) $(OPT) $(CPPOPT) $(CPPWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS)
 ifeq ($(USE_LINK_GC),yes)
-  LDFLAGS = $(MCFLAGS) -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)
+  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)
 else
-  LDFLAGS = $(MCFLAGS) -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch $(LLIBDIR)
+  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch $(LLIBDIR)
 endif
 
 # Generate dependency information
@@ -110,7 +112,16 @@ else
 	@$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
 endif
 
-$(BUILDDIR)/$(PROJECT).elf: $(OBJS) $(LDSCRIPT)
+$(XCOBJS) : $(OBJDIR)/%.o : %.xc Makefile
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	@echo
+	$(XCC) -c $(XCFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
+else
+	@echo Compiling $<
+	@$(XCC) -c $(XCFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
+endif
+
+$(BUILDDIR)/%.elf: $(OBJS) $(LDSCRIPT)
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	@echo
 	$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
@@ -119,7 +130,7 @@ else
 	@$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 endif
 
-$(BUILDDIR)/$(PROJECT).elf.strip: $(BUILDDIR)/$(PROJECT).elf
+$(BUILDDIR)/%.elf.strip: $(BUILDDIR)/%.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	@echo
 	$(STRIP) $< -o $@
@@ -128,21 +139,13 @@ else
 	@$(STRIP) $< -o $@
 endif
 
-$(BUILDDIR)/$(PROJECT).dmp: $(BUILDDIR)/$(PROJECT).elf $(LDSCRIPT)
+$(BUILDDIR)/%.dmp: $(BUILDDIR)/%.elf
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	$(OD) $(ODFLAGS) $< > $@
 else
 	@echo Creating $@
 	@$(OD) $(ODFLAGS) $< > $@
 	@echo Done
-endif
-
-$(BUILDDIR)/$(PROJECT).bin: $(BUILDDIR)/$(PROJECT).elf $(LDSCRIPT)
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	$(BIN) $< $@
-else
-	@echo Creating $@
-	@$(BIN) $< $@
 endif
 
 clean:

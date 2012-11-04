@@ -5,8 +5,8 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -G0 -fno-pic -fno-PIC -mno-abicalls -msoft-float -O2 -ggdb -fomit-frame-pointer
-  USE_OPT += -march=mips32r2 -mtune=24kc
+  USE_OPT = -EB -O2 -ggdb
+  USE_OPT += -mtune=24kc
   # usually gives very good i-cache hit rate
   USE_OPT += -falign-functions=32
 endif
@@ -18,7 +18,7 @@ endif
 
 # LD specific options here (added to USE_OPT).
 ifeq ($(USE_LDOPT),)
-  USE_LDOPT = -G0 -fno-pic -fno-PIC -static -n -nostdlib
+  USE_LDOPT = -EB
 endif
 
 # C++ specific options here (added to USE_OPT).
@@ -159,4 +159,14 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
+OUTFILES = $(BUILDDIR)/$(PROJECT).bin
+
 include $(CHIBIOS)/os/ports/GCC/MIPS/rules.mk
+
+$(BUILDDIR)/%.bin: $(BUILDDIR)/%.elf $(LDSCRIPT)
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	$(BIN) $< $@
+else
+	@echo Creating $@
+	@$(BIN) $< $@
+endif
