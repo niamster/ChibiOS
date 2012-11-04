@@ -34,7 +34,6 @@ SECTIONS
   .text : {
     __init_start__ = .;
     KEEP (*(.entry*))
-    KEEP (*(.core.entry*))
     __init_end__ = .;
 
     ASSERT(. < 0x180, "entry point too long");
@@ -46,6 +45,7 @@ SECTIONS
 
     . = ALIGN(32);
     __text_start__ = .;
+    KEEP (*(.core.entry*))
     KEEP (*(.context*))
     *(.text*)
     *(.gcc*)
