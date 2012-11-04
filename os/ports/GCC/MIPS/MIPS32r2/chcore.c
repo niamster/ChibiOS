@@ -160,7 +160,8 @@ static void __entry port_init_irq(void) {
   uint32_t ipti = c0_get_intctl() >> 29;
   unsigned int i;
 
-  sr |= 1 << (ipti + 8); // IM[x] timer
+  if (ipti)
+    sr |= 1 << (ipti + 8); // IM[x] timer
 
   for (i=0; i<ARRAY_SIZE(hw_irq_table); ++i) {
     if (hw_irq_table[i])
