@@ -22,7 +22,7 @@ ifeq ($(USE_LINK_GC),yes)
 endif
 
 # Source files path
-SRCPATHS  = $(sort $(dir $(ASMSRC)) $(dir $(CSRC)) $(dir $(CPPSRC)))
+SRCPATHS  = $(sort $(dir $(ASMSRC)) $(dir $(XASMSRC)) $(dir $(CSRC)) $(dir $(CPPSRC)))
 
 # Various directories
 OBJDIR    = $(BUILDDIR)/obj
@@ -32,8 +32,9 @@ LSTDIR    = $(BUILDDIR)/lst
 COBJS     = $(addprefix $(OBJDIR)/, $(notdir $(CSRC:.c=.o)))
 CPPOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(CPPSRC:.cpp=.o)))
 ASMOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(ASMSRC:.s=.o)))
+XASMOBJS  = $(addprefix $(OBJDIR)/, $(notdir $(XASMSRC:.S=.o)))
 XCOBJS    = $(addprefix $(OBJDIR)/, $(notdir $(XCSRC:.xc=.o)))
-OBJS      = $(ASMOBJS) $(COBJS) $(CPPOBJS) $(XCOBJS)
+OBJS      = $(ASMOBJS) $(XASMOBJS) $(COBJS) $(CPPOBJS) $(XCOBJS)
 
 # Paths
 IINCDIR   = $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR))
@@ -104,6 +105,15 @@ else
 endif
 
 $(ASMOBJS) : $(OBJDIR)/%.o : %.s Makefile
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	@echo
+	$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
+else
+	@echo Compiling $<
+	@$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
+endif
+
+$(XASMOBJS) : $(OBJDIR)/%.o : %.S Makefile
 ifeq ($(USE_VERBOSE_COMPILE),yes)
 	@echo
 	$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
