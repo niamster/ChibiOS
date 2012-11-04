@@ -83,6 +83,7 @@ static void __entry port_init_cpu(void) {
 }
 
 static void __entry port_init_cache(void) {
+#if MIPS_CPU_DCACHE_SIZE || MIPS_CPU_ICACHE_SIZE
   volatile uint8_t *addr;
 
   /* Clear tagLo/tagHi */
@@ -110,6 +111,7 @@ static void __entry port_init_cache(void) {
 
   // cached KSEG0
   c0_set_config0(c0_get_config0() & ~3);
+#endif
 }
 
 /**
@@ -134,8 +136,10 @@ static mips_hw_irq_t hw_irq_table[] = {
   MIPS_HW_IRQ5_handler,
 };
 
-void port_handle_exception(uint32_t cause, uint32_t status/* , uint32_t epc */) {
+void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
   uint32_t ex = (cause >> 2) & 0x1f;
+
+  (void)epc;
 
   if (0 == ex) { /* IRQ */
     uint32_t ip = ((cause & status) >> 10) & 0x3F; /* only masked IRQs */
