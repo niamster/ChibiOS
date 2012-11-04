@@ -76,7 +76,7 @@ static void port_timer_isr(void) {
 static void __entry port_init_timer(void) {
   port_reset_timer();
 
-  /* c0_set_cause(c0_get_cause()&~(1<<27)); */
+  c0_set_cause(c0_get_cause()&~(1<<27));
 }
 
 static void __entry port_init_cpu(void) {
