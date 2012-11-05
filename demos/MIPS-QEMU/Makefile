@@ -89,7 +89,8 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 
 MCU  = 
 
-TRGT = mips-sde-elf-
+TRGT ?= mips-sde-elf-
+
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
