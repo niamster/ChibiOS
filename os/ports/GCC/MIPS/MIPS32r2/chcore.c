@@ -110,7 +110,7 @@ static void __entry port_init_cache(void) {
 #endif
 
   // cached KSEG0
-  c0_set_config0(c0_get_config0() & ~3);
+  c0_set_config0((c0_get_config0() & ~7) | 3);
 #endif
 }
 
