@@ -38,6 +38,24 @@
 #define MIPS_SIMPLE_ASM(inst) asm volatile (".set push; .set noreorder; .set noat; " #inst "; .set pop" : :)
 
 /**
+ * @brief   Disable MIPS interrupts and return status.
+ */
+#define MIPS_DISABLE_IRQ()                                              \
+  ({                                                                    \
+    uint32_t __flags;                                                   \
+    asm volatile (".set push; .set noreorder; .set noat; di %0; .set pop" : "=r"(__flags) :); \
+    __flags;                                                            \
+  })
+
+/**
+ * @brief   Enable MIPS interrupts depending on status.
+ */
+#define MIPS_RESTORE_IRQ(flags) do {                                    \
+    if ((flags) & 0x1)                                                  \
+      asm volatile (".set push; .set noreorder; .set noat; ei; .set pop" : :); \
+  } while (0)
+
+/**
  * @brief   MIPS ASM Function Prologue.
  */
 #define MIPS_FUNC_START(name)                   \

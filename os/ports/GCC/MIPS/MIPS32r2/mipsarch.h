@@ -93,19 +93,13 @@
 #define MFC0(reg, sel)                                                  \
   ({                                                                    \
     uint32_t __v;                                                       \
-    if (0 == sel)                                                       \
-      asm volatile (".set push; .set noreorder; .set noat; mfc0 %0, " #reg "; ehb; .set pop" : "=r"(__v) :); \
-    else                                                                \
-      asm volatile (".set push; .set noreorder; .set noat; mfc0 %0, " #reg ", " #sel "; ehb; .set pop" : "=r"(__v) :); \
+    asm volatile (".set push; .set noreorder; .set noat; mfc0 %0, " #reg ", " #sel "; ehb; .set pop" : "=r"(__v) :); \
     __v;                                                                \
   })
 
 #define MTC0(v, reg, sel) do {                                          \
     uint32_t __v = v;                                                   \
-    if (0 == sel)                                                       \
-      asm volatile (".set push; .set noreorder; .set noat; mtc0 %0, " #reg "; ehb; .set pop" : : "r"(__v)); \
-    else                                                                \
-      asm volatile (".set push; .set noreorder; .set noat; mtc0 %0, " #reg ", " #sel "; ehb; .set pop" : : "r"(__v)); \
+    asm volatile (".set push; .set noreorder; .set noat; mtc0 %0, " #reg ", " #sel "; ehb; .set pop" : : "r"(__v)); \
   } while (0)
 
 #define c0_get_status()     MFC0($12, 0)

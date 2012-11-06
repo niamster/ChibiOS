@@ -296,7 +296,7 @@ struct context {
  *          more actions.
  * @note    In this port it disables the IRQ sources.
  */
-#define port_lock() MIPS_SIMPLE_ASM(di; ehb)
+#define port_lock() MIPS_DISABLE_IRQ()
 
 /**
  * @brief   Kernel-unlock action.
@@ -304,7 +304,7 @@ struct context {
  *          more actions.
  * @note    In this port it enables both the IRQ sources.
  */
-#define port_unlock() MIPS_SIMPLE_ASM(ei; ehb)
+#define port_unlock() MIPS_RESTORE_IRQ(1)
 
 /**
  * @brief   Kernel-lock action from an interrupt handler.
@@ -328,7 +328,7 @@ struct context {
  * @brief   Disables all the interrupt sources.
  * @note    Of course non-maskable interrupt sources are not included.
  */
-#define port_disable() MIPS_SIMPLE_ASM(di; ehb)
+#define port_disable() MIPS_DISABLE_IRQ()
 
 /**
  * @brief   Disables the interrupt sources below kernel-level priority.
@@ -340,7 +340,7 @@ struct context {
 /**
  * @brief   Enables all the interrupt sources.
  */
-#define port_enable() MIPS_SIMPLE_ASM(ei; ehb)
+#define port_enable() MIPS_RESTORE_IRQ(1)
 
 /**
  * @brief   MIPS32r2-specific wait for interrupt.
