@@ -65,6 +65,12 @@
 #define MIPS_ENABLE_WFI_IDLE             TRUE
 #endif
 
+/**
+ * @brief   If defined shadow registers are used during the exception.
+ * @note    This enables vectored interrupts mode[not EIC]
+ */
+/* #define MIPS_USE_SHADOW_GPR */
+
 /*===========================================================================*/
 /* Port exported info.                                                       */
 /*===========================================================================*/

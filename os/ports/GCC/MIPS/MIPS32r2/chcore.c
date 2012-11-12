@@ -124,6 +124,66 @@ void MIPS_HW_IRQ2_handler(void) __attribute__ ((weak));
 void MIPS_HW_IRQ3_handler(void) __attribute__ ((weak));
 void MIPS_HW_IRQ4_handler(void) __attribute__ ((weak));
 void MIPS_HW_IRQ5_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ6_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ7_handler(void) __attribute__ ((weak));
+#if MIPS_EXC_TABLE_SIZE > 8
+void MIPS_HW_IRQ8_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ9_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ10_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ11_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ12_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ13_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ14_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ15_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ16_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ17_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ18_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ19_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ20_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ21_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ22_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ23_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ24_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ25_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ26_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ27_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ28_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ29_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ30_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ31_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ32_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ33_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ34_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ35_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ36_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ37_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ38_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ39_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ40_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ41_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ42_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ43_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ44_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ45_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ46_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ47_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ48_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ49_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ50_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ51_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ52_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ53_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ54_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ55_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ56_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ57_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ58_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ59_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ60_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ61_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ62_handler(void) __attribute__ ((weak));
+void MIPS_HW_IRQ63_handler(void) __attribute__ ((weak));
+#endif
 
 typedef void (*mips_hw_irq_t)(void);
 
@@ -134,6 +194,66 @@ static mips_hw_irq_t hw_irq_table[] = {
   MIPS_HW_IRQ3_handler,
   MIPS_HW_IRQ4_handler,
   MIPS_HW_IRQ5_handler,
+  MIPS_HW_IRQ6_handler,
+  MIPS_HW_IRQ7_handler,
+#if MIPS_EXC_TABLE_SIZE > 8
+  MIPS_HW_IRQ8_handler,
+  MIPS_HW_IRQ9_handler,
+  MIPS_HW_IRQ10_handler,
+  MIPS_HW_IRQ11_handler,
+  MIPS_HW_IRQ12_handler,
+  MIPS_HW_IRQ13_handler,
+  MIPS_HW_IRQ14_handler,
+  MIPS_HW_IRQ15_handler,
+  MIPS_HW_IRQ16_handler,
+  MIPS_HW_IRQ17_handler,
+  MIPS_HW_IRQ18_handler,
+  MIPS_HW_IRQ19_handler,
+  MIPS_HW_IRQ20_handler,
+  MIPS_HW_IRQ21_handler,
+  MIPS_HW_IRQ22_handler,
+  MIPS_HW_IRQ23_handler,
+  MIPS_HW_IRQ24_handler,
+  MIPS_HW_IRQ25_handler,
+  MIPS_HW_IRQ26_handler,
+  MIPS_HW_IRQ27_handler,
+  MIPS_HW_IRQ28_handler,
+  MIPS_HW_IRQ29_handler,
+  MIPS_HW_IRQ30_handler,
+  MIPS_HW_IRQ31_handler,
+  MIPS_HW_IRQ32_handler,
+  MIPS_HW_IRQ33_handler,
+  MIPS_HW_IRQ34_handler,
+  MIPS_HW_IRQ35_handler,
+  MIPS_HW_IRQ36_handler,
+  MIPS_HW_IRQ37_handler,
+  MIPS_HW_IRQ38_handler,
+  MIPS_HW_IRQ39_handler,
+  MIPS_HW_IRQ40_handler,
+  MIPS_HW_IRQ41_handler,
+  MIPS_HW_IRQ42_handler,
+  MIPS_HW_IRQ43_handler,
+  MIPS_HW_IRQ44_handler,
+  MIPS_HW_IRQ45_handler,
+  MIPS_HW_IRQ46_handler,
+  MIPS_HW_IRQ47_handler,
+  MIPS_HW_IRQ48_handler,
+  MIPS_HW_IRQ49_handler,
+  MIPS_HW_IRQ50_handler,
+  MIPS_HW_IRQ51_handler,
+  MIPS_HW_IRQ52_handler,
+  MIPS_HW_IRQ53_handler,
+  MIPS_HW_IRQ54_handler,
+  MIPS_HW_IRQ55_handler,
+  MIPS_HW_IRQ56_handler,
+  MIPS_HW_IRQ57_handler,
+  MIPS_HW_IRQ58_handler,
+  MIPS_HW_IRQ59_handler,
+  MIPS_HW_IRQ60_handler,
+  MIPS_HW_IRQ61_handler,
+  MIPS_HW_IRQ62_handler,
+  MIPS_HW_IRQ63_handler,
+#endif
 };
 
 void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
@@ -142,7 +262,7 @@ void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
   (void)epc;
 
   if (0 == ex) { /* IRQ */
-    uint32_t ip = ((cause & status) >> 10) & 0x3F; /* only masked IRQs */
+    uint32_t ip = ((cause & status) >> 8) & 0xFF; /* only masked IRQs */
 
     if (cause&(1<<30))
       port_timer_isr();
@@ -159,20 +279,53 @@ void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     chDbgPanic("unhandled exception");
 }
 
+void port_handle_irq(uint32_t cause, uint32_t irq) {
+  if (cause&(1<<30))
+    port_timer_isr();
+
+  if (hw_irq_table[irq])
+    hw_irq_table[irq]();
+}
+
 static void __entry port_init_irq(void) {
   uint32_t sr = c0_get_status();
-  uint32_t ipti = c0_get_intctl() >> 29;
+  uint32_t ictl = c0_get_intctl();
+  uint32_t ipti = ictl >> 29;
   unsigned int i;
 
+  /* NOTE: This will not work in EIC mode(IM bits are treated as interrupt priority level)
+   * EIC hal driver should then take care
+   */
   if (ipti)
     sr |= 1 << (ipti + 8); // IM[x] timer
 
-  for (i=0; i<ARRAY_SIZE(hw_irq_table); ++i) {
+  for (i=0; i<8; ++i) {
     if (hw_irq_table[i])
-      sr |= 1 << (i + 10); // IM[x]
+      sr |= 1 << (i + 8); // IM[x]
   }
 
   c0_set_status(sr);
+
+#if defined(MIPS_USE_SHADOW_GPR)
+  {
+    uint32_t c = c0_get_cause();
+    uint32_t sctl = c0_get_srsctl();
+    uint32_t smap = c0_get_srsmap();
+
+    /* Set same shadow registers set for all interrupts and exceptions */
+    sctl |= 1 << 12; // Second shadow set on any exception other than a vectored interrupt
+    smap = 0x11111111; // Second shadow set on any vectored interrupt
+
+    c |= 1 << 23; // Enable IV mode
+
+    ictl |= 1 << 5; // Spacing between the vectors(32)
+
+    c0_set_srsctl(sctl);
+    c0_set_srsmap(smap);
+    c0_set_intctl(ictl);
+    c0_set_cause(c);
+  }
+#endif
 }
 
 void __entry port_early_init(void) {

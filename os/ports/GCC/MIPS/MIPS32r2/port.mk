@@ -2,6 +2,7 @@
 PORTSRC = ${CHIBIOS}/os/ports/GCC/MIPS/chcore.c
 
 PORTASM = ${CHIBIOS}/os/ports/GCC/MIPS/MIPS32r2/context.s \
+          ${CHIBIOS}/os/ports/GCC/MIPS/MIPS32r2/entry.s \
           ${CHIBIOS}/os/ports/GCC/MIPS/MIPS32r2/vectors.s
 
 PORTINC = ${CHIBIOS}/os/ports/GCC/MIPS \

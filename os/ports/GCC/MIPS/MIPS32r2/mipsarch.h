@@ -72,6 +72,8 @@
 #define compare     $11
 #define status      $12
 #define intctl      $12, 1
+#define srsctl      $12, 2
+#define srsmap      $12, 3
 #define cause       $13
 #define epc         $14
 #define prid        $15
@@ -110,6 +112,12 @@
 
 #define c0_get_intctl()     MFC0($12, 1)
 #define c0_set_intctl(r)    MTC0(r, $12, 1)
+
+#define c0_get_srsctl()     MFC0($12, 2)
+#define c0_set_srsctl(r)    MTC0(r, $12, 2)
+
+#define c0_get_srsmap()     MFC0($12, 3)
+#define c0_set_srsmap(r)    MTC0(r, $12, 3)
 
 #define c0_get_cause()      MFC0($13, 0)
 #define c0_set_cause(r)     MTC0(r, $13, 0)

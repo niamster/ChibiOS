@@ -43,9 +43,10 @@
 #define MIPS_STACK_FRAME_SIZE   32
 
 /**
- * @brief   Size of MIPS exception table(wired to HW interrupt sources)
+ * @brief   Size of MIPS exception table(6 wired to HW interrupt sources, 2 to SW interrupts)
+ * @note    Set this value to 64 if EIC mode is supported
  */
-#define MIPS_EXC_TABLE_SIZE     6
+#define MIPS_EXC_TABLE_SIZE     8
 
 /**
  * @brief   MIPS exception IDs(wired to HW interrupt sources)
