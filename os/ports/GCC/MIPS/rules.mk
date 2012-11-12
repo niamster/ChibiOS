@@ -62,6 +62,7 @@ endif
 
 # Generate dependency information
 CFLAGS   += -MD -MP -MF .dep/$(@F).d
+ASFLAGS  += -MD -MP -MF .dep/$(@F).d
 CPPFLAGS += -MD -MP -MF .dep/$(@F).d
 
 # Paths where to search for sources

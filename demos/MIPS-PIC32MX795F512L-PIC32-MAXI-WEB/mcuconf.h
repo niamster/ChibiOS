@@ -22,6 +22,11 @@
 #define _MCUCONF_H_
 
 /*
+ * Use MIPS32r2 shadow registers in exception
+ */
+#define MIPS_USE_SHADOW_GPR
+
+/*
  * MIPS CPU frequency
  */
 #define MIPS_CPU_FREQ                   80000000UL

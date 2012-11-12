@@ -62,6 +62,10 @@ SECTIONS
     . = 0x180;
     ASSERT(. == 0x180, "wrong location of vectors");
     __vectors_start__ = .;
+    KEEP (*(.evectors*))
+    . = 0x200;
+    ASSERT(. == 0x200, "wrong location of vectors");
+    KEEP (*(.ivectors*))
     KEEP (*(.vectors*))
     __vectors_end__ = .;
 

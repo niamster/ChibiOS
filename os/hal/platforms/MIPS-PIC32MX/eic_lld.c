@@ -55,7 +55,7 @@ static EicIrqBank iBank[EIC_IRQ_BANK_QTY];
 /*===========================================================================*/
 
 /* Main EIC ISR */
-CH_IRQ_HANDLER(MIPS_HW_IRQ0) {
+CH_IRQ_HANDLER(MIPS_HW_IRQ0) { // In PIC32 single-vectored mode all interrupts are wired to IRQ0
   CH_IRQ_PROLOGUE();
 
   int bank;
@@ -96,7 +96,16 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ0) {
  * @init
  */
 void eic_lld_init(void) {
-  INTCONCLR = _INTCON_MVEC_MASK; // single-vectored mode
+  INTCONCLR = _INTCON_MVEC_MASK; // Single-vectored mode
+#if defined(MIPS_USE_SHADOW_GPR)
+  /* Since we now in IV mode and EIC=1 need to clear IPL(IM) bits */
+  {
+    uint32_t sr = c0_get_status();
+    sr &= ~(0x7f << 10);
+    c0_set_status(sr);
+  }
+  INTCONSET = _INTCON_SS0_MASK; // Use second shadow set on any vectored interrupt
+#endif
 
   iBank[0].status = &IFS0;
   iBank[0].clear = &IFS0CLR;
