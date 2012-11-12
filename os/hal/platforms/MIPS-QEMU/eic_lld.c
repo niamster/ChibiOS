@@ -91,7 +91,7 @@ static void eic_ack(uint8_t irq) {
 }
 
 /* Main EIC ISR */
-CH_IRQ_HANDLER(MIPS_HW_IRQ0) {
+CH_IRQ_HANDLER(MIPS_HW_IRQ2) {
   CH_IRQ_PROLOGUE();
 
   uint32_t pending = eic_pending();
