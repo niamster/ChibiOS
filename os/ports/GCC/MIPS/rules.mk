@@ -33,8 +33,7 @@ COBJS     = $(addprefix $(OBJDIR)/, $(notdir $(CSRC:.c=.o)))
 CPPOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(CPPSRC:.cpp=.o)))
 ASMOBJS   = $(addprefix $(OBJDIR)/, $(notdir $(ASMSRC:.s=.o)))
 XASMOBJS  = $(addprefix $(OBJDIR)/, $(notdir $(XASMSRC:.S=.o)))
-XCOBJS    = $(addprefix $(OBJDIR)/, $(notdir $(XCSRC:.xc=.o)))
-OBJS      = $(ASMOBJS) $(XASMOBJS) $(COBJS) $(CPPOBJS) $(XCOBJS)
+OBJS      = $(ASMOBJS) $(XASMOBJS) $(COBJS) $(CPPOBJS)
 
 # Paths
 IINCDIR   = $(patsubst %,-I%,$(INCDIR) $(DINCDIR) $(UINCDIR))
@@ -121,15 +120,6 @@ ifeq ($(USE_VERBOSE_COMPILE),yes)
 else
 	@echo Compiling $<
 	@$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
-endif
-
-$(XCOBJS) : $(OBJDIR)/%.o : %.xc Makefile
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(XCC) -c $(XCFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
-else
-	@echo Compiling $<
-	@$(XCC) -c $(XCFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
 endif
 
 $(BUILDDIR)/%.elf: $(OBJS) $(LDSCRIPT)

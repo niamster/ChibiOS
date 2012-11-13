@@ -28,26 +28,26 @@ MEMORY
   kseg0_program_mem     (rx) : ORIGIN = 0x9D000000, LENGTH = 0x7FFFF
   kseg0_ram_mem              : ORIGIN = 0x80000000, LENGTH = 0x1FFFF
   kseg1_boot_mem        (rx) : ORIGIN = 0xBFC00000, LENGTH = 0x2FEF
-  config3                    : ORIGIN = 0xBFC02FF0, LENGTH = 0x4
-  config2                    : ORIGIN = 0xBFC02FF4, LENGTH = 0x4
-  config1                    : ORIGIN = 0xBFC02FF8, LENGTH = 0x4
-  config0                    : ORIGIN = 0xBFC02FFC, LENGTH = 0x4
+  devcfg3                    : ORIGIN = 0xBFC02FF0, LENGTH = 0x4
+  devcfg2                    : ORIGIN = 0xBFC02FF4, LENGTH = 0x4
+  devcfg1                    : ORIGIN = 0xBFC02FF8, LENGTH = 0x4
+  devcfg0                    : ORIGIN = 0xBFC02FFC, LENGTH = 0x4
   sfrs                       : ORIGIN = 0xBF800000, LENGTH = 0x100000
 }
 SECTIONS
 {
-  .config_BFC02FF0 : {
-    KEEP (*(.config_BFC02FF0))
-  } > config3
-  .config_BFC02FF4 : {
-    KEEP (*(.config_BFC02FF4))
-  } > config2
-  .config_BFC02FF8 : {
-    KEEP (*(.config_BFC02FF8))
-  } > config1
-  .config_BFC02FFC : {
-    KEEP (*(.config_BFC02FFC))
-  } > config0
+  .devcfg3 : {
+    KEEP (*(.devcfg3))
+  } > devcfg3
+  .devcfg2 : {
+    KEEP (*(.devcfg2))
+  } > devcfg2
+  .devcfg1 : {
+    KEEP (*(.devcfg1))
+  } > devcfg1
+  .devcfg0 : {
+    KEEP (*(.devcfg0))
+  } > devcfg0
 
   .boot : {
     __init_start__ = .;

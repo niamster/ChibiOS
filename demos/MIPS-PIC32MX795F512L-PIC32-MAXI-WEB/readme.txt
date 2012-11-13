@@ -16,7 +16,7 @@ memory usage and run Chibios test suite.
 The demo was built using the official MIPS toolchain(http://developer.mips.com/tools/compilers/bare-metal-toolchain/)
 and xc32 PIC32 toolchain.
 Any toolchain based on GCC and GNU userspace programs will work for the whole system however xc32 is still required to
-compile c-bits.xc to fill PIC32 config registers in a fancy way and provide plib(pic peripherals headers and sources).
+provide plib(pic peripherals headers and sources).
 This dependeny is nasty so it should be removed in the future.
 
 ** Notes **
@@ -24,7 +24,7 @@ This dependeny is nasty so it should be removed in the future.
 All files used by the demo are part of ChibiOS/RT.
 
 To build the demo you have to provide a full path to XC32 toolchain root by defining XCPATH variable:
-export PATH=$PATH:/opt/mips-toolchain/bin/:/opt/microchip/xc32/v1.11/bin/
+export PATH=$PATH:/opt/mips-toolchain/bin/
 export XCPATH=/opt/microchip/xc32/v1.11
 
 Once Chibios ELF is ready(build/ch.elf) you can flash it with MPLABX studio.
@@ -53,5 +53,5 @@ A1: It apppears that free version of xc32 is very slow(seems like they put smth 
     as well as a limitation on the size of output image(64KB if I'm not mistaken).
     Drawbacks of current dependency on xc32: 
       lots of CC warning for the files where plib is included;
-      extra dependency on external headers, sources and tools.
+      extra dependency on external headers and sources.
       

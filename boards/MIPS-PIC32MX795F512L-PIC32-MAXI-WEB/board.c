@@ -21,6 +21,29 @@
 #include "ch.h"
 #include "hal.h"
 
+PIC32MX_DEVCFG0(
+                DEVCFG0_ICESEL_CH2    // Use PGC2/PGD2
+    );
+PIC32MX_DEVCFG1(
+                DEVCFG1_FNOSC_PRIPLL  // Primary oscillator with PLL
+                | DEVCFG1_IESO        // Internal-external switch over
+                | DEVCFG1_POSCMOD_HS  // HS oscillator
+                | DEVCFG1_OSCIOFNC    // CLKO output active
+                | DEVCFG1_FPBDIV_1    // SYSCLK / 1
+    );
+PIC32MX_DEVCFG2(
+                DEVCFG2_FPLLIDIV_2    // PLL Input Divider
+                | DEVCFG2_FPLLODIV_1  // PLL Output Divider
+                | DEVCFG2_FPLLMUL_20  // PLL Multiplier
+                | DEVCFG2_FUPLLEN     // USB PLL Enabled
+                | DEVCFG2_UPLLIDIV_2  // USB PLL Input Divider
+    );
+PIC32MX_DEVCFG3(
+                PIC32MX_DEVCFG3_UID(0xC0C0) // User ID ;)
+                | DEVCFG3_FMIIEN            // Enable RMII
+                | DEVCFG3_FETHIO            // Alternate ethernet pins
+    );
+
 #undef TRUE
 #undef FALSE
 

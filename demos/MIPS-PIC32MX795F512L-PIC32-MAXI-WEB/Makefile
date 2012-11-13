@@ -18,11 +18,6 @@ ifeq ($(USE_COPT),)
   USE_COPT =
 endif
 
-# XC specific options here (added to USE_OPT).
-ifeq ($(USE_XCOPT),)
-  USE_XCOPT = -mprocessor=32MX795F512L -O0
-endif
-
 # LD specific options here (added to USE_OPT).
 ifeq ($(USE_LDOPT),)
   USE_LDOPT = -EL
@@ -82,7 +77,6 @@ CSRC = $(PORTSRC) \
        $(XCPATH)/pic32-libs/peripheral/pcache/source/pcache.c \
        stubs.c \
        main.c
-XCSRC = c-bits.xc
 # List C++ source files here
 CPPSRC =
 # List ASM source files here
@@ -105,7 +99,6 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 MCU  = 
 
 TRGT  ?= mips-sde-elf-
-XTRGT ?= xc32-
 
 CC   = $(TRGT)gcc
 XCC  = $(XTRGT)gcc
