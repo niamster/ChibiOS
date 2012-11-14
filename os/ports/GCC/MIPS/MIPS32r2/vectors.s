@@ -45,13 +45,13 @@
     .bss
 
     /* Separate stack for exception routines for simplicity */
-    .balign 32
+    .balign 4
     .global exception_stack_top
 exception_stack_top:
     .rept MIPS_EXC_STACK_SIZE
     .byte 0
     .endr
-    .balign 32
+    .balign 4
     .global exception_stack_bottom
 exception_stack_bottom:
 

@@ -107,7 +107,7 @@ MIPS_FUNC_END(_start)
     .bss
 
     /* Separate stack for main() */
-    .balign 32
+    .balign 4
     .global main_stack_top
 main_stack_top:
     .global __main_thread_stack_base__
@@ -115,7 +115,7 @@ __main_thread_stack_base__:
     .rept MIPS_MAIN_STACK_SIZE
     .byte 0
     .endr
-    .balign 32
+    .balign 4
     .global main_stack_bottom
 main_stack_bottom:
 
