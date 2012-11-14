@@ -56,9 +56,9 @@ ASFLAGS   = $(MCFLAGS) $(OPT) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEF
 CFLAGS    = $(MCFLAGS) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
 CPPFLAGS  = $(MCFLAGS) $(OPT) $(CPPOPT) $(CPPWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS)
 ifeq ($(USE_LINK_GC),yes)
-  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)
+  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -Wl,--script=$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)
 else
-  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch $(LLIBDIR)
+  LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -Wl,--script=$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch $(LLIBDIR)
 endif
 
 # Generate dependency information
