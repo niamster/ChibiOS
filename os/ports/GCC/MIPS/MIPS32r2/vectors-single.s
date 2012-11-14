@@ -38,101 +38,100 @@
 
 #if !defined(__DOXYGEN__)
 
-    .text
 
-    .section .vectors
+  .section .vectors
+
 MIPS_FUNC_START(e_vector)
-    /* FIXME: do via offsets of real structure */
+  /* FIXME: do via offsets of real structure */
 
-    /* A very simple exception handler. Does not support preemption since does not save all regs.
-     * MIPS context is pretty heavyweight, so try to make it as simple as possible here. Exceptions are disabled.
-     * ISR should be very lightweight and return quickly. All the other job should be done out of exception context.
-     * That's the point of RTOS, isn't it =)? Also it's possible to run out of stack ...
-     */
+  /* A very simple exception handler. Does not support preemption since does not save all regs.
+   * MIPS context is pretty heavyweight, so try to make it as simple as possible here. Exceptions are disabled.
+   * ISR should be very lightweight and return quickly. All the other job should be done out of exception context.
+   * That's the point of RTOS, isn't it =)? Also it's possible to run out of stack ...
+   */
 
-    /* Here we have only k0 and k1 regs, be carefull. */
+  /* Here we have only k0 and k1 regs, be carefull. */
 
-    /* Do not save s[0-7] as they will be saved by callee(exception handler) if needed or during context switch.
-       s[0-7] usage is not permitted here. */
-    /* gp is not saved as no PIC/GOT is currently supported
-       CPU status and config registers are not preerved as well as no interrupt preemption supported */
+  /* Do not save s[0-7] as they will be saved by callee(exception handler) if needed or during context switch.
+     s[0-7] usage is not permitted here. */
+  /* gp is not saved as no PIC/GOT is currently supported
+     CPU status and config registers are not preerved as well as no interrupt preemption supported */
 
-    isr_save_ctx
+  isr_save_ctx
 
-    mfc0    $a0, cause          /* Passed to port_handle_exception */
-    mfc0    $a1, status         /* Passed to port_handle_exception */
+  mfc0    $a0, cause          /* Passed to port_handle_exception */
+  mfc0    $a1, status         /* Passed to port_handle_exception */
     
-    mfc0    $a2, epc            /* Passed to port_handle_exception */
-    ehb
-    sw      $a2, 84 ($sp)
+  mfc0    $a2, epc            /* Passed to port_handle_exception */
+  ehb
+  sw      $a2, 84 ($sp)
 
-    move    $k1, $sp            /* Save original SP in k1 */
+  move    $k1, $sp            /* Save original SP in k1 */
 
-    /* Switch to exception stack. Recall, nested exceptions are not supported here */
-    .extern port_handle_exception
-    la      $sp, exception_stack_bottom
-    jal     port_handle_exception
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  /* Switch to exception stack. Recall, nested exceptions are not supported here */
+  .extern port_handle_exception
+  la      $sp, exception_stack_bottom
+  jal     port_handle_exception
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    /* Restore CPU state or maybe reschedule */
+  /* Restore CPU state or maybe reschedule */
     
-    move    $sp, $k1            /* Switch back to preempted task's SP */
+  move    $sp, $k1            /* Switch back to preempted task's SP */
 
-    beqz    $v0, resume
-    nop
+  beqz    $v0, resume
+  nop
 
-    /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
+  /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
 
-    .extern chSchDoReschedule
-    jal     chSchDoReschedule
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  .extern chSchDoReschedule
+  jal     chSchDoReschedule
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
 resume:
-    /* clear EXL, ERL and IE(enabled later with ei) bits */
-    mfc0    $k0, status
-    li      $k1, 0xFFFFFFF0
-    and     $k0, $k0, $k1
-    mtc0    $k0, status
+  /* clear EXL, ERL and IE(enabled later with ei) bits */
+  mfc0    $k0, status
+  li      $k1, 0xFFFFFFF0
+  and     $k0, $k0, $k1
+  mtc0    $k0, status
 
 restore:
-    lw      $t0, 76 ($sp)
-    lw      $t1, 80 ($sp)
-    mthi    $t0
-    mtlo    $t1
+  lw      $t0, 76 ($sp)
+  lw      $t1, 80 ($sp)
+  mthi    $t0
+  mtlo    $t1
 
-    .set noat
-    lw      $at, 0  ($sp)
-    lw      $v0, 4  ($sp)
-    lw      $v1, 8  ($sp)
-    lw      $a0, 12 ($sp)
-    lw      $a1, 16 ($sp)
-    lw      $a2, 20 ($sp)
-    lw      $a3, 24 ($sp)
-    lw      $t0, 28 ($sp)
-    lw      $t1, 32 ($sp)
-    lw      $t2, 36 ($sp)
-    lw      $t3, 40 ($sp)
-    lw      $t4, 44 ($sp)
-    lw      $t5, 48 ($sp)
-    lw      $t6, 52 ($sp)
-    lw      $t7, 56 ($sp)
-    lw      $t8, 60 ($sp)
-    lw      $t9, 64 ($sp)
-    lw      $fp, 68 ($sp)
-    lw      $ra, 72 ($sp)
-    .set at
+  .set noat
+  lw      $at, 0  ($sp)
+  lw      $v0, 4  ($sp)
+  lw      $v1, 8  ($sp)
+  lw      $a0, 12 ($sp)
+  lw      $a1, 16 ($sp)
+  lw      $a2, 20 ($sp)
+  lw      $a3, 24 ($sp)
+  lw      $t0, 28 ($sp)
+  lw      $t1, 32 ($sp)
+  lw      $t2, 36 ($sp)
+  lw      $t3, 40 ($sp)
+  lw      $t4, 44 ($sp)
+  lw      $t5, 48 ($sp)
+  lw      $t6, 52 ($sp)
+  lw      $t7, 56 ($sp)
+  lw      $t8, 60 ($sp)
+  lw      $t9, 64 ($sp)
+  lw      $fp, 68 ($sp)
+  lw      $ra, 72 ($sp)
+  .set at
 
-    /* restore original PC */
-    lw      $k0, 84 ($sp)
-    /* ... and SP */
-    addi    $sp, $sp, 88        /* sizeof(struct extctx) */
+  /* restore original PC */
+  lw      $k0, 84 ($sp)
+  /* ... and SP */
+  addi    $sp, $sp, 88        /* sizeof(struct extctx) */
 
-    /* return to the interrupted task with interrupts enabled */
-    jr      $k0                 
-    ei
-    .set at
+  /* return to the interrupted task with interrupts enabled */
+  jr      $k0                 
+  ei
 MIPS_FUNC_END(e_vector)
 
 #endif

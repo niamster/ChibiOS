@@ -39,36 +39,35 @@
 #if !defined(__DOXYGEN__)
 
 #if defined(MIPS_USE_SHADOW_GPR)
-#define MIPS_IVECTOR_X(x)           \
-MIPS_FUNC_START(i_vector ## x)      \
-    j       i_vector;               \
-    li      $a0, x;                 \
-    .rept 6;                        \
-    nop;                            \
-    .endr;                          \
+#define MIPS_IVECTOR_X(x)         \
+  MIPS_FUNC_START(i_vector ## x)  \
+  j       i_vector;               \
+  li      $a0, x;                 \
+  .rept 6;                        \
+  nop;                            \
+  .endr;                          \
 MIPS_FUNC_END(i_vector ## x)
 #else
-#define MIPS_IVECTOR_X(x)           \
-MIPS_FUNC_START(i_vector ## x)      \
-    j       i_vector;               \
-    li      $k0, x;                 \
-    .rept 6;                        \
-    nop;                            \
-    .endr;                          \
+#define MIPS_IVECTOR_X(x)         \
+MIPS_FUNC_START(i_vector ## x)    \
+  j       i_vector;               \
+  li      $k0, x;                 \
+  .rept 6;                        \
+  nop;                            \
+  .endr;                          \
 MIPS_FUNC_END(i_vector ## x)
 #endif
 
-    .text
 
-    .section .evectors
+  .section .evectors
 
 MIPS_FUNC_START(gen_vector)
-    j       e_vector
-    nop
+  j       e_vector
+  nop
 MIPS_FUNC_END(gen_vector)
 
 
-    .section .ivectors
+  .section .ivectors
 
   MIPS_IVECTOR_X(0)
   MIPS_IVECTOR_X(1)
@@ -139,98 +138,98 @@ MIPS_FUNC_END(gen_vector)
 
 MIPS_FUNC_START(i_vector)
 #if defined(MIPS_USE_SHADOW_GPR)
-    /* A very simple exception handler that uses shadow registers for ISRs.
-     * Does not support preemption. All other exceptions are disabled.
-     * ISR should be very lightweight and return quickly. All the other job should be done out of exception context.
-     * That's the point of RTOS, isn't it =)? Also it's possible to run out of stack ...
-     */
+  /* A very simple exception handler that uses shadow registers for ISRs.
+   * Does not support preemption. All other exceptions are disabled.
+   * ISR should be very lightweight and return quickly. All the other job should be done out of exception context.
+   * That's the point of RTOS, isn't it =)? Also it's possible to run out of stack ...
+   */
 
-    mfc0    $a1, cause          /* Passed to port_handle_irq */
+  mfc0    $a1, cause          /* Passed to port_handle_irq */
 
-    /* FIXME: do we have to save mfhi/mflo here? */
+  /* FIXME: do we have to save mfhi/mflo here? */
 
-    /* Switch to exception stack. Recall, nested exceptions are not supported here */
-    .extern port_handle_irq
-    la      $sp, exception_stack_bottom
-    jal     port_handle_irq
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  /* Switch to exception stack. Recall, nested exceptions are not supported here */
+  .extern port_handle_irq
+  la      $sp, exception_stack_bottom
+  jal     port_handle_irq
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    /* Restore CPU state or maybe reschedule */
+  /* Restore CPU state or maybe reschedule */
 
-    bnez    $v0, srs_resched
-    nop
+  bnez    $v0, srs_resched
+  nop
 
-    /* Do nothing but return from exception */
-    eret                        /* PC <- EPC, EXL = ERL = 0, SRSCtlCSS <- SRSCtlPSS */
-
+  /* Do nothing but return from exception */
+  eret                        /* PC <- EPC, EXL = ERL = 0, SRSCtlCSS <- SRSCtlPSS */
 
   /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
 srs_resched:
-    /* Switch to previous SRS */
-    di
-    mfc0    $k0, epc
-    la      $k1, savedEPC
-    sw      $k0, 0($k1)
-    la      $k0, prev_srs
-    mtc0    $k0, epc
-    eret
+  /* Switch to previous SRS */
+  di
+  mfc0    $k0, epc
+  la      $k1, savedEPC
+  sw      $k0, 0($k1)
+  la      $k0, prev_srs
+  mtc0    $k0, epc
+  eret
 
 prev_srs:
-    isr_save_ctx
+  isr_save_ctx
 
-    la      $t0, savedEPC
-    lw      $t0, 0  ($t0)
-    sw      $t0, 84 ($sp)
+  la      $t0, savedEPC
+  lw      $t0, 0  ($t0)
+  sw      $t0, 84 ($sp)
 
-    .extern chSchDoReschedule
-    jal     chSchDoReschedule
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  .extern chSchDoReschedule
+  jal     chSchDoReschedule
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    b       restore
-    nop
+  b       restore
+  nop
 #else
-    isr_save_ctx
+  isr_save_ctx
 
-    move    $a0, $k0            /* Passed to port_handle_irq */
-    mfc0    $a1, cause          /* Passed to port_handle_irq */
+  move    $a0, $k0            /* Passed to port_handle_irq */
+  mfc0    $a1, cause          /* Passed to port_handle_irq */
     
-    mfc0    $t0, epc
-    ehb
-    sw      $t0, 84 ($sp)
+  mfc0    $t0, epc
+  ehb
+  sw      $t0, 84 ($sp)
 
-    move    $k1, $sp            /* Save original SP in k1 */
+  move    $k1, $sp            /* Save original SP in k1 */
 
-    /* Switch to exception stack. Recall, nested exceptions are not supported here */
-    .extern port_handle_irq
-    la      $sp, exception_stack_bottom
-    jal     port_handle_irq
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  /* Switch to exception stack. Recall, nested exceptions are not supported here */
+  .extern port_handle_irq
+  la      $sp, exception_stack_bottom
+  jal     port_handle_irq
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    /* Restore CPU state or maybe reschedule */
+  /* Restore CPU state or maybe reschedule */
     
-    move    $sp, $k1            /* Switch back to preempted task's SP */
+  move    $sp, $k1            /* Switch back to preempted task's SP */
 
-    beqz    $v0, resume
-    nop
+  beqz    $v0, resume
+  nop
 
-    /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
+  /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
 
-    .extern chSchDoReschedule
-    jal     chSchDoReschedule
-    subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  .extern chSchDoReschedule
+  jal     chSchDoReschedule
+  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-    b       resume
-    nop
+  b       resume
+  nop
 #endif
 MIPS_FUNC_END(i_vector)
 
 #include "vectors-single.s"
-  
-    .bss
+
+
+  .bss
 
   /* old EPC when switching SRS */
 savedEPC:

@@ -32,61 +32,58 @@
 
 #if !defined(__DOXYGEN__)
 
-    .text
-
 MIPS_FUNC_START(_port_switch_mips)
-    subu    $sp, $sp, 44        /* sizeof(struct intctx) */
+  subu    $sp, $sp, 44        /* sizeof(struct intctx) */
 
-    .set noat
-    sw      $s0, 0  ($sp)
-    sw      $s1, 4  ($sp)
-    sw      $s2, 8  ($sp)
-    sw      $s3, 12 ($sp)
-    sw      $s4, 16 ($sp)
-    sw      $s5, 20 ($sp)
-    sw      $s6, 24 ($sp)
-    sw      $s7, 28 ($sp)
-    sw      $fp, 32 ($sp)
-    sw      $ra, 36 ($sp)
-    .set at
+  .set noat
+  sw      $s0, 0  ($sp)
+  sw      $s1, 4  ($sp)
+  sw      $s2, 8  ($sp)
+  sw      $s3, 12 ($sp)
+  sw      $s4, 16 ($sp)
+  sw      $s5, 20 ($sp)
+  sw      $s6, 24 ($sp)
+  sw      $s7, 28 ($sp)
+  sw      $fp, 32 ($sp)
+  sw      $ra, 36 ($sp)
+  .set at
 
-    mfc0    $t0, status
-    ehb
-    sw      $t0, 40 ($sp)
+  mfc0    $t0, status
+  ehb
+  sw      $t0, 40 ($sp)
 
-    sw      $sp, 12 ($a1)
+  sw      $sp, 12 ($a1)
 
-    /* ---- */
+  /* ---- */
 
-    lw      $sp, 12 ($a0)
+  lw      $sp, 12 ($a0)
 
-    .set noat
-    lw      $s0, 0  ($sp)
-    lw      $s1, 4  ($sp)
-    lw      $s2, 8  ($sp)
-    lw      $s3, 12 ($sp)
-    lw      $s4, 16 ($sp)
-    lw      $s5, 20 ($sp)
-    lw      $s6, 24 ($sp)
-    lw      $s7, 28 ($sp)
-    lw      $fp, 32 ($sp)
-    lw      $ra, 36 ($sp)
-    .set at
+  .set noat
+  lw      $s0, 0  ($sp)
+  lw      $s1, 4  ($sp)
+  lw      $s2, 8  ($sp)
+  lw      $s3, 12 ($sp)
+  lw      $s4, 16 ($sp)
+  lw      $s5, 20 ($sp)
+  lw      $s6, 24 ($sp)
+  lw      $s7, 28 ($sp)
+  lw      $fp, 32 ($sp)
+  lw      $ra, 36 ($sp)
+  .set at
 
-    lw      $t0, 40 ($sp)
+  lw      $t0, 40 ($sp)
 
-    addi    $sp, $sp, 44        /* sizeof(struct intctx) */
+  addi    $sp, $sp, 44        /* sizeof(struct intctx) */
 
-    jr      $ra
-    mtc0    $t0, status
-
+  jr      $ra
+  mtc0    $t0, status
 MIPS_FUNC_END(_port_switch_mips)
 
 MIPS_FUNC_START(_port_thread_start)
-    jalr    $s1
-    move    $a0, $s0
-    jal     chThdExit
-    nop
+  jalr    $s1
+  move    $a0, $s0
+  jal     chThdExit
+  nop
 MIPS_FUNC_END(_port_thread_start)
 
 #endif /* !defined(__DOXYGEN__) */

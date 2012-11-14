@@ -56,8 +56,6 @@ SECTIONS
     __init_end__ = .;
   } > kseg1_boot_mem
 
-  . = 0x9D000000;
-
   .text : {
     . = 0x180;
     ASSERT(. == 0x180, "wrong location of vectors");
@@ -71,7 +69,6 @@ SECTIONS
 
     . = ALIGN(4);
     __text_start__ = .;
-    KEEP (*(.context*))
     *(.text*)
     *(.gcc*)
     *(.ctors)

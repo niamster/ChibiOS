@@ -33,9 +33,9 @@
 
 #include "mipsarch.h"
 
-#define __entry \
+#define __entry                                      \
   __attribute__ ((__section__(".core.entry")))       \
-  __attribute__ ((__optimize__("-Os")))              \
+  __attribute__ ((__optimize__("-O1")))              \
   __attribute__ ((__aligned__(4)))
 
 /**
@@ -295,45 +295,34 @@ bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
 }
 
 static void __entry port_init_irq(void) {
-  uint32_t sr = c0_get_status();
-  uint32_t ictl = c0_get_intctl();
-  uint32_t ipti = ictl >> 29;
-  unsigned int i;
+  uint32_t mask, i;
 
   /* NOTE: This will not work in EIC mode(IM bits are treated as interrupt priority level)
    * EIC hal driver should then take care
    */
-  if (ipti)
-    sr |= 1 << (ipti + 8); // IM[x] timer
 
   for (i=0; i<8; ++i) {
     if (hw_irq_table[i])
-      sr |= 1 << (i + 8); // IM[x]
+      mask |= 1 << (i + 8); // IM[x]
   }
 
-  c0_set_status(sr);
+  c0_set_status(mask | c0_get_status());
 
-#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
+#if defined(MIPS_USE_VECTORED_IRQ) || defined(MIPS_USE_SHADOW_GPR)
   {
-    uint32_t c = c0_get_cause();
-    uint32_t sctl = c0_get_srsctl();
-    uint32_t smap = c0_get_srsmap();
-
-#if defined(MIPS_USE_SHADOW_GPR)
-    /* Set same shadow registers set for all interrupts and exceptions */
-    sctl |= 1 << 12; // Second shadow set on any exception other than a vectored interrupt
-    smap = 0x11111111; // Second shadow set on any vectored interrupt
-#endif
-
-    c |= 1 << 23; // Enable IV mode
-
-    ictl |= 1 << 5; // Spacing between the vectors(32)
-
-    c0_set_srsctl(sctl);
-    c0_set_srsmap(smap);
-    c0_set_intctl(ictl);
-    c0_set_cause(c);
+    c0_set_intctl(c0_get_intctl() | (1 << 5)); // Spacing between the vectors(32)
+    c0_set_cause(c0_get_cause() | (1 << 23)); // Enable IV mode
   }
+#endif
+#if defined(MIPS_USE_SHADOW_GPR)
+    {
+      /* Set same shadow registers set for all interrupts and exceptions */
+
+      // Second shadow set on any exception other than a vectored interrupt
+      c0_set_srsctl(c0_get_srsctl() | (1 << 12));
+      // Second shadow set on any vectored interrupt
+      c0_set_srsmap(0x11111111);
+    }
 #endif
 }
 
