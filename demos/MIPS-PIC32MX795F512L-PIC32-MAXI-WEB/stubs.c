@@ -89,3 +89,20 @@ char *strchr(const char *s, int c) {
 
   return (char *)s;
 }
+
+char *
+strpbrk(const char *s1, const char *s2) 
+{
+  const char *s;
+  int c, sc; 
+
+  while ((c = *s1++)) {
+    s = s2;
+    while ((sc = *s++)) {
+      if (sc == c)
+        return (char *)(s1 - 1);
+    }
+  }   
+
+  return NULL;
+}
