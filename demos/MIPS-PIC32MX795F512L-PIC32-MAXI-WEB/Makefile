@@ -8,8 +8,6 @@ ifeq ($(USE_OPT),)
   USE_OPT = -EL -O2 -ggdb
   USE_OPT += -mtune=4kc
   USE_OPT += -D_PLIB_DISABLE_LEGACY
-  # usually gives very good i-cache hit rate
-  USE_OPT += -falign-functions=32
   USE_OPT += -D__32MX795F512L__ -D__PIC32_FEATURE_SET__=795
 endif
 
