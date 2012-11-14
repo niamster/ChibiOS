@@ -111,5 +111,7 @@ SECTIONS
 
   /DISCARD/ : {
     *(.rel.dyn);
+    *(.reginfo)
+    *(.discard);
   }
 }
