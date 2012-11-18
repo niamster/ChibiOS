@@ -58,16 +58,17 @@ static EicIrqBank iBank[EIC_IRQ_BANK_QTY];
 CH_IRQ_HANDLER(MIPS_HW_IRQ0) { // In PIC32 single-vectored mode all interrupts are wired to IRQ0
   CH_IRQ_PROLOGUE();
 
-  int bank;
+  uint32_t bank;
 
   for (bank=0;bank<EIC_IRQ_BANK_QTY;++bank) {
     uint32_t pending = *iBank[bank].status & iBank[bank].mask;
 
     while (pending) {
       uint32_t i = 31 - __builtin_clz(pending);
+      uint32_t irq = i + bank * 32;
 
-      if (EIC_IRQ_CT != i) {    /* Core timer is handled depending on mtc0.cause status */
-        EicIrqInfo *info = &iInfo[i];
+      if (EIC_IRQ_CT != irq) {    /* Core timer is handled depending on mtc0.cause status */
+        EicIrqInfo *info = &iInfo[irq];
 
         if (!info->handler)
           chDbgPanic("unhandled EIC irq");
