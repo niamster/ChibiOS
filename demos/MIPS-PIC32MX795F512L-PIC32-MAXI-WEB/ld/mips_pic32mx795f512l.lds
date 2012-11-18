@@ -69,7 +69,7 @@ SECTIONS
     KEEP (*(.vectors*))
     __vectors_end__ = .;
 
-    . = ALIGN(32);
+    . = ALIGN(4);
     __text_start__ = .;
     KEEP (*(.context*))
     *(.text*)
@@ -78,13 +78,13 @@ SECTIONS
     __text_end__ = .;
   } > kseg0_program_mem
 
-  .rodata ALIGN(32) : {
+  .rodata ALIGN(4) : {
     __rodata_start__ = .;
     *(.rodata*)
     __rodata_end__ = .;
   } > kseg0_program_mem
 
-  .rom_data ALIGN(32) : {
+  .rom_data ALIGN(4) : {
     __rom_data_start__ = .;
   } > kseg0_program_mem
 
@@ -96,7 +96,7 @@ SECTIONS
     __ram_data_end__ = .;
   } > kseg0_ram_mem
 
-  .bss ALIGN(32) : {
+  .bss ALIGN(4) : {
     __bss_start__ = .;
     *(.bss*)
     *(.sbss*)
@@ -105,7 +105,7 @@ SECTIONS
     __bss_end__ = .;
   } > kseg0_ram_mem
 
-  .heap ALIGN(32) : {
+  .heap ALIGN(4) : {
     __heap_base__ = .;
   } > kseg0_ram_mem
 
