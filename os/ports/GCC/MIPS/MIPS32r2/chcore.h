@@ -387,6 +387,23 @@ struct context {
 #define port_switch(ntp, otp) _port_switch_mips(ntp, otp)
 #endif /* !CH_DBG_ENABLE_STACK_CHECK */
 
+/**
+ * @brief   Excludes the default @p chSchIsPreemptionRequired() implementation.
+ */
+#define PORT_OPTIMIZED_ISPREEMPTIONREQUIRED
+
+#if (CH_TIME_QUANTUM > 0) || defined(__DOXYGEN__)
+/**
+ * @brief   Inline-able version of this kernel function.
+ */
+#define chSchIsPreemptionRequired()                                         \
+  (currp->p_preempt ? firstprio(&rlist.r_queue) > currp->p_prio :           \
+                      firstprio(&rlist.r_queue) >= currp->p_prio)
+#else /* CH_TIME_QUANTUM == 0 */
+#define chSchIsPreemptionRequired()                                         \
+  (firstprio(&rlist.r_queue) > currp->p_prio)
+#endif /* CH_TIME_QUANTUM == 0 */
+
 #ifdef __cplusplus
 extern "C" {
 #endif
