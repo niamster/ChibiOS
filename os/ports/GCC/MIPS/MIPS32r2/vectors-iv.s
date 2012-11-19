@@ -157,10 +157,6 @@ MIPS_FUNC_START(i_vector)
 
     /* Restore CPU state or maybe reschedule */
 
-    .extern chSchIsPreemptionRequired
-    jal     chSchIsPreemptionRequired
-    nop
-
     bnez    $v0, srs_resched
     nop
 
@@ -213,10 +209,6 @@ prev_srs:
     subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
     /* Restore CPU state or maybe reschedule */
-
-    .extern chSchIsPreemptionRequired
-    jal     chSchIsPreemptionRequired
-    nop
     
     move    $sp, $k1            /* Switch back to preempted task's SP */
 

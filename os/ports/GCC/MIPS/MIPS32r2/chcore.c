@@ -256,7 +256,7 @@ static mips_hw_irq_t hw_irq_table[] = {
 #endif
 };
 
-void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
+bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
   uint32_t ex = (cause >> 2) & 0x1f;
 
   (void)epc;
@@ -279,9 +279,11 @@ void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     }
   } else
     chDbgPanic("unhandled exception");
+
+  return chSchIsPreemptionRequired();
 }
 
-void port_handle_irq(uint32_t irq, uint32_t cause) {
+bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
   if (cause&(1<<30))
     port_timer_isr();
 
@@ -289,6 +291,8 @@ void port_handle_irq(uint32_t irq, uint32_t cause) {
     chDbgPanic("spurious IRQ");
 
   hw_irq_table[irq]();
+
+  return chSchIsPreemptionRequired();
 }
 
 static void __entry port_init_irq(void) {

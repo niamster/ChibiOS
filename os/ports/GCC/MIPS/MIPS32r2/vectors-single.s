@@ -75,10 +75,6 @@ MIPS_FUNC_START(e_vector)
     subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
     /* Restore CPU state or maybe reschedule */
-
-    .extern chSchIsPreemptionRequired
-    jal     chSchIsPreemptionRequired
-    nop
     
     move    $sp, $k1            /* Switch back to preempted task's SP */
 
