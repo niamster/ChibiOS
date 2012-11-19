@@ -27,6 +27,11 @@
 #define MIPS_USE_SHADOW_GPR
 
 /*
+ * Use MIPS32r2 vectored interrupt mode(enabled if MIPS_USE_SHADOW_GPR is defined)
+ */
+/* #define MIPS_USE_VECTORED_IRQ */
+
+/*
  * MIPS CPU frequency
  */
 #define MIPS_CPU_FREQ                   80000000UL

@@ -14,7 +14,6 @@ OUTFILES += $(BUILDDIR)/$(PROJECT).elf \
 # Automatic compiler options
 OPT       = $(USE_OPT)
 COPT      = $(USE_COPT)
-XCOPT     = $(USE_XCOPT)
 CPPOPT    = $(USE_CPPOPT)
 LDOPT     = $(USE_LDOPT)
 ifeq ($(USE_LINK_GC),yes)
@@ -51,7 +50,6 @@ MCFLAGS   = -mips32r2 -G0 -fno-pic -fno-PIC -mno-abicalls -msoft-float -fomit-fr
 ODFLAGS   = -x --syms
 ASFLAGS   = $(MCFLAGS) $(OPT) -Wa,-amhls=$(LSTDIR)/$(notdir $(<:.s=.lst)) $(ADEFS)
 CFLAGS    = $(MCFLAGS) $(OPT) $(COPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
-XCFLAGS   = $(MCFLAGS) $(OPT) -xc $(XCOPT) $(CWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.c=.lst)) $(DEFS)
 CPPFLAGS  = $(MCFLAGS) $(OPT) $(CPPOPT) $(CPPWARN) -Wa,-alms=$(LSTDIR)/$(notdir $(<:.cpp=.lst)) $(DEFS)
 ifeq ($(USE_LINK_GC),yes)
   LDFLAGS = $(MCFLAGS) -G0 -fno-pic -fno-PIC -static -n -nostdlib -nostartfiles $(LDOPT) -T$(LDSCRIPT) -Wl,-Map=$(BUILDDIR)/$(PROJECT).map,--cref,--no-warn-mismatch,--gc-sections $(LLIBDIR)

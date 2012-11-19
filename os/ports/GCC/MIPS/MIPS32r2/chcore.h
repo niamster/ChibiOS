@@ -71,6 +71,11 @@
  */
 /* #define MIPS_USE_SHADOW_GPR */
 
+/**
+ * @brief   If defined vectored interrupt mode is enabled[possibly EIC].
+ */
+/* #define MIPS_USE_VECTORED_IRQ */
+
 /*===========================================================================*/
 /* Port exported info.                                                       */
 /*===========================================================================*/

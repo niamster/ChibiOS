@@ -270,8 +270,10 @@ void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     while (ip) {
       uint32_t i = 31 - __builtin_clz(ip);
 
-      if (hw_irq_table[i])
-        hw_irq_table[i]();
+      if (!hw_irq_table[i])
+        chDbgPanic("spurious IRQ");
+
+      hw_irq_table[i]();
 
       ip &= ~(1 << i);
     }
@@ -279,12 +281,14 @@ void port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     chDbgPanic("unhandled exception");
 }
 
-void port_handle_irq(uint32_t cause, uint32_t irq) {
+void port_handle_irq(uint32_t irq, uint32_t cause) {
   if (cause&(1<<30))
     port_timer_isr();
 
-  if (hw_irq_table[irq])
-    hw_irq_table[irq]();
+  if (!hw_irq_table[irq])
+    chDbgPanic("spurious IRQ");
+
+  hw_irq_table[irq]();
 }
 
 static void __entry port_init_irq(void) {
@@ -306,15 +310,17 @@ static void __entry port_init_irq(void) {
 
   c0_set_status(sr);
 
-#if defined(MIPS_USE_SHADOW_GPR)
+#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
   {
     uint32_t c = c0_get_cause();
     uint32_t sctl = c0_get_srsctl();
     uint32_t smap = c0_get_srsmap();
 
+#if defined(MIPS_USE_SHADOW_GPR)
     /* Set same shadow registers set for all interrupts and exceptions */
     sctl |= 1 << 12; // Second shadow set on any exception other than a vectored interrupt
     smap = 0x11111111; // Second shadow set on any vectored interrupt
+#endif
 
     c |= 1 << 23; // Enable IV mode
 

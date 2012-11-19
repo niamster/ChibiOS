@@ -36,7 +36,7 @@
 
 #if !defined(__DOXYGEN__)
 
-#if defined(MIPS_USE_SHADOW_GPR)
+#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
 #include "vectors-iv.s"
 #else
 #include "vectors-single.s"

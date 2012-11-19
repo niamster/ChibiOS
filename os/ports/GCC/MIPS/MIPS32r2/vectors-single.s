@@ -34,6 +34,8 @@
 
 #include "halconf.h"
 
+#include "vectors.inc"
+
 #if !defined(__DOXYGEN__)
 
     .text
@@ -55,38 +57,11 @@ MIPS_FUNC_START(e_vector)
     /* gp is not saved as no PIC/GOT is currently supported
        CPU status and config registers are not preerved as well as no interrupt preemption supported */
 
-    subu    $sp, $sp, 88        /* sizeof(struct extctx) */
-
-    .set noat
-    sw      $at, 0  ($sp)
-    sw      $v0, 4  ($sp)
-    sw      $v1, 8  ($sp)
-    sw      $a0, 12 ($sp)
-    sw      $a1, 16 ($sp)
-    sw      $a2, 20 ($sp)
-    sw      $a3, 24 ($sp)
-    sw      $t0, 28 ($sp)
-    sw      $t1, 32 ($sp)
-    sw      $t2, 36 ($sp)
-    sw      $t3, 40 ($sp)
-    sw      $t4, 44 ($sp)
-    sw      $t5, 48 ($sp)
-    sw      $t6, 52 ($sp)
-    sw      $t7, 56 ($sp)
-    sw      $t8, 60 ($sp)
-    sw      $t9, 64 ($sp)
-    sw      $fp, 68 ($sp)
-    sw      $ra, 72 ($sp)
-    .set at
+    isr_save_ctx
 
     mfc0    $a0, cause          /* Passed to port_handle_exception */
     mfc0    $a1, status         /* Passed to port_handle_exception */
     
-    mfhi    $t0
-    mflo    $t1
-    sw      $t0, 76 ($sp)
-    sw      $t1, 80 ($sp)
-
     mfc0    $a2, epc            /* Passed to port_handle_exception */
     ehb
     sw      $a2, 84 ($sp)
@@ -107,7 +82,7 @@ MIPS_FUNC_START(e_vector)
     
     move    $sp, $k1            /* Switch back to preempted task's SP */
 
-    beqz    $v0, s_restore
+    beqz    $v0, resume
     nop
 
     /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
@@ -118,7 +93,14 @@ MIPS_FUNC_START(e_vector)
 
     addi    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
-s_restore:
+resume:
+    /* clear EXL, ERL and IE(enabled later with ei) bits */
+    mfc0    $k0, status
+    li      $k1, 0xFFFFFFF0
+    and     $k0, $k0, $k1
+    mtc0    $k0, status
+
+restore:
     lw      $t0, 76 ($sp)
     lw      $t1, 80 ($sp)
     mthi    $t0
@@ -145,13 +127,6 @@ s_restore:
     lw      $fp, 68 ($sp)
     lw      $ra, 72 ($sp)
     .set at
-
-    /* clear EXL, ERL and IE(enabled later with ei) bits */
-    mfc0    $k0, status
-    li      $k1, 0xFFFFFFF0
-    and     $k0, $k0, $k1
-    mtc0    $k0, status
-    ehb
 
     /* restore original PC */
     lw      $k0, 84 ($sp)
