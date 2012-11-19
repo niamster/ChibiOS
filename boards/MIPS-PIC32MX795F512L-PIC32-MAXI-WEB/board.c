@@ -44,17 +44,8 @@ PIC32MX_DEVCFG3(
                 | DEVCFG3_FETHIO            // Alternate ethernet pins
     );
 
-#undef TRUE
-#undef FALSE
-
-#include "plib.h"
-
-#define TRUE 1
-#define FALSE 0
-
 /*
  * Board-specific initialization code.
  */
 void boardInit(void) {
-  SYSTEMConfigPerformance(MIPS_CPU_FREQ);
 }

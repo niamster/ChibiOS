@@ -57,32 +57,6 @@
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-/**
- * @brief   EIC IRQ bank data.
- */
-typedef struct EicIrqBank {
-  /** @brief IRQ status register.*/
-  volatile uint32_t *status;
-  /** @brief IRQ clear register.*/
-  volatile uint32_t *clear;
-  /** @brief IRQ enable register.*/
-  volatile uint32_t *enable;
-  /** @brief IRQ disable register.*/
-  volatile uint32_t *disable;
-  /** @brief cached IRQ mask.*/
-  uint32_t mask;
-} EicIrqBank;
-
-/**
- * @brief   EIC IRQ handler data.
- */
-typedef struct EicIrqInfo {
-  /** @brief IRQ handle.*/
-  eicIrqHandler handler;
-  /** @brief IRQ handler data.*/
-  void *data;
-} EicIrqInfo;
-
 /*===========================================================================*/
 /* Driver macros.                                                            */
 /*===========================================================================*/

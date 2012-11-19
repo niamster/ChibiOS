@@ -29,6 +29,14 @@
 #include "ch.h"
 #include "hal.h"
 
+#include "mcu/pic32mxxx.h"
+
+/*===========================================================================*/
+/* Derived constants and error checks.                                       */
+/*===========================================================================*/
+
+#define FLASH_MAX_CLK          30000000
+
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
@@ -55,6 +63,20 @@
  * @notapi
  */
 void hal_lld_init(void) {
+#if defined(_PCACHE)
+  /* Do not enable D-cache because it's inefficient for PIC32 */
+
+  CHECON = ((MIPS_CPU_FREQ/FLASH_MAX_CLK))      /* PFM Access Time Defined in terms of SYSLK Wait states bits */
+    | (3 << _CHECON_PREFEN_POSITION)            /* Enable predictive prefetch cache for all regions */
+    | (1 << _CHECON_CHECOH_POSITION);           /* Invalidate all data and instruction lines */
+
+  BMXCONSET = _BMXCON_BMXCHEDMA_MASK; /* Enable program Flash memory (data) cacheability for DMA accesses */
+
+    // cached KSEG0
+  c0_set_config0((c0_get_config0() & ~7) | 3);
+#endif
+
+  BMXCONCLR = _BMXCON_BMXWSDRM_MASK; /* Data RAM accesses from CPU have zero wait states for address setup */
 }
 
 /** @} */

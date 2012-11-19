@@ -44,8 +44,8 @@
  * @details If set to @p TRUE the support for UART is included.
  * @note    The default is @p TRUE.
  */
-#if !defined(USE_MIPS_PIC32MX_UART) || defined(__DOXYGEN__)
-#define USE_MIPS_PIC32MX_UART             TRUE
+#if !defined(USE_MIPS_PIC32MX_UART1) || defined(__DOXYGEN__)
+#define USE_MIPS_PIC32MX_UART1            TRUE
 #endif
 
 /*===========================================================================*/
@@ -85,7 +85,7 @@ typedef struct {
   uint8_t                   ob[SERIAL_BUFFERS_SIZE];  \
   /* End of the mandatory fields.*/                   \
   /* MCU UART port.*/                                 \
-  uint8_t                   port;                     \
+  volatile void             *base;                    \
   /* MCU UART RX IRQ.*/                               \
   uint8_t                   rxIrq;                    \
 
@@ -97,7 +97,7 @@ typedef struct {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART && !defined(__DOXYGEN__)
+#if USE_MIPS_PIC32MX_UART1 && !defined(__DOXYGEN__)
 extern SerialDriver SD1;
 #endif
 

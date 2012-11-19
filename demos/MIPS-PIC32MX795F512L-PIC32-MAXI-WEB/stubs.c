@@ -89,15 +89,3 @@ char *strchr(const char *s, int c) {
 
   return (char *)s;
 }
-
-/* Some stubs needed by XC32's plib */
-
-unsigned int INTDisableInterrupts(void)
-{
-  return MIPS_DISABLE_IRQ();
-}
-
-void INTRestoreInterrupts(unsigned int flags)
-{
-  MIPS_RESTORE_IRQ(flags);
-}

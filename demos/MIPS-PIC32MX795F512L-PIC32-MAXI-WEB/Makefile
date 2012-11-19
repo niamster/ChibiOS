@@ -7,10 +7,9 @@
 ifeq ($(USE_OPT),)
   USE_OPT = -EL -O2 -ggdb
   USE_OPT += -mtune=4kc
-  USE_OPT += -D_PLIB_DISABLE_LEGACY
   # usually gives very good i-cache hit rate
   USE_OPT += -falign-functions=16
-  USE_OPT += -D__32MX795F512L__ -D__PIC32_FEATURE_SET__=795
+  USE_OPT += -D__32MX795F512L__
 endif
 
 # C specific options here (added to USE_OPT).
@@ -61,9 +60,6 @@ include $(CHIBIOS)/test/test.mk
 # Define linker script file here
 LDSCRIPT= ld/mips_pic32mx795f512l.lds
 
-# Path to xc32
-XCPATH ?= /opt/microchip/xc32/v1.11
-
 # List C source files here
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
@@ -73,20 +69,16 @@ CSRC = $(PORTSRC) \
        $(BOARDSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
-       $(XCPATH)/pic32-libs/peripheral/uart/source/uart_lib.c \
-       $(XCPATH)/pic32-libs/peripheral/pcache/source/pcache.c \
        stubs.c \
        main.c
 # List C++ source files here
 CPPSRC =
 # List ASM source files here
-ASMSRC  = $(PORTASM)
-XASMSRC = $(XCPATH)/pic32-libs/proc/32MX795F512L/p32mx795f512l.S
+ASMSRC  = $(PORTASM) $(PLATFORMASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(CHIBIOS)/os/various \
-         $(XCPATH)/pic32-libs/include
+         $(CHIBIOS)/os/various
 
 #
 # Project, sources and paths

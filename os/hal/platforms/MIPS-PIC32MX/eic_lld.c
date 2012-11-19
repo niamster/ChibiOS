@@ -29,15 +29,39 @@
 #include "ch.h"
 #include "hal.h"
 
-#undef TRUE
-#undef FALSE
-
-#include "plib.h"
-
-#define TRUE 1
-#define FALSE 0
-
 #if HAL_USE_EIC || defined(__DOXYGEN__)
+
+#include "mcu/pic32mxxx.h"
+
+/*===========================================================================*/
+/* Driver data structures and types.                                         */
+/*===========================================================================*/
+
+/**
+ * @brief   EIC IRQ bank data.
+ */
+typedef struct EicIrqBank {
+  /** @brief IRQ status register.*/
+  volatile uint32_t *status;
+  /** @brief IRQ clear register.*/
+  volatile uint32_t *clear;
+  /** @brief IRQ enable register.*/
+  volatile uint32_t *enable;
+  /** @brief IRQ disable register.*/
+  volatile uint32_t *disable;
+  /** @brief cached IRQ mask.*/
+  uint32_t mask;
+} EicIrqBank;
+
+/**
+ * @brief   EIC IRQ handler data.
+ */
+typedef struct EicIrqInfo {
+  /** @brief IRQ handle.*/
+  eicIrqHandler handler;
+  /** @brief IRQ handler data.*/
+  void *data;
+} EicIrqInfo;
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
@@ -115,20 +139,20 @@ void eic_lld_init(void) {
 #endif
 #endif
 
-  iBank[0].status = &IFS0;
-  iBank[0].clear = &IFS0CLR;
-  iBank[0].enable = &IEC0SET;
-  iBank[0].disable = &IEC0CLR;
+  iBank[0].status = (volatile uint32_t *)&IFS0;
+  iBank[0].clear = (volatile uint32_t *)&IFS0CLR;
+  iBank[0].enable = (volatile uint32_t *)&IEC0SET;
+  iBank[0].disable = (volatile uint32_t *)&IEC0CLR;
 
-  iBank[1].status = &IFS1;
-  iBank[1].clear = &IFS1CLR;
-  iBank[1].enable = &IEC1SET;
-  iBank[1].disable = &IEC1CLR;
+  iBank[1].status = (volatile uint32_t *)&IFS1;
+  iBank[1].clear = (volatile uint32_t *)&IFS1CLR;
+  iBank[1].enable = (volatile uint32_t *)&IEC1SET;
+  iBank[1].disable = (volatile uint32_t *)&IEC1CLR;
 
-  iBank[2].status = &IFS2;
-  iBank[2].clear = &IFS2CLR;
-  iBank[2].enable = &IEC2SET;
-  iBank[2].disable = &IEC2CLR;
+  iBank[2].status = (volatile uint32_t *)&IFS2;
+  iBank[2].clear = (volatile uint32_t *)&IFS2CLR;
+  iBank[2].enable = (volatile uint32_t *)&IEC2SET;
+  iBank[2].disable = (volatile uint32_t *)&IEC2CLR;
 
   /* *iBank[0].disable = 0xFFFFFFFF; */
   /* *iBank[1].disable = 0xFFFFFFFF; */

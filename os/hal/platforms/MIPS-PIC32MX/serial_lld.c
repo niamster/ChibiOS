@@ -29,22 +29,56 @@
 #include "ch.h"
 #include "hal.h"
 
-#undef TRUE
-#undef FALSE
-
-#undef _UART_H_
-#include "plib.h"
-
-#define TRUE 1
-#define FALSE 0
-
 #if HAL_USE_SERIAL || defined(__DOXYGEN__)
+
+#include "mcu/pic32mxxx.h"
+
+/*===========================================================================*/
+/* Driver constants and error checks.                                       */
+/*===========================================================================*/
+
+#define UART_INTERRUPT_TX_EMPTY          (2 << 14)
+#define UART_INTERRUPT_TX_COMPLETED      (1 << 14)
+#define UART_INTERRUPT_TX_NOT_FULL       (0 << 14)
+#define UART_INTERRUPT_TX_MASK           (3 << 14)
+
+#define UART_INTERRUPT_RX_FULL           (3 <<  6)
+#define UART_INTERRUPT_RX_3_QUARTER_FULL (2 <<  6)
+#define UART_INTERRUPT_RX_NOT_EMPTY      (0 <<  6)
+#define UART_INTERRUPT_RX_MASK           (3 <<  6)
+
+#define UART_CONTROL_9_BITS              (3 <<  1)
+#define UART_CONTROL_8_BITS_PARITY_ODD   (2 <<  1)
+#define UART_CONTROL_8_BITS_PARITY_EVEN  (1 <<  1)
+#define UART_CONTROL_8_BITS_PARITY_NONE  (0 <<  1)
+#define UART_CONTROL_STOP_BITS_2         (1 <<  0)
+#define UART_CONTROL_STOP_BITS_1         (0 <<  0)
+#define UART_CONTROL_MASK                (7 <<  0)
+
+/*===========================================================================*/
+/* Driver data structures and types.                                         */
+/*===========================================================================*/
+
+typedef struct {
+	volatile uint32_t reg;
+	volatile uint32_t clear;
+	volatile uint32_t set;
+	volatile uint32_t invert;
+} UartReg;
+
+typedef struct {
+	UartReg mode;
+	UartReg status;
+	UartReg tx;
+	UartReg rx;
+	UartReg brg;
+} UartPort;
 
 /*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART || defined(__DOXYGEN__)
+#if USE_MIPS_PIC32MX_UART1 || defined(__DOXYGEN__)
 /** @brief UART serial driver identifier.*/
 SerialDriver SD1;
 #endif
@@ -62,7 +96,6 @@ static const SerialConfig sc = {
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART
 /**
  * @brief   UART initialization.
  *
@@ -70,43 +103,98 @@ static const SerialConfig sc = {
  * @param[in] config    the architecture-dependent serial driver configuration
  */
 static void uartInit(SerialDriver *sdp, const SerialConfig *config) {
-  uint8_t port = sdp->port;
+  UartPort *port = (UartPort *)sdp->base;
+  uint32_t fpb = MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
+  uint32_t brg0, brg1;
+  int32_t brgErr0, brgErr1;
 
-  UARTConfigure(port, UART_ENABLE_PINS_TX_RX_ONLY);
-  UARTSetFifoMode(port, /* UART_INTERRUPT_ON_TX_NOT_FULL |  */UART_INTERRUPT_ON_RX_NOT_EMPTY);
-  UARTSetLineControl(port, UART_DATA_SIZE_8_BITS | UART_PARITY_NONE | UART_STOP_BITS_1);
-  UARTSetDataRate(port, MIPS_CPU_FREQ / (1 << OSCCONbits.PBDIV), config->sc_baud);
-  UARTEnable(port, UART_ENABLE_FLAGS(UART_PERIPHERAL | UART_RX | UART_TX));
+  port->status.clear = UART_INTERRUPT_TX_MASK | UART_INTERRUPT_RX_MASK;
+  port->status.set = /* UART_INTERRUPT_TX_NOT_FULL |  */UART_INTERRUPT_RX_NOT_EMPTY;
+
+  port->mode.clear = UART_CONTROL_MASK;
+  port->mode.set = UART_CONTROL_8_BITS_PARITY_NONE | UART_CONTROL_STOP_BITS_1;
+
+  /* Try to set brg with smallest possible error */
+  brg0 = ((fpb / config->sc_baud) >> 4) - 1;
+  brgErr0 = (fpb >> 4) / (brg0 + 1) - config->sc_baud;
+  if (brgErr0 < 0) brgErr0 = -brgErr0;
+
+  brg1 = ((fpb / config->sc_baud) >> 2) - 1;
+  brgErr1 = (fpb >> 2) / (brg0 + 1) - config->sc_baud;
+  if (brgErr1 < 0) brgErr1 = -brgErr1;
+
+  if (brgErr0 < brgErr1) {
+    port->mode.reg &= ~_U1MODE_BRGH_MASK;
+    port->brg.reg = brg0 & 0xFFFF;
+  } else {
+    port->mode.reg |= _U1MODE_BRGH_MASK;
+    port->brg.reg = brg1 & 0xFFFF;
+  }
+
+  port->status.set = _U1STA_URXEN_MASK | _U1STA_UTXEN_MASK;
+  port->mode.set = _U1MODE_ON_MASK;
+}
+
+/**
+ * @brief Transmit buffer is full
+ */
+static inline bool_t
+uartTxBufferFull(UartPort *port)
+{
+    return port->status.reg & _U1STA_UTXBF_MASK;
+}
+
+/**
+ * @brief Transmit shift register is empty and transmit buffer is empty(the last transmission has completed)
+ */
+static inline bool_t
+uartTxComplete(UartPort *port)
+{
+    return !!(port->status.reg & _U1STA_TRMT_MASK);
+}
+
+static inline void
+uartTxByte(UartPort *port, uint8_t b)
+{
+    port->tx.reg = b;
+}
+
+static inline bool_t
+uartRxReady(UartPort *port)
+{
+    return !!(port->status.reg & _U1STA_URXDA_MASK);
+}
+
+static inline uint8_t
+uartRxByte(UartPort *port)
+{
+    return port->rx.reg;
 }
 
 void sd_lld_putc(uint8_t c) {
-  uint8_t port = SD1.port;
+  UartPort *port = (UartPort *)SD1.base;
 
-  while (!UARTTransmitterIsReady(port));
+  while (uartTxBufferFull(port));
 
-  UARTSendDataByte(port, c);
+  uartTxByte(port, c);
+
+  /* while (!uartTxComplete(port)); */
 }
 
 static void oNotify(GenericQueue *qp) {
-  uint8_t port = SD1.port;
+  msg_t b;
 
   (void)qp;
 
-  if (UARTTransmitterIsReady(port)) {
-    msg_t b = sdRequestDataI(&SD1);
-    if (b != Q_EMPTY) {
-      UARTSendDataByte(port, b);
-      while (!UARTTransmissionHasCompleted(port));
-    }
-  }
+  b = sdRequestDataI(&SD1);
+  if (b != Q_EMPTY)
+    sd_lld_putc(b);
 }
-#endif
 
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART || defined(__DOXYGEN__)
 /**
  * @brief   Common IRQ handler.
  *
@@ -114,19 +202,15 @@ static void oNotify(GenericQueue *qp) {
  */
 void sd_lld_serve_interrupt(void *data) {
   SerialDriver *sdp = data;
-  uint8_t port = sdp->port;
-  uint8_t c;
+  UartPort *port = (UartPort *)sdp->base;
 
   chSysLockFromIsr();
 
-  if (UARTReceivedDataIsAvailable(port)) {
-    c = UARTGetDataByte(port);
-    sdIncomingDataI(sdp, c);
-  }
+  if (uartRxReady(port))
+    sdIncomingDataI(sdp, uartRxByte(port));
 
   chSysUnlockFromIsr();
 }
-#endif
 
 /*===========================================================================*/
 /* Driver exported functions.                                                */
@@ -138,8 +222,8 @@ void sd_lld_serve_interrupt(void *data) {
  * @notapi
  */
 void sd_lld_init(void) {
-#if USE_MIPS_PIC32MX_UART
-  SD1.port = UART1;
+#if USE_MIPS_PIC32MX_UART1
+  SD1.base = (void *)/* MIPS_UNCACHED */(_UART1_BASE_ADDRESS);
   SD1.rxIrq = EIC_IRQ_UART1_RX;
   sdObjectInit(&SD1, NULL, oNotify);
 #if HAL_USE_EIC
@@ -162,11 +246,9 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
   if (config == NULL)
     config = &sc;
 
-#if USE_MIPS_PIC32MX_UART
   uartInit(sdp, config);
 #if HAL_USE_EIC
   eicEnableIrq(sdp->rxIrq);
-#endif
 #endif
 }
 
