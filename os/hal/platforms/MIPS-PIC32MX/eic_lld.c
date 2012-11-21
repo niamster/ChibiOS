@@ -96,11 +96,10 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
       uint32_t i = 31 - __builtin_clz(pending);
       uint32_t irq = i + bank * 32;
 
-      if (EIC_IRQ_CT != irq) {    /* Core timer is handled depending on mtc0.cause status */
+      if (EIC_IRQ_CT != irq) {    /* Core timer is not handled here */
         EicIrqInfo *info = &iInfo[irq];
 
-        if (!info->handler)
-          chDbgPanic("unhandled EIC irq");
+        chDbgAssert(info->handler, "unhandled EIC IRQ", "");
 
         info->handler(info->data);
       }

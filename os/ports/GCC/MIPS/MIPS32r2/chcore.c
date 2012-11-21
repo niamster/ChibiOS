@@ -287,8 +287,7 @@ bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
   if (cause&(1<<30))
     port_timer_isr();
 
-  if (!hw_irq_table[irq])
-    chDbgPanic("spurious IRQ");
+  chDbgAssert(hw_irq_table[irq], "spurious IRQ", "");
 
   hw_irq_table[irq]();
 
