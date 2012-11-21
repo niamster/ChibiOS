@@ -58,7 +58,7 @@ void port_halt(void) {
 
 static void port_reset_timer(void) {
   c0_set_compare(c0_get_count() +
-      (100000000 + CH_FREQUENCY/2) / CH_FREQUENCY);
+      (MIPS_CPU_FREQ + CH_FREQUENCY/2) / CH_FREQUENCY);
 }
 
 static void port_timer_isr(void) {
