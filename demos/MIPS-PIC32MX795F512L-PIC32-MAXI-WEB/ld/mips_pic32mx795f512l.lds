@@ -26,7 +26,7 @@ PROVIDE(__heap_end__ = 0x8001FFFF);
 MEMORY
 {
   kseg0_program_mem     (rx) : ORIGIN = 0x9D000000, LENGTH = 0x7FFFF
-  kseg0_ram_mem              : ORIGIN = 0x80000000, LENGTH = 0x1FFFF
+  kseg1_ram_mem              : ORIGIN = 0xA0000000, LENGTH = 0x1FFFF
   kseg1_boot_mem        (rx) : ORIGIN = 0xBFC00000, LENGTH = 0x2FEF
   devcfg3                    : ORIGIN = 0xBFC02FF0, LENGTH = 0x4
   devcfg2                    : ORIGIN = 0xBFC02FF4, LENGTH = 0x4
@@ -88,7 +88,7 @@ SECTIONS
     *(.sdata*)
     . = ALIGN(4);
     __ram_data_end__ = .;
-  } > kseg0_ram_mem
+  } > kseg1_ram_mem
 
   .bss ALIGN(4) : {
     __bss_start__ = .;
@@ -97,11 +97,11 @@ SECTIONS
     *(COMMON)
     . = ALIGN(4);
     __bss_end__ = .;
-  } > kseg0_ram_mem
+  } > kseg1_ram_mem
 
   .heap ALIGN(4) : {
     __heap_base__ = .;
-  } > kseg0_ram_mem
+  } > kseg1_ram_mem
 
   /DISCARD/ : {
     *(.rel.dyn);
