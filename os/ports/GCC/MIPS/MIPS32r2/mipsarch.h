@@ -52,6 +52,8 @@
 #define MIPS_REG_UNCACHED(reg)                  \
   and     reg, reg, ~MIPS_KSEG0_MASK;           \
   or      reg, reg, MIPS_KSEG0_UNCACHED_BASE
+#define MIPS_REG_PHYSICAL(reg)                  \
+  and     reg, reg, ~MIPS_KSEG0_MASK
 #endif /* __ASSEMBLER__ */
 
 /**
