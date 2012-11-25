@@ -22,7 +22,7 @@ OUTPUT_FORMAT("elf32-tradlittlemips")
 
 OUTPUT_ARCH(mips)
 ENTRY(_start)
-PROVIDE(__heap_end__ = 0x8001FFFF);
+PROVIDE(__heap_end__ = 0xA001FFFF);
 MEMORY
 {
   kseg0_program_mem     (rx) : ORIGIN = 0x9D000000, LENGTH = 0x7FFFF
