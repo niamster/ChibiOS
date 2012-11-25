@@ -56,6 +56,10 @@ SECTIONS
     __init_end__ = .;
   } > kseg1_boot_mem
 
+  .rom_data ALIGN(32) : {
+    __rom_data_start__ = .;
+  } > kseg1_boot_mem
+
   .text : {
     . = 0x180;
     ASSERT(. == 0x180, "wrong location of vectors");
@@ -67,16 +71,12 @@ SECTIONS
     KEEP (*(.vectors*))
     __vectors_end__ = .;
 
-    . = ALIGN(4);
+    . = ALIGN(32);
     __text_start__ = .;
     *(.text*)
     *(.gcc*)
     *(.ctors)
     __text_end__ = .;
-  } > kseg0_program_mem
-
-  .rom_data ALIGN(4) : {
-    __rom_data_start__ = .;
   } > kseg0_program_mem
 
   .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 31) & ~(31)) /* LMA */ {
@@ -86,20 +86,20 @@ SECTIONS
     __rodata_end__ = .;
     *(.data*)
     *(.sdata*)
-    . = ALIGN(4);
+    . = ALIGN(32);
     __ram_data_end__ = .;
   } > kseg1_ram_mem
 
-  .bss ALIGN(4) : {
+  .bss ALIGN(32) : {
     __bss_start__ = .;
     *(.bss*)
     *(.sbss*)
     *(COMMON)
-    . = ALIGN(4);
+    . = ALIGN(32);
     __bss_end__ = .;
   } > kseg1_ram_mem
 
-  .heap ALIGN(4) : {
+  .heap ALIGN(32) : {
     __heap_base__ = .;
   } > kseg1_ram_mem
 
