@@ -41,7 +41,7 @@
 
 MIPS_FUNC_START(_start)
   /* Start in uncached mode */
-  la      $k0, 0x2
+  li      $k0, 0x2
   mtc0    $k0, config0
 
   /* Clear CPU status */
