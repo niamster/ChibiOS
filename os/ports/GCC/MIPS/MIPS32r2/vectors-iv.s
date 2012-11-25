@@ -167,8 +167,7 @@ srs_resched:
   /* Switch to previous SRS */
   di
   mfc0    $k0, epc
-  la      $k1, savedEPC
-  sw      $k0, 0($k1)
+  wrpgpr  $k0, $k0
   la      $k0, prev_srs
   mtc0    $k0, epc
   eret
@@ -176,9 +175,8 @@ srs_resched:
 prev_srs:
   isr_save_ctx
 
-  la      $t0, savedEPC
-  lw      $t0, 0  ($t0)
-  sw      $t0, 84 ($sp)
+  /* EPC was stored in k0 before switching to this SRS */
+  sw      $k0, 84 ($sp)
 
   .extern chSchDoReschedule
   jal     chSchDoReschedule
@@ -227,13 +225,6 @@ prev_srs:
 MIPS_FUNC_END(i_vector)
 
 #include "vectors-single.s"
-
-
-  .bss
-
-  /* old EPC when switching SRS */
-savedEPC:
-  .word 0
 
 #endif
 
