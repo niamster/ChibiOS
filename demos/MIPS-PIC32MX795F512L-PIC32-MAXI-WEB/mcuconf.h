@@ -49,6 +49,6 @@
 /*
  * MIPS Timer frequency
  */
-#define MIPS_TIMER_FREQ                 MIPS_CPU_FREQ
+#define MIPS_TIMER_FREQ                 (MIPS_CPU_FREQ/2)
 
 #endif  /* _MCUCONF_H_ */
