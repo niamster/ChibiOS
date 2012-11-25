@@ -78,6 +78,16 @@ static EicIrqBank iBank[EIC_IRQ_BANK_QTY];
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
+static void eicCoreTimerIsr(void *data) {
+  (void)data;
+  
+  port_reset_mips_timer();
+
+  chSysLockFromIsr();
+  chSysTimerHandlerI();
+  chSysUnlockFromIsr();
+}
+
 /* Main EIC ISR */
 #if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
 CH_IRQ_HANDLER(MIPS_HW_IRQ0) // In PIC32 single-vectored IV mode all interrupts are wired to IRQ0
@@ -95,14 +105,11 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
     while (pending) {
       uint32_t i = 31 - __builtin_clz(pending);
       uint32_t irq = i + bank * 32;
+      EicIrqInfo *info = &iInfo[irq];
 
-      if (EIC_IRQ_CT != irq) {    /* Core timer is not handled here */
-        EicIrqInfo *info = &iInfo[irq];
+      chDbgAssert(info->handler, "unhandled EIC IRQ", "");
 
-        chDbgAssert(info->handler, "unhandled EIC IRQ", "");
-
-        info->handler(info->data);
-      }
+      info->handler(info->data);
 
       pending &= ~(1 << i);
 
@@ -186,6 +193,8 @@ void eic_lld_init(void) {
   IPC11SET = 0x04040404;
   IPC12SET = 0x04040404;
 
+  port_init_mips_timer();
+  eic_lld_register_irq(EIC_IRQ_CT, eicCoreTimerIsr, NULL);
   eic_lld_enable_irq(EIC_IRQ_CT);
 }
 

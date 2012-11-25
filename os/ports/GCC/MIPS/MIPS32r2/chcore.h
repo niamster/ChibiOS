@@ -76,6 +76,11 @@
  */
 /* #define MIPS_USE_VECTORED_IRQ */
 
+/**
+ * @brief   If defined MIPS core timer is handled by the port core code
+ */
+/* #define MIPS_PORT_HANDLE_CORE_TIMER */
+
 /*===========================================================================*/
 /* Port exported info.                                                       */
 /*===========================================================================*/
@@ -403,6 +408,16 @@ struct context {
 #define chSchIsPreemptionRequired()                                         \
   (firstprio(&rlist.r_queue) > currp->p_prio)
 #endif /* CH_TIME_QUANTUM == 0 */
+
+#define port_reset_mips_timer() do {                      \
+    c0_set_compare(c0_get_count() +                       \
+        (MIPS_TIMER_FREQ + CH_FREQUENCY/2) / CH_FREQUENCY); \
+} while (0)
+
+#define port_init_mips_timer() do {                      \
+    port_reset_mips_timer();                             \
+    c0_set_cause(c0_get_cause()&~(1<<27));               \
+} while (0)
 
 #ifdef __cplusplus
 extern "C" {

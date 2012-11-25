@@ -56,15 +56,13 @@ void port_halt(void) {
   for (;;);
 }
 
-static void port_reset_timer(void) {
-  c0_set_compare(c0_get_count() +
-      (MIPS_CPU_FREQ + CH_FREQUENCY/2) / CH_FREQUENCY);
-}
+#if defined(MIPS_PORT_HANDLE_CORE_TIMER)
+static uint8_t mt_ip_msk = ~0;
 
-static void port_timer_isr(void) {
+static void port_mips_timer_isr(void) {
   CH_IRQ_PROLOGUE();
 
-  port_reset_timer();
+  port_reset_mips_timer();
 
   chSysLockFromIsr();
   chSysTimerHandlerI();
@@ -72,12 +70,7 @@ static void port_timer_isr(void) {
 
   CH_IRQ_EPILOGUE();
 }
-
-static void __entry port_init_timer(void) {
-  port_reset_timer();
-
-  c0_set_cause(c0_get_cause()&~(1<<27));
-}
+#endif
 
 static void __entry port_init_cpu(void) {
 }
@@ -264,8 +257,11 @@ bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
   if (0 == ex) { /* IRQ */
     uint32_t ip = ((cause & status) >> 8) & 0xFF; /* only masked IRQs */
 
+#if defined(MIPS_PORT_HANDLE_CORE_TIMER)
     if (cause&(1<<30))
-      port_timer_isr();
+      port_mips_timer_isr();
+    ip &= mt_ip_msk;
+#endif
 
     while (ip) {
       uint32_t i = 31 - __builtin_clz(ip);
@@ -284,8 +280,12 @@ bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
 }
 
 bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
+#if defined(MIPS_PORT_HANDLE_CORE_TIMER)
   if (cause&(1<<30))
-    port_timer_isr();
+    port_mips_timer_isr();
+#else
+  (void)cause;
+#endif
 
   chDbgAssert(hw_irq_table[irq], "spurious IRQ", "");
 
@@ -295,11 +295,21 @@ bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
 }
 
 static void __entry port_init_irq(void) {
-  uint32_t mask, i;
+  uint32_t mask = 0, i;
 
   /* NOTE: This will not work in EIC mode(IM bits are treated as interrupt priority level)
    * EIC hal driver should then take care
    */
+
+#if defined(MIPS_PORT_HANDLE_CORE_TIMER)
+  {
+    uint32_t ipti = c0_get_intctl() >> 29;
+    if (ipti) {
+      mask |= 1 << (ipti + 8); // IM[x] timer
+      mt_ip_msk = ~(mask >> 8);
+    }
+  }
+#endif
 
   for (i=0; i<8; ++i) {
     if (hw_irq_table[i])
@@ -329,7 +339,9 @@ static void __entry port_init_irq(void) {
 void __entry port_early_init(void) {
   port_init_cpu();
   port_init_cache();
-  port_init_timer();
+#if defined(MIPS_PORT_HANDLE_CORE_TIMER)
+  port_init_mips_timer();
+#endif
   port_init_irq();
 }
 
