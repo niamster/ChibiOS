@@ -106,29 +106,79 @@
     asm volatile (".set push; .set noreorder; .set noat; mtc0 %0, " #reg ", " #sel "; ehb; .set pop" : : "r"(__v)); \
   } while (0)
 
-#define c0_get_status()     MFC0($12, 0)
-#define c0_set_status(r)    MTC0(r, $12, 0)
+#if defined(MIPS_USE_MIPS16_ISA)
+uint32_t __attribute__((nomips16)) c0_get_status(void);
+void __attribute__((nomips16)) c0_set_status(uint32_t r);
 
-#define c0_get_config0()    MFC0($16, 0)
-#define c0_set_config0(r)   MTC0(r, $16, 0)
+uint32_t __attribute__((nomips16)) c0_get_config0(void);
+void __attribute__((nomips16)) c0_set_config0(uint32_t r);
 
-#define c0_get_intctl()     MFC0($12, 1)
-#define c0_set_intctl(r)    MTC0(r, $12, 1)
+uint32_t __attribute__((nomips16)) c0_get_intctl(void);
+void __attribute__((nomips16)) c0_set_intctl(uint32_t r);
 
-#define c0_get_srsctl()     MFC0($12, 2)
-#define c0_set_srsctl(r)    MTC0(r, $12, 2)
+uint32_t __attribute__((nomips16)) c0_get_srsctl(void);
+void __attribute__((nomips16)) c0_set_srsctl(uint32_t r);
 
-#define c0_get_srsmap()     MFC0($12, 3)
-#define c0_set_srsmap(r)    MTC0(r, $12, 3)
+uint32_t __attribute__((nomips16)) c0_get_srsmap(void);
+void __attribute__((nomips16)) c0_set_srsmap(uint32_t r);
 
-#define c0_get_cause()      MFC0($13, 0)
-#define c0_set_cause(r)     MTC0(r, $13, 0)
+uint32_t __attribute__((nomips16)) c0_get_cause(void);
+void __attribute__((nomips16)) c0_set_cause(uint32_t r);
 
-#define c0_get_compare()    MFC0($11, 0)
-#define c0_set_compare(r)   MTC0(r, $11, 0)
+uint32_t __attribute__((nomips16)) c0_get_compare(void);
+void __attribute__((nomips16)) c0_set_compare(uint32_t r);
 
-#define c0_get_count()      MFC0($9, 0)
-#define c0_set_count(r)     MTC0(r, $9, 0)
+uint32_t __attribute__((nomips16)) c0_get_count(void);
+void __attribute__((nomips16)) c0_set_count(uint32_t r);
+#else
+#define c0_get_status       __c0_get_status
+#define c0_set_status       __c0_set_status
+
+#define c0_get_config0      __c0_get_config0
+#define c0_set_config0      __c0_set_config0
+
+#define c0_get_intctl       __c0_get_intctl
+#define c0_set_intctl       __c0_set_intctl
+
+#define c0_get_srsctl       __c0_get_srsctl
+#define c0_set_srsctl       __c0_set_srsctl
+
+#define c0_get_srsmap       __c0_get_srsmap
+#define c0_set_srsmap       __c0_set_srsmap
+
+#define c0_get_cause        __c0_get_cause
+#define c0_set_cause        __c0_set_cause
+
+#define c0_get_compare      __c0_get_compare
+#define c0_set_compare      __c0_set_compare
+
+#define c0_get_count        __c0_get_count
+#define c0_set_count        __c0_set_count
+#endif
+
+#define __c0_get_status()     MFC0($12, 0)
+#define __c0_set_status(r)    MTC0(r, $12, 0)
+
+#define __c0_get_config0()    MFC0($16, 0)
+#define __c0_set_config0(r)   MTC0(r, $16, 0)
+
+#define __c0_get_intctl()     MFC0($12, 1)
+#define __c0_set_intctl(r)    MTC0(r, $12, 1)
+
+#define __c0_get_srsctl()     MFC0($12, 2)
+#define __c0_set_srsctl(r)    MTC0(r, $12, 2)
+
+#define __c0_get_srsmap()     MFC0($12, 3)
+#define __c0_set_srsmap(r)    MTC0(r, $12, 3)
+
+#define __c0_get_cause()      MFC0($13, 0)
+#define __c0_set_cause(r)     MTC0(r, $13, 0)
+
+#define __c0_get_compare()    MFC0($11, 0)
+#define __c0_set_compare(r)   MTC0(r, $11, 0)
+
+#define __c0_get_count()      MFC0($9, 0)
+#define __c0_set_count(r)     MTC0(r, $9, 0)
 
 #endif /* __ASSEMBLER__ */
 

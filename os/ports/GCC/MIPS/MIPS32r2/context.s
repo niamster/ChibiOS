@@ -82,7 +82,11 @@ MIPS_FUNC_END(_port_switch_mips)
 MIPS_FUNC_START(_port_thread_start)
   jalr    $s1
   move    $a0, $s0
+#if defined(MIPS_USE_MIPS16_ISA)
+  jalx    chThdExit
+#else
   jal     chThdExit
+#endif
   nop
 MIPS_FUNC_END(_port_thread_start)
 

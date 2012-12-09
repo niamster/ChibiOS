@@ -84,7 +84,11 @@ MIPS_FUNC_START(e_vector)
   /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
 
   .extern chSchDoReschedule
+#if defined(MIPS_USE_MIPS16_ISA)
+  jalx    chSchDoReschedule
+#else
   jal     chSchDoReschedule
+#endif
   subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
   addi    $sp, $sp, MIPS_STACK_FRAME_SIZE

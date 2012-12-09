@@ -36,7 +36,8 @@
 #define __entry                                      \
   __attribute__ ((__section__(".core.entry")))       \
   __attribute__ ((__optimize__("-O1")))              \
-  __attribute__ ((__aligned__(4)))
+  __attribute__ ((__aligned__(4)))                   \
+  __nomips16
 
 /**
  * Halts the system.
@@ -44,7 +45,7 @@
 #if !defined(__DOXYGEN__)
 __attribute__((weak))
 #endif
-void port_halt(void) {
+void __nomips16 port_halt(void) {
   port_disable();
 #if CH_DBG_ENABLED
   {
@@ -59,7 +60,8 @@ void port_halt(void) {
 #if defined(MIPS_PORT_HANDLE_CORE_TIMER)
 static uint8_t mt_ip_msk = ~0;
 
-static void port_mips_timer_isr(void) {
+static void __nomips16
+port_mips_timer_isr(void) {
   CH_IRQ_PROLOGUE();
 
   port_reset_mips_timer();
@@ -249,7 +251,8 @@ static mips_hw_irq_t hw_irq_table[] = {
 #endif
 };
 
-bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
+bool_t __nomips16
+port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
   uint32_t ex = (cause >> 2) & 0x1f;
 
   (void)epc;
@@ -263,6 +266,22 @@ bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     ip &= mt_ip_msk;
 #endif
 
+#if defined(MIPS_USE_MIPS16_ISA)
+    {
+      uint32_t i;
+
+      for (i=0;i<8;++i) {
+        if (ip&1) {
+          if (!hw_irq_table[i])
+            chDbgPanic("spurious IRQ");
+
+          hw_irq_table[i]();
+        }
+
+        ip >>= 1;
+      }
+    }
+#else
     while (ip) {
       uint32_t i = 31 - __builtin_clz(ip);
 
@@ -273,6 +292,7 @@ bool_t port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
 
       ip &= ~(1 << i);
     }
+#endif
   } else
     chDbgPanic("unhandled exception");
 
@@ -345,4 +365,110 @@ void __entry port_early_init(void) {
   port_init_irq();
 }
 
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16
+port_lock(void) {
+  MIPS_DISABLE_IRQ();
+}
+
+void __nomips16
+port_unlock(void) {
+  MIPS_RESTORE_IRQ(1);
+}
+
+void __nomips16
+port_enable(void) {
+  MIPS_RESTORE_IRQ(1);
+}
+
+void __nomips16
+port_disable(void) {
+  MIPS_DISABLE_IRQ();
+}
+
+void __nomips16
+port_wait_for_interrupt(void) {
+  MIPS_SIMPLE_ASM(wait);
+}
+
+uint32_t __nomips16
+c0_get_status(void) {
+  return __c0_get_status();
+}
+
+void __nomips16
+c0_set_status(uint32_t r) {
+  __c0_set_status(r);
+}
+
+uint32_t __nomips16
+c0_get_config0(void) {
+  return __c0_get_config0();
+}
+
+void __nomips16
+c0_set_config0(uint32_t r) {
+  __c0_set_config0(r);
+}
+
+uint32_t __nomips16
+c0_get_intctl(void) {
+  return __c0_get_intctl();
+}
+
+void __nomips16
+c0_set_intctl(uint32_t r) {
+  __c0_set_intctl(r);
+}
+
+uint32_t __nomips16
+c0_get_srsctl(void) {
+  return __c0_get_srsctl();
+}
+
+void __nomips16
+c0_set_srsctl(uint32_t r) {
+  __c0_set_srsctl(r);
+}
+
+uint32_t __nomips16
+c0_get_srsmap(void) {
+  return __c0_get_srsmap();
+}
+
+void __nomips16
+c0_set_srsmap(uint32_t r) {
+  __c0_set_srsmap(r);
+}
+
+uint32_t __nomips16
+c0_get_cause(void) {
+  return __c0_get_cause();
+}
+
+void __nomips16
+c0_set_cause(uint32_t r) {
+  __c0_set_cause(r);
+}
+
+uint32_t __nomips16
+c0_get_compare(void) {
+  return __c0_get_compare();
+}
+
+void __nomips16
+c0_set_compare(uint32_t r) {
+  __c0_set_compare(r);
+}
+
+uint32_t __nomips16
+c0_get_count(void) {
+  return __c0_get_count();
+}
+
+void __nomips16
+c0_set_count(uint32_t r) {
+  __c0_set_count(r);
+}
+#endif
 /** @} */

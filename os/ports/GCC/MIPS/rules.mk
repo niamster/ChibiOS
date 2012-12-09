@@ -19,6 +19,11 @@ LDOPT     = $(USE_LDOPT)
 ifeq ($(USE_LINK_GC),yes)
   OPT += -ffunction-sections -fdata-sections
 endif
+ifeq ($(USE_MIPS16),yes)
+  COPT    += -mips16 -minterlink-mips16 -mlong-calls
+  CPPOPT  += -mips16 -minterlink-mips16 -mlong-calls
+  OPT     += -DMIPS_USE_MIPS16_ISA
+endif
 
 # Source files path
 SRCPATHS  = $(sort $(dir $(ASMSRC)) $(dir $(CSRC)) $(dir $(CPPSRC)))

@@ -72,7 +72,7 @@ void hal_lld_init(void) {
 
   BMXCONSET = _BMXCON_BMXCHEDMA_MASK; /* Enable program Flash memory (data) cacheability for DMA accesses */
 
-    // cached KSEG0
+  // cached KSEG0
   c0_set_config0((c0_get_config0() & ~7) | 3);
 #endif
 

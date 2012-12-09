@@ -102,6 +102,24 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
   for (bank=0;bank<EIC_IRQ_BANK_QTY;++bank) {
     uint32_t pending = *iBank[bank].status & iBank[bank].mask;
 
+#if defined(MIPS_USE_MIPS16_ISA)
+    uint32_t i;
+
+    for (i=0;i<32;++i) {
+      if (pending&1) {
+        uint32_t irq = i + bank * 32;
+        EicIrqInfo *info = &iInfo[irq];
+
+        chDbgAssert(info->handler, "unhandled EIC IRQ", "");
+
+        info->handler(info->data);
+
+        *iBank[bank].clear = 1 << i;
+      }
+
+      pending >>= 1;
+    }
+#else
     while (pending) {
       uint32_t i = 31 - __builtin_clz(pending);
       uint32_t irq = i + bank * 32;
@@ -115,6 +133,7 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
       *iBank[bank].clear = 1 << i;
     }
+#endif
   }
  
   CH_IRQ_EPILOGUE();

@@ -81,6 +81,17 @@
  */
 /* #define MIPS_PORT_HANDLE_CORE_TIMER */
 
+/**
+ * @brief   If defined MIPS16 ISA is used to compile C and C++ code
+ */
+/* #define MIPS_USE_MIPS16_ISA */
+
+#if defined(MIPS_USE_MIPS16_ISA)
+#define __nomips16 __attribute__ ((nomips16))
+#else
+#define __nomips16
+#endif
+
 /*===========================================================================*/
 /* Port exported info.                                                       */
 /*===========================================================================*/
@@ -128,7 +139,7 @@
 #define CH_PORT_INFO                    "MIPS"
 
 #elif MIPS_CORE == MIPS_CORE_MIPS32R2
-#define CH_ARCHITECTURE_MIPS7TDMI
+#define CH_ARCHITECTURE_MIPS32R2
 #define CH_ARCHITECTURE_NAME            "MIPS32"
 #define CH_CORE_VARIANT_NAME            "MIPS32r2"
 #endif
@@ -236,7 +247,11 @@ struct context {
  *          a stack frame when compiling without optimizations.
  */
 #ifndef PORT_IDLE_THREAD_STACK_SIZE
+#if defined(MIPS_USE_MIPS16_ISA)
+#define PORT_IDLE_THREAD_STACK_SIZE     32
+#else
 #define PORT_IDLE_THREAD_STACK_SIZE     0
+#endif
 #endif
 
 /**
@@ -250,7 +265,11 @@ struct context {
  *          analysis of the generated code.
  */
 #ifndef PORT_INT_REQUIRED_STACK
+#if defined(MIPS_USE_MIPS16_ISA)
+#define PORT_INT_REQUIRED_STACK         (MIPS_STACK_FRAME_SIZE*4)
+#else
 #define PORT_INT_REQUIRED_STACK         (MIPS_STACK_FRAME_SIZE*2)
+#endif
 #endif
 
 /**
@@ -312,7 +331,11 @@ struct context {
  *          more actions.
  * @note    In this port it disables the IRQ sources.
  */
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16 port_lock(void);
+#else
 #define port_lock() MIPS_DISABLE_IRQ()
+#endif
 
 /**
  * @brief   Kernel-unlock action.
@@ -320,7 +343,11 @@ struct context {
  *          more actions.
  * @note    In this port it enables both the IRQ sources.
  */
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16 port_unlock(void);
+#else
 #define port_unlock() MIPS_RESTORE_IRQ(1)
+#endif
 
 /**
  * @brief   Kernel-lock action from an interrupt handler.
@@ -344,7 +371,11 @@ struct context {
  * @brief   Disables all the interrupt sources.
  * @note    Of course non-maskable interrupt sources are not included.
  */
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16 port_disable(void);
+#else
 #define port_disable() MIPS_DISABLE_IRQ()
+#endif
 
 /**
  * @brief   Disables the interrupt sources below kernel-level priority.
@@ -356,7 +387,11 @@ struct context {
 /**
  * @brief   Enables all the interrupt sources.
  */
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16 port_enable(void);
+#else
 #define port_enable() MIPS_RESTORE_IRQ(1)
+#endif
 
 /**
  * @brief   MIPS32r2-specific wait for interrupt.
@@ -365,7 +400,11 @@ struct context {
 #if (MIPS_ENABLE_WFI_IDLE == FALSE) || defined(__DOXYGEN__)
 #define port_wait_for_interrupt() do {} while (0)
 #else
+#if defined(MIPS_USE_MIPS16_ISA)
+void __nomips16 port_wait_for_interrupt(void);
+#else
 #define port_wait_for_interrupt() MIPS_SIMPLE_ASM(wait)
+#endif
 #endif
 #endif
 
@@ -422,9 +461,9 @@ struct context {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void port_halt(void);
-  void _port_switch_mips(Thread *ntp, Thread *otp);
-  void _port_thread_start(void);
+  void __nomips16 port_halt(void);
+  void __nomips16 _port_switch_mips(Thread *ntp, Thread *otp);
+  void __nomips16 _port_thread_start(void);
 #ifdef __cplusplus
 }
 #endif

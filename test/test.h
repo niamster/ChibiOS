@@ -52,6 +52,8 @@
 #define THREADS_STACK_SIZE      64
 #elif defined(CH_ARCHITECTURE_SIMIA32)
 #define THREADS_STACK_SIZE      512
+#elif defined(CH_ARCHITECTURE_MIPS32R2) && defined(MIPS_USE_MIPS16_ISA)
+#define THREADS_STACK_SIZE      256
 #else
 #define THREADS_STACK_SIZE      128
 #endif

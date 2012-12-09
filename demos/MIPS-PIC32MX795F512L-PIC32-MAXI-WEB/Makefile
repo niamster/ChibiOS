@@ -27,6 +27,11 @@ ifeq ($(USE_CPPOPT),)
   USE_CPPOPT = -fno-rtti -fno-exceptions
 endif
 
+# Enable this if you want to compile in mips16 ISA
+ifeq ($(USE_MIPS16),)
+  USE_MIPS16 = no
+endif
+
 # Enable this if you want the linker to remove unused code and data
 ifeq ($(USE_LINK_GC),)
   USE_LINK_GC = yes
