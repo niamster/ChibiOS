@@ -174,11 +174,11 @@ uartRxByte(UartPort *port)
 void sd_lld_putc(uint8_t c) {
   UartPort *port = (UartPort *)SD1.base;
 
-  while (uartTxBufferFull(port));
+  /* while (uartTxBufferFull(port)); */
 
   uartTxByte(port, c);
 
-  /* while (!uartTxComplete(port)); */
+  while (!uartTxComplete(port));
 }
 
 static void oNotify(GenericQueue *qp) {
