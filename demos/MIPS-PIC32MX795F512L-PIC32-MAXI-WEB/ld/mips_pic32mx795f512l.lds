@@ -79,11 +79,14 @@ SECTIONS
     __text_end__ = .;
   } > kseg0_program_mem
 
-  .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 31) & ~(31)) /* LMA */ {
-    __ram_data_start__ = .;
+  .rodata ALIGN(32) : {
     __rodata_start__ = .;
     *(.rodata*)
     __rodata_end__ = .;
+  } > kseg0_program_mem
+
+  .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 31) & ~(31)) /* LMA */ {
+    __ram_data_start__ = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(32);
