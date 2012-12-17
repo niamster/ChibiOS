@@ -46,7 +46,7 @@ __attribute__((weak))
 #endif
 void port_halt(void) {
   port_disable();
-#if CH_DBG_ENABLED && USE_MIPS_QEMU_UART
+#if CH_DBG_ENABLED
   {
     const char *m = dbg_panic_msg;
     while (*m)
