@@ -30,6 +30,10 @@
 #include "hal.h"
 
 /*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
+
+/*===========================================================================*/
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
@@ -110,7 +114,11 @@ void hal_lld_init(void) {
                   SysTick_CTRL_ENABLE_Msk |
                   SysTick_CTRL_TICKINT_Msk;
 
-  /* PWR and BD clocks enabled.*/
+  /* DWT cycle counter enable.*/
+  SCS_DEMCR |= SCS_DEMCR_TRCENA;
+  DWT_CTRL  |= DWT_CTRL_CYCCNTENA;
+
+  /* PWR clock enabled.*/
   rccEnablePWRInterface(FALSE);
 
   /* Initializes the backup domain.*/
@@ -124,6 +132,13 @@ void hal_lld_init(void) {
 #if STM32_PVD_ENABLE
   PWR->CR |= PWR_CR_PVDE | (STM32_PLS & STM32_PLS_MASK);
 #endif /* STM32_PVD_ENABLE */
+
+  /* SYSCFG clock enabled here because it is a multi-functional unit shared
+     among multiple drivers.*/
+  rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE);
+
+  /* USB IRQ relocated to not conflict with CAN.*/
+  SYSCFG->CFGR1 |= SYSCFG_CFGR1_USB_IT_RMP;
 }
 
 /**
@@ -192,10 +207,6 @@ void stm32_clock_init(void) {
   while ((RCC->CFGR & RCC_CFGR_SWS) != (STM32_SW << 2))
     ;                                       /* Waits selection complete.    */
 #endif
-
-  /* SYSCFG clock enabled here because it is a multi-functional unit shared
-     among multiple drivers.*/
-  rccEnableAPB2(RCC_APB2ENR_SYSCFGEN, TRUE);
 #endif /* !STM32_NO_INIT */
 }
 

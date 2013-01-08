@@ -31,6 +31,10 @@
 
 #if HAL_USE_PAL || defined(__DOXYGEN__)
 
+/*===========================================================================*/
+/* Driver local definitions.                                                 */
+/*===========================================================================*/
+
 #if defined(STM32L1XX_MD)
 #define AHB_EN_MASK     (RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN |          \
                          RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |          \
@@ -110,6 +114,8 @@ void _pal_lld_init(const PALConfig *config) {
   rccEnableAHB(AHB_EN_MASK, TRUE);
   RCC->AHBLPENR |= AHB_LPEN_MASK;
 #elif defined(STM32F0XX)
+  rccEnableAHB(AHB_EN_MASK, TRUE);
+#elif defined(STM32F30X)
   rccEnableAHB(AHB_EN_MASK, TRUE);
 #elif defined(STM32F2XX) || defined(STM32F4XX)
   RCC->AHB1ENR   |= AHB1_EN_MASK;
