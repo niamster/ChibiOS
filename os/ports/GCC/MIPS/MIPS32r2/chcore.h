@@ -247,11 +247,7 @@ struct context {
  *          a stack frame when compiling without optimizations.
  */
 #ifndef PORT_IDLE_THREAD_STACK_SIZE
-#if defined(MIPS_USE_MIPS16_ISA)
 #define PORT_IDLE_THREAD_STACK_SIZE     32
-#else
-#define PORT_IDLE_THREAD_STACK_SIZE     0
-#endif
 #endif
 
 /**
