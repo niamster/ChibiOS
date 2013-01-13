@@ -25,14 +25,20 @@ ENTRY(_start)
 PROVIDE(__heap_end__ = 0xA001FFFF);
 MEMORY
 {
-  kseg0_program_mem     (rx) : ORIGIN = 0x9D000000, LENGTH = 0x7FFFF
-  kseg1_ram_mem              : ORIGIN = 0xA0000000, LENGTH = 0x1FFFF
-  kseg1_boot_mem        (rx) : ORIGIN = 0xBFC00000, LENGTH = 0x2FEF
+  kseg0_boot_mem        (rx) : ORIGIN = 0x9FC00000, LENGTH = 0x2FF0
+  kseg1_boot_mem        (rx) : ORIGIN = 0xBFC00000, LENGTH = 0x2FF0
+
+  kseg0_program_mem     (rx) : ORIGIN = 0x9D000000, LENGTH = 512K
+  kseg1_data_mem             : ORIGIN = 0xA0000000, LENGTH = 128K
+
   devcfg3                    : ORIGIN = 0xBFC02FF0, LENGTH = 0x4
   devcfg2                    : ORIGIN = 0xBFC02FF4, LENGTH = 0x4
   devcfg1                    : ORIGIN = 0xBFC02FF8, LENGTH = 0x4
   devcfg0                    : ORIGIN = 0xBFC02FFC, LENGTH = 0x4
+
   sfrs                       : ORIGIN = 0xBF800000, LENGTH = 0x100000
+
+  exception_mem              : ORIGIN = 0x9D000000, LENGTH = 0x400
 }
 SECTIONS
 {
@@ -74,14 +80,15 @@ SECTIONS
     . = ALIGN(32);
     __text_start__ = .;
     *(.text*)
-    *(.gcc*)
     *(.ctors)
+    . = ALIGN(32);
     __text_end__ = .;
   } > kseg0_program_mem
 
   .rodata ALIGN(32) : {
     __rodata_start__ = .;
     *(.rodata*)
+    . = ALIGN(32);
     __rodata_end__ = .;
   } > kseg0_program_mem
 
@@ -91,7 +98,7 @@ SECTIONS
     *(.sdata*)
     . = ALIGN(32);
     __ram_data_end__ = .;
-  } > kseg1_ram_mem
+  } > kseg1_data_mem
 
   .bss ALIGN(32) : {
     __bss_start__ = .;
@@ -100,11 +107,11 @@ SECTIONS
     *(COMMON)
     . = ALIGN(32);
     __bss_end__ = .;
-  } > kseg1_ram_mem
+  } > kseg1_data_mem
 
   .heap ALIGN(32) : {
     __heap_base__ = .;
-  } > kseg1_ram_mem
+  } > kseg1_data_mem
 
   /DISCARD/ : {
     *(.rel.dyn);
