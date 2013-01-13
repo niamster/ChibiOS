@@ -59,7 +59,7 @@ MIPS_FUNC_END(i_vector ## x)
 #endif
 
 
-  .section .evectors
+  MIPS_SECTION_CODE(.evectors)
 
 MIPS_FUNC_START(gen_vector)
   j       e_vector
@@ -67,7 +67,7 @@ MIPS_FUNC_START(gen_vector)
 MIPS_FUNC_END(gen_vector)
 
 
-  .section .ivectors
+  MIPS_SECTION_CODE(.ivectors)
 
   MIPS_IVECTOR_X(0)
   MIPS_IVECTOR_X(1)

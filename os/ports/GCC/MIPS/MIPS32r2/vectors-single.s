@@ -39,7 +39,7 @@
 #if !defined(__DOXYGEN__)
 
 
-  .section .vectors
+  MIPS_SECTION_CODE(.vectors)
 
 MIPS_FUNC_START(e_vector)
   /* FIXME: do via offsets of real structure */

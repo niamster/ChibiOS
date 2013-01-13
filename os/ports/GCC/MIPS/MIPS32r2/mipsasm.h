@@ -70,7 +70,16 @@ name:
  */
 #define MIPS_FUNC_END(name)                     \
   name##_end:                                   \
-  .set pop;                                     \
+  .set pop
+
+/**
+ * @brief   MIPS ASM Section Header.
+ */
+#ifdef __XC32
+#define MIPS_SECTION_CODE(name) .section name, code
+#else
+#define MIPS_SECTION_CODE(name) .section name
+#endif
 
 #endif /* _MIPSASM_H_ */
 

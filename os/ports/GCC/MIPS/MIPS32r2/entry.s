@@ -37,7 +37,7 @@
 #if !defined(__DOXYGEN__)
 
 
-  .section .entry
+  MIPS_SECTION_CODE(.entry)
 
 MIPS_FUNC_START(_start)
   /* Start in uncached mode */
