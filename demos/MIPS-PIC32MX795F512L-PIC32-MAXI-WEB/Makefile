@@ -95,10 +95,9 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 
 MCU  = 
 
-TRGT  ?= mips-sde-elf-
+TRGT ?= mips-sde-elf-
 
 CC   = $(TRGT)gcc
-XCC  = $(XTRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
@@ -109,7 +108,7 @@ CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 STRIP= $(TRGT)strip --strip-all
-BIN	 = $(CP) -O binary
+SREC = $(CP) -O srec
 
 # Define C warning options here
 CWARN = -Wall -Wextra -Wstrict-prototypes
@@ -167,4 +166,14 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
+OUTFILES = $(BUILDDIR)/$(PROJECT).srec
+
 include $(CHIBIOS)/os/ports/GCC/MIPS/rules.mk
+
+$(BUILDDIR)/%.srec: $(BUILDDIR)/%.elf $(LDSCRIPT)
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	$(SREC) $< $@
+else
+	@echo Creating $@
+	@$(SREC) $< $@
+endif

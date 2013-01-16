@@ -95,10 +95,9 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 
 MCU  = 
 
-TRGT  ?= xc32-
+TRGT ?= xc32-
 
 CC   = $(TRGT)gcc
-XCC  = $(XTRGT)gcc
 CPPC = $(TRGT)g++
 # Enable loading with g++ only if you need C++ runtime support.
 # NOTE: You can use C++ even without C++ support if you are careful. C++
@@ -109,7 +108,6 @@ CP   = $(TRGT)objcopy
 AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 STRIP= $(TRGT)strip --strip-all
-BIN	 = $(CP) -O binary
 
 # Define C warning options here
 CWARN = -Wall -Wextra -Wstrict-prototypes
