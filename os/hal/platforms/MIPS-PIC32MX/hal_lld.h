@@ -214,7 +214,7 @@
 /*===========================================================================*/
 
 #define __PIC32MX_DEVCFG(c, v)                                          \
-  uint32_t __DEVCFG ## c ## __                                          \
+  const uint32_t __DEVCFG ## c ## __                                    \
   __attribute__ ((section (".devcfg" #c))) =                            \
     ((v) | DEVCFG ## c ## _UNIMPLEMENTED | DEVCFG ## c ## _DEFAULT) ^ DEVCFG ## c ## _INVERTED;
 
