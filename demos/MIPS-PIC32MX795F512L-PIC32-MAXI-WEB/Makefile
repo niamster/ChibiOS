@@ -109,6 +109,7 @@ AS   = $(TRGT)gcc -x assembler-with-cpp
 OD   = $(TRGT)objdump
 STRIP= $(TRGT)strip --strip-all
 SREC = $(CP) -O srec
+HEX  = $(CP) -O ihex --change-addresses=0x80000000 --change-section-address .boot=0x1FC00000 --change-section-address .devcfg=0x1FC02FF0
 
 # Define C warning options here
 CWARN = -Wall -Wextra -Wstrict-prototypes
@@ -166,7 +167,8 @@ ULIBS =
 # End of user defines
 ##############################################################################
 
-OUTFILES = $(BUILDDIR)/$(PROJECT).srec
+OUTFILES = $(BUILDDIR)/$(PROJECT).srec \
+    $(BUILDDIR)/$(PROJECT).hex
 
 include $(CHIBIOS)/os/ports/GCC/MIPS/rules.mk
 
@@ -176,4 +178,12 @@ ifeq ($(USE_VERBOSE_COMPILE),yes)
 else
 	@echo Creating $@
 	@$(SREC) $< $@
+endif
+
+$(BUILDDIR)/%.hex: $(BUILDDIR)/%.elf $(LDSCRIPT)
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+	$(HEX) $< $@
+else
+	@echo Creating $@
+	@$(HEX) $< $@
 endif
