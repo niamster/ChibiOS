@@ -62,43 +62,41 @@ SECTIONS
     KEEP (*(.vectors*))
     __vectors_end__ = .;
 
-    . = ALIGN(32);
+    . = ALIGN(16);
     __text_start__ = .;
     *(.text*)
     *(.ctors)
-    . = ALIGN(32);
     __text_end__ = .;
   } > kseg0_program_mem
 
-  .rodata ALIGN(32) : {
+  .rodata ALIGN(16) : {
     __rodata_start__ = .;
     *(.rodata*)
-    . = ALIGN(32);
+    . = ALIGN(4);
     __rodata_end__ = .;
   } > kseg0_program_mem
 
-  .rom_data ALIGN(32) : {
+  .rom_data ALIGN(16) : {
     __rom_data_start__ = .;
   } > kseg0_program_mem
 
-  .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 31) & ~(31)) /* LMA */ {
+  .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 15) & ~(15)) /* LMA */ {
     __ram_data_start__ = .;
     *(.data*)
     *(.sdata*)
-    . = ALIGN(32);
     __ram_data_end__ = .;
   } > kseg1_data_mem
 
-  .bss ALIGN(32) : {
+  .bss ALIGN(4) : {
     __bss_start__ = .;
     *(.bss*)
     *(.sbss*)
     *(COMMON)
-    . = ALIGN(32);
+    . = ALIGN(4);
     __bss_end__ = .;
   } > kseg1_data_mem
 
-  .heap ALIGN(32) : {
+  .heap : {
     __heap_base__ = .;
   } > kseg1_data_mem
 
