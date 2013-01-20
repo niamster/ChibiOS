@@ -23,6 +23,7 @@
 
 PIC32MX_DEVCFG0(
                 DEVCFG0_ICESEL_CH2    // Use PGC2/PGD2
+                | DEVCFG0_DEBUG_DISABLED // Disable DEBUG
     );
 PIC32MX_DEVCFG1(
                 DEVCFG1_FNOSC_PRIPLL  // Primary oscillator with PLL
