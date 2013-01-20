@@ -34,6 +34,8 @@ MEMORY
   devcfg                 (w) : ORIGIN = 0x1FC02FF0, LENGTH = 0x10
 
   sfrs                   (w) : ORIGIN = 0xBF800000, LENGTH = 0x100000
+
+  exception_mem         (rx) : ORIGIN = 0x9D000000, LENGTH = 0x400
 }
 SECTIONS
 {
@@ -73,20 +75,18 @@ SECTIONS
   .rodata ALIGN(32) : {
     __rodata_start__ = .;
     *(.rodata*)
+    *(.dinit*)
     . = ALIGN(32);
     __rodata_end__ = .;
   } > kseg0_program_mem
 
   .rom_data ALIGN(32) : {
-    __rom_data_start__ = .;
   } > kseg0_program_mem
 
   .data : AT((LOADADDR(.rom_data) + SIZEOF(.rom_data) + 31) & ~(31)) /* LMA */ {
-    __ram_data_start__ = .;
     *(.data*)
     *(.sdata*)
     . = ALIGN(32);
-    __ram_data_end__ = .;
   } > kseg1_data_mem
 
   .bss ALIGN(32) : {

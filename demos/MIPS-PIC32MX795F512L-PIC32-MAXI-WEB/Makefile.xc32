@@ -63,7 +63,7 @@ include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/test/test.mk
 
 # Define linker script file here
-LDSCRIPT= ld/mips_pic32mx795f512l.lds
+LDSCRIPT= ld/mips_pic32mx795f512l.xc32.lds
 
 # List C source files here
 CSRC = $(PORTSRC) \

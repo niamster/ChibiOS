@@ -58,6 +58,9 @@ MIPS_FUNC_START(_start)
   /* Setup initial context, run C setup code and finally call main() */
 
   /* <clear:bss> */
+#ifdef __XC32
+  /* .bss is initialized via dinit table */
+#else
   /* Strongly assume that .bss START and END are word aligned */
   la      $t0, __bss_start__
   la      $t1, __bss_end__
@@ -67,10 +70,60 @@ MIPS_FUNC_START(_start)
   sw      $zero, 0($t0)
   bne     $t0, $t1, 1b
   addiu   $t0, $t0, 4
+#endif
   /* </clear:bss> */
 
   /* <copy:data> */
   /* Copy .data from ROM to RAM if needed */
+#ifdef __XC32
+  /* xc32-ish way to copy data */
+
+  /* Table format:
+     struct {
+       uint32_t dst;
+       uint32_t len;
+       uint32_t fmt;
+       uint8_t  data[];
+     };
+    If fmt is 0 then clear the memory at dst, otherwise copy from data[] to dst
+    If fmt is clear then size of data[] is zero
+    Next entry is at 4-bytes aligned address after data.
+    If dst is 0 then it's the end of the table, e.g. table is NULL-terminated
+  */
+
+  la      $t0, _dinit_addr
+
+_dinit_next:
+  lw      $t1, 0($t0)           /* dst */
+  beqz    $t1, _early_init
+  lw      $t2, 4($t0)           /* len */
+  lw      $t3, 8($t0)           /* fmt */
+  beq     $t3, $zero, _dinit_clear
+  addu    $t0, $t0, 0xC
+
+_dinit_copy:
+  lbu     $t3, 0($t0)
+  subu    $t2, $t2, 1
+  addu    $t0, $t0, 1
+  sb      $t3, 0($t1)
+  bnez    $t2, _dinit_copy
+  addu    $t1, $t1, 1
+
+  b       _dinit_end
+  nop
+
+_dinit_clear:
+  sb      $zero, 0($t1)
+  subu    $t2, $t2, 1
+  bne     $t2, $zero, _dinit_clear
+  addu    $t1, $t1, 1
+
+_dinit_end:
+  li      $t3, 0xFFFFFFFC
+  addu    $t0, $t0, 3
+  b       _dinit_next
+  and     $t0, $t0, $t3
+#else
   /* Strongly assume that .data START and END are word aligned */
   la      $t0, __rom_data_start__
   la      $t1, __ram_data_start__
@@ -86,6 +139,7 @@ MIPS_FUNC_START(_start)
   addiu   $t0, $t0, 4
   bne     $t1, $t2, 2b
   addiu   $t1, $t1, 4
+#endif
   /* </copy:data> */
 
 _early_init:

@@ -107,13 +107,25 @@ static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
   extern uint8_t __vectors_end__[];
   extern uint8_t __text_start__[];
   extern uint8_t __text_end__[];
+#ifndef __XC32
   extern uint8_t __rom_data_start__[];
   extern uint8_t __ram_data_start__[];
   extern uint8_t __ram_data_end__[];
+#endif
   extern uint8_t __rodata_start__[];
   extern uint8_t __rodata_end__[];
   extern uint8_t __bss_start__[];
   extern uint8_t __bss_end__[];
+#ifdef __XC32
+  struct dinit {
+    uint32_t dst;
+    uint32_t len;
+    uint32_t fmt;
+    uint8_t  data[];
+  };
+  extern struct dinit _dinit_addr;
+  struct dinit *dinit = &_dinit_addr;
+#endif
 
 #if CH_USE_HEAP
   size_t n, hSize;
@@ -135,15 +147,29 @@ static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
       (uint32_t)(uint8_t *)__text_start__, (uint32_t)(uint8_t *)__text_end__, (uint32_t)(uint8_t *)__text_end__ - (uint32_t)(uint8_t *)__text_start__);
   chprintf(chp, "ro-data: %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__rodata_start__, (uint32_t)(uint8_t *)__rodata_end__, (uint32_t)(uint8_t *)__rodata_end__ - (uint32_t)(uint8_t *)__rodata_start__);
+#ifndef __XC32
   chprintf(chp, "data:    %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__ram_data_start__, (uint32_t)(uint8_t *)__ram_data_end__, (uint32_t)(uint8_t *)__ram_data_end__ - (uint32_t)(uint8_t *)__ram_data_start__);
+#endif
   chprintf(chp, "bss :    %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__bss_start__, (uint32_t)(uint8_t *)__bss_end__, (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
   chprintf(chp, "heap:    %.8x:%.8x(%d bytes)\r\n",
       (uint32_t)(uint8_t *)__heap_base__, (uint32_t)(uint8_t *)__heap_end__, (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__);
 
-  if ((uint8_t *)__rom_data_start__ != (uint8_t *)__ram_data_start__)
-      chprintf(chp, " ROM .data was relocated to RAM at %.8x\r\n", (uint32_t)(uint8_t *)__ram_data_start__);
+#ifdef __XC32
+  if (dinit->dst)
+    chprintf(chp, " dinit entries:\r\n");
+  while (dinit->dst) {
+    chprintf(chp, "   dst %.8x len %.8x fmt %s\r\n", dinit->dst, dinit->len, dinit->fmt?"copy":"clear");
+    dinit = (struct dinit *)(((uint32_t)((uint8_t *)dinit + sizeof(struct dinit) + (dinit->fmt?dinit->len:0)) + 3) & ~3);
+  }
+#else
+  if ((uint8_t *)__ram_data_start__ != (uint8_t *)__ram_data_end__
+      && (uint8_t *)__rom_data_start__ != (uint8_t *)__ram_data_start__)
+    chprintf(chp, " ROM .data was relocated from %.8x to %.8x\r\n",
+        (uint32_t)(uint8_t *)__rom_data_start__,
+        (uint32_t)(uint8_t *)__ram_data_start__);
+#endif
   
   (void)argc;
   (void)argv;
