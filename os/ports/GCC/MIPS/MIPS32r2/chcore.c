@@ -39,6 +39,8 @@
   __attribute__ ((__aligned__(4)))                   \
   __nomips16
 
+void dbgPanic(const char *) __attribute__ ((weak));
+
 /**
  * Halts the system.
  */
@@ -48,11 +50,8 @@ __attribute__((weak))
 void __nomips16 port_halt(void) {
   port_disable();
 #if CH_DBG_ENABLED
-  {
-    const char *m = dbg_panic_msg;
-    while (*m)
-      sd_lld_putc(*m++);
-  }
+  if (dbgPanic)
+    dbgPanic(dbg_panic_msg);
 #endif
   for (;;);
 }
