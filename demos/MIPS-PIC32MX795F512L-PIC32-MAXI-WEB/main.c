@@ -25,7 +25,30 @@
 #include "chheap.h"
 #include "test.h"
 
+#include "mcu/pic32mxxx.h"
+
+SerialDriver SD1;
+
 #define printc(c) sdPut(&SD1, c)
+
+static void oNotifySD1(GenericQueue *qp) {
+  msg_t b;
+
+  (void)qp;
+
+  b = sdRequestDataI(&SD1);
+  if (b != Q_EMPTY)
+    sd_lld_putc(&SD1, b);
+}
+
+void dbgPanic(const char *m) {
+  /* blink a LED? */
+  if (!SD1.base)
+    return;
+  
+  while (*m)
+    sd_lld_putc(&SD1, *m++);
+}
 
 static void print(const char *msgp) {
   while (*msgp) {
@@ -256,7 +279,16 @@ int main(void) {
   /*
    * Activates the serial driver 1 using the driver default configuration.
    */
-  sdStart(&SD1, NULL);
+  {
+    const SerialConfig sc = {
+      .sc_baud    = SERIAL_DEFAULT_BITRATE,
+      .sc_rxirq   = EIC_IRQ_UART1_RX,
+      .sc_port    = _UART1_BASE_ADDRESS
+    };
+
+    sdObjectInit(&SD1, NULL, oNotifySD1);
+    sdStart(&SD1, &sc);
+  }
 
   boardInfo();
 

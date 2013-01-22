@@ -78,19 +78,9 @@ typedef struct {
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART1 || defined(__DOXYGEN__)
-/** @brief UART serial driver identifier.*/
-SerialDriver SD1;
-#endif
-
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
-
-/* @brief Driver default configuration. */
-static const SerialConfig sc = {
-  SERIAL_DEFAULT_BITRATE,
-};
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -171,26 +161,6 @@ uartRxByte(UartPort *port)
     return port->rx.reg;
 }
 
-void sd_lld_putc(uint8_t c) {
-  UartPort *port = (UartPort *)SD1.base;
-
-  /* while (uartTxBufferFull(port)); */
-
-  uartTxByte(port, c);
-
-  while (!uartTxComplete(port));
-}
-
-static void oNotify(GenericQueue *qp) {
-  msg_t b;
-
-  (void)qp;
-
-  b = sdRequestDataI(&SD1);
-  if (b != Q_EMPTY)
-    sd_lld_putc(b);
-}
-
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
@@ -200,7 +170,7 @@ static void oNotify(GenericQueue *qp) {
  *
  * @param[in] sdp       communication channel associated to the USART
  */
-void sd_lld_serve_interrupt(void *data) {
+static void sd_lld_serve_interrupt(void *data) {
   SerialDriver *sdp = data;
   UartPort *port = (UartPort *)sdp->base;
 
@@ -216,20 +186,22 @@ void sd_lld_serve_interrupt(void *data) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
+void sd_lld_putc(SerialDriver *sdp, uint8_t c) {
+  UartPort *port = (UartPort *)sdp->base;
+
+  /* while (uartTxBufferFull(port)); */
+
+  uartTxByte(port, c);
+
+  while (!uartTxComplete(port));
+}
+
 /**
  * @brief   Low level serial driver initialization.
  *
  * @notapi
  */
 void sd_lld_init(void) {
-#if USE_MIPS_PIC32MX_UART1
-  SD1.base = (void *)/* MIPS_UNCACHED */(_UART1_BASE_ADDRESS);
-  SD1.rxIrq = EIC_IRQ_UART1_RX;
-  sdObjectInit(&SD1, NULL, oNotify);
-#if HAL_USE_EIC
-  eicRegisterIrq(SD1.rxIrq, sd_lld_serve_interrupt, &SD1);
-#endif
-#endif
 }
 
 /**
@@ -242,13 +214,16 @@ void sd_lld_init(void) {
  *
  * @notapi
  */
-void sd_lld_start(SerialDriver *sdp, const SerialConfig *config) {
-  if (config == NULL)
-    config = &sc;
+void sd_lld_start(SerialDriver *sdp, const SerialConfig *cfg) {
+  if (!sdp || !cfg)
+    return;
 
-  uartInit(sdp, config);
+  sdp->base = (void *)MIPS_UNCACHED(cfg->sc_port);
+
+  uartInit(sdp, cfg);
 #if HAL_USE_EIC
-  eicEnableIrq(sdp->rxIrq);
+  eicRegisterIrq(cfg->sc_rxirq, sd_lld_serve_interrupt, sdp);
+  eicEnableIrq(cfg->sc_rxirq);
 #endif
 }
 

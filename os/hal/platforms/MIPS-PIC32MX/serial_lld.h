@@ -39,15 +39,6 @@
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
 
-/**
- * @brief   UART driver enable switch.
- * @details If set to @p TRUE the support for UART is included.
- * @note    The default is @p TRUE.
- */
-#if !defined(USE_MIPS_PIC32MX_UART1) || defined(__DOXYGEN__)
-#define USE_MIPS_PIC32MX_UART1            TRUE
-#endif
-
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
 /*===========================================================================*/
@@ -65,7 +56,15 @@ typedef struct {
   /**
    * @brief   Baud rate.
    */
-  uint32_t sc_baud;
+  uint32_t  sc_baud;
+  /**
+   * @brief   RX IRQ number.
+   */
+  uint8_t   sc_rxirq;
+  /**
+   * @brief   Port address.
+   */
+  uint32_t  sc_port;
 } SerialConfig;
 
 /**
@@ -84,10 +83,9 @@ typedef struct {
   /* Output circular buffer.*/                        \
   uint8_t                   ob[SERIAL_BUFFERS_SIZE];  \
   /* End of the mandatory fields.*/                   \
-  /* MCU UART port.*/                                 \
-  volatile void             *base;                    \
-  /* MCU UART RX IRQ.*/                               \
-  uint8_t                   rxIrq;                    \
+                                                      \
+  /* UART port.*/                                     \
+  volatile void             *base;
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
@@ -97,10 +95,6 @@ typedef struct {
 /* External declarations.                                                    */
 /*===========================================================================*/
 
-#if USE_MIPS_PIC32MX_UART1 && !defined(__DOXYGEN__)
-extern SerialDriver SD1;
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -108,7 +102,7 @@ extern "C" {
   void sd_lld_start(SerialDriver *sdp, const SerialConfig *config);
   void sd_lld_stop(SerialDriver *sdp);
 
-  void sd_lld_putc(unsigned char c);
+  void sd_lld_putc(SerialDriver *sdp, unsigned char c);
 #ifdef __cplusplus
 }
 #endif
