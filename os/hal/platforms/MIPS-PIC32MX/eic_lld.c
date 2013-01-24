@@ -225,11 +225,9 @@ void eic_lld_init(void) {
  * @param[in] data      opaque data passed to irq handler.
  */
 void eic_lld_register_irq(int irq, eicIrqHandler handler, void *data) {
-  if (irq >= EIC_NUM_IRQS)
-    return;
+  chDbgAssert(irq < EIC_NUM_IRQS, "IRQ number out of range", "");
 
-  if (iInfo[irq].handler)
-    chDbgPanic("ISR is already registered for this irq");
+  chDbgAssert(!iInfo[irq].handler, "ISR is already registered for this irq", "");
 
   iInfo[irq].handler = handler;
   iInfo[irq].data = data;
@@ -241,6 +239,8 @@ void eic_lld_register_irq(int irq, eicIrqHandler handler, void *data) {
  * @param[in] irq       irq number.
  */
 void eic_lld_unregister_irq(int irq) {
+  chDbgAssert(irq < EIC_NUM_IRQS, "IRQ number out of range", "");
+
   iInfo[irq].handler = NULL;
 }
 
@@ -252,8 +252,7 @@ void eic_lld_unregister_irq(int irq) {
 void eic_lld_enable_irq(int irq) {
   int bank;
 
-  if (irq >= EIC_NUM_IRQS)
-    return;
+  chDbgAssert(irq < EIC_NUM_IRQS, "IRQ number out of range", "");
 
   if (irq < 32)
     bank = 0;
@@ -274,8 +273,7 @@ void eic_lld_enable_irq(int irq) {
 void eic_lld_disable_irq(int irq) {
   int bank;
 
-  if (irq >= EIC_NUM_IRQS)
-    return;
+  chDbgAssert(irq < EIC_NUM_IRQS, "IRQ number out of range", "");
 
   if (irq < 32)
     bank = 0;
