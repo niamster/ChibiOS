@@ -236,6 +236,15 @@ void eic_lld_register_irq(int irq, eicIrqHandler handler, void *data) {
 }
 
 /**
+ * @brief   EIC IRQ handler unregistration.
+ *
+ * @param[in] irq       irq number.
+ */
+void eic_lld_unregister_irq(int irq) {
+  iInfo[irq].handler = NULL;
+}
+
+/**
  * @brief   Enable EIC IRQ.
  *
  * @param[in] irq       irq number.

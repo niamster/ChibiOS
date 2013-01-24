@@ -76,6 +76,16 @@ void eicRegisterIrq(int irq, eicIrqHandler handler, void *data) {
 }
 
 /**
+ * @brief   EIC IRQ handler unregistration.
+ *
+ * @param[in] irq       irq number.
+ */
+void eicUnregisterIrq(int irq) {
+
+  eic_lld_unregister_irq(irq);
+}
+
+/**
  * @brief   Enable EIC IRQ.
  *
  * @param[in] irq       irq number.

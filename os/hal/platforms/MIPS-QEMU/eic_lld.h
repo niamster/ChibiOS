@@ -96,6 +96,7 @@ extern "C" {
 #endif
   void eic_lld_init(void);
   void eic_lld_register_irq(int irq, eicIrqHandler handler, void *data);
+  void eic_lld_unregister_irq(int irq);
   void eic_lld_enable_irq(int irq);
   void eic_lld_disable_irq(int irq);
 #ifdef __cplusplus

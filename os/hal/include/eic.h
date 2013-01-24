@@ -67,6 +67,7 @@ extern "C" {
 #endif
   void eicInit(void);
   void eicRegisterIrq(int irq, eicIrqHandler handler, void *data);
+  void eicUnregisterIrq(int irq);
   void eicEnableIrq(int irq);
   void eicDisableIrq(int irq);
 #ifdef __cplusplus
