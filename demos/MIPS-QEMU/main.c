@@ -36,6 +36,11 @@ static void print(const char *msgp) {
   }
 }
 
+void dbgPanic(const char *m) {
+  while (*m)
+    sd_lld_putc(*m++);
+}
+
 uint32_t hardJob(uint32_t arg) {
   return chTimeNow() + US2ST(arg);
 }
