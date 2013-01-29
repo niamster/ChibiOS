@@ -260,6 +260,28 @@ static const ShellConfig shCfg = {
   shCmds
 };
 
+static VirtualTimer ledTmr;
+
+static void ledTmrFunc(void *p) {
+  static uint32_t led = 0;
+
+  (void)p;
+
+  switch (led++%3) {
+    case 0:
+      palTogglePad(IOPORTB, 10);
+      break;
+    case 1:
+      palTogglePad(IOPORTD, 1);
+      break;
+    case 2:
+      palTogglePad(IOPORTD, 2);
+      break;
+  }
+
+  chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
+}
+
 /*
  * Application entry point.
  */
@@ -299,6 +321,19 @@ int main(void) {
    */
   chThdCreateStatic(waThread0, sizeof(waThread0), NORMALPRIO-2, Thread0, NULL);
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO-1, Thread1, NULL);
+
+  /*
+   * LED fun stuff
+   */
+  {
+    palSetPadMode(IOPORTB, 10, PAL_MODE_OUTPUT);
+    palClearPad(IOPORTB, 10);
+    palSetPadMode(IOPORTD, 1, PAL_MODE_OUTPUT);
+    palClearPad(IOPORTD, 1);
+    palSetPadMode(IOPORTD, 2, PAL_MODE_OUTPUT);
+    palClearPad(IOPORTD, 2);
+    chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
+  }
 
   /*
    * Normal main() thread activity ;).
