@@ -60,18 +60,11 @@
 /*===========================================================================*/
 
 typedef struct {
-	volatile uint32_t reg;
-	volatile uint32_t clear;
-	volatile uint32_t set;
-	volatile uint32_t invert;
-} UartReg;
-
-typedef struct {
-	UartReg mode;
-	UartReg status;
-	UartReg tx;
-	UartReg rx;
-	UartReg brg;
+	PicReg mode;
+	PicReg status;
+	PicReg tx;
+	PicReg rx;
+	PicReg brg;
 } UartPort;
 
 /*===========================================================================*/
