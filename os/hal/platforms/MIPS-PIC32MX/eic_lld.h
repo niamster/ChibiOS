@@ -41,6 +41,10 @@
 /* Well known IRQ numbers */
 #define EIC_IRQ_CT          _CORE_TIMER_IRQ
 #define EIC_IRQ_UART1_RX    _UART1_RX_IRQ
+#define EIC_IRQ_SPI1_RX     _SPI1_RX_IRQ
+#define EIC_IRQ_SPI2_RX     _SPI2_RX_IRQ
+#define EIC_IRQ_SPI3_RX     _SPI3_RX_IRQ
+#define EIC_IRQ_SPI4_RX     _SPI4_RX_IRQ
 
 /* Max number of IRQ banks */
 #define EIC_IRQ_BANK_QTY    3
