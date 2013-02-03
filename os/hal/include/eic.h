@@ -56,23 +56,50 @@ typedef void (*eicIrqHandler)(void *);
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
+/**
+ * @brief   EIC Driver initialization.
+ * @note    This function is implicitly invoked by @p halInit(), there is
+ *          no need to explicitly initialize the driver.
+ *
+ * @init
+ */
+#define eicInit eic_lld_init
+
+/**
+ * @brief   EIC IRQ handler registration.
+ *
+ * @param[in] irq       irq number.
+ * @param[in] handler   ponter to irq handler.
+ * @param[in] data      opaque data passed to irq handler.
+ */
+#define eicRegisterIrq(irq, handler, data) eic_lld_register_irq(irq, handler, data)
+
+/**
+ * @brief   EIC IRQ handler unregistration.
+ *
+ * @param[in] irq       irq number.
+ */
+#define eicUnregisterIrq(irq) eic_lld_unregister_irq(irq)
+
+/**
+ * @brief   Enable EIC IRQ.
+ *
+ * @param[in] irq       irq number.
+ */
+#define eicEnableIrq(irq) eic_lld_enable_irq(irq)
+
+/**
+ * @brief   Disable EIC IRQ.
+ *
+ * @param[in] irq       irq number.
+ */
+#define eicDisableIrq(irq) eic_lld_disable_irq(irq)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
 
 #include "eic_lld.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  void eicInit(void);
-  void eicRegisterIrq(int irq, eicIrqHandler handler, void *data);
-  void eicUnregisterIrq(int irq);
-  void eicEnableIrq(int irq);
-  void eicDisableIrq(int irq);
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* HAL_USE_EIC */
 
