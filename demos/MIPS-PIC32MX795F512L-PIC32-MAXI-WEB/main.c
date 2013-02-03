@@ -18,11 +18,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "ch.h"
 #include "hal.h"
 #include "shell.h"
 #include "chprintf.h"
 #include "chheap.h"
+#include "ff.h"
 #include "test.h"
 
 #include "mcu/pic32mxxx.h"
@@ -42,12 +46,9 @@ static void oNotifySD1(GenericQueue *qp) {
 }
 
 void dbgPanic(const char *m) {
-  /* blink a LED? */
-  if (!SD1.base)
-    return;
-  
-  while (*m)
-    sd_lld_putc(&SD1, *m++);
+  if (SD1.base && m)
+    while (*m)
+      sd_lld_putc(&SD1, *m++);
 }
 
 static void print(const char *msgp) {
@@ -58,6 +59,49 @@ static void print(const char *msgp) {
     printc(c);
   }
 }
+
+SPIDriver SPID4;
+
+bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
+  (void)mmcp;
+
+  return TRUE;
+}
+
+bool_t mmc_lld_is_write_protected(MMCDriver *mmcp) {
+  (void)mmcp;
+
+  return TRUE;
+}
+
+/* Maximum speed SPI configuration (20MHz, CPHA=0, CPOL=0).*/
+static SPIConfig HS_SPIC = {
+  .end_cb   = NULL,
+  .cs       = {IOPORTC, 1},
+  .width    = SPI_DATA_MODE_8_BIT,
+  .master   = TRUE,
+  .clk      = 20000000,
+  .clk_mode = SPI_CLK_MODE0,
+  .rx_irq   = EIC_IRQ_SPI4_RX,
+  .base     = (void *)_SPI4_BASE_ADDRESS,
+};
+
+/* Low speed SPI configuration (200KHz, CPHA=0, CPOL=0).*/
+static SPIConfig LS_SPIC = {
+  .end_cb   = NULL,
+  .cs       = {IOPORTC, 1},
+  .width    = SPI_DATA_MODE_8_BIT,
+  .master   = TRUE,
+  .clk      = 200000,
+  .clk_mode = SPI_CLK_MODE0,
+  .rx_irq   = EIC_IRQ_SPI4_RX,
+  .base     = (void *)_SPI4_BASE_ADDRESS,
+};
+
+MMCDriver MMCD1;
+MMCConfig MMCC = {&SPID4, &LS_SPIC, &HS_SPIC};
+
+FATFS MMC_FS;
 
 uint32_t hardJob(uint32_t arg) {
   return chTimeNow() + US2ST(arg);
@@ -117,6 +161,35 @@ void boardInfo(void) {
 #ifdef BOARD_NAME
   print("*** Test Board:   " BOARD_NAME "\n");
 #endif
+}
+
+static FRESULT scan_files(BaseSequentialStream *chp) {
+  FRESULT res;
+  FILINFO fno;
+  DIR dir;
+  char *fn;
+
+#if _USE_LFN
+  fno.lfname = 0;
+  fno.lfsize = 0;
+#endif
+  res = f_opendir(&dir, "");
+  if (FR_OK == res) {
+    for (;;) {
+      res = f_readdir(&dir, &fno);
+      if (res != FR_OK || fno.fname[0] == 0)
+        break;
+      if (fno.fname[0] == '.')
+        continue;
+      fn = fno.fname;
+      if (fno.fattrib & AM_DIR)
+        chprintf(chp, "[D] /%s\r\n", fn);
+      else
+        chprintf(chp, "[F] /%s\r\n", fn);
+    }
+  }
+
+  return res;
 }
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(1024)
@@ -248,10 +321,47 @@ static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)argv;
 }
 
+static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
+  FRESULT err;
+  uint32_t clusters;
+  FATFS *fsp;
+
+  (void)argc;
+  (void)argv;
+
+  if (mmcConnect(&MMCD1) != CH_SUCCESS) {
+    chprintf(chp, "MMC not connected\r\n");
+    return;
+  }
+
+  err = f_mount(0, &MMC_FS);
+  if (err != FR_OK) {
+    chprintf(chp, "FS: f_mount() failed\r\n");
+    goto out;
+  }
+
+  err = f_getfree("/", &clusters, &fsp);
+  if (FR_OK != err) {
+    chprintf(chp, "FS: f_getfree() failed\r\n");
+    goto out;
+  }
+
+  chprintf(chp,
+           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
+           clusters, (uint32_t)MMC_FS.csize,
+           clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMC_SECTOR_SIZE);
+
+  scan_files(chp);
+
+ out:
+  mmcDisconnect(&MMCD1);
+}
+
 static const ShellCommand shCmds[] = {
   {"mem",       cmd_mem},
   {"threads",   cmd_threads},
   {"test",      cmd_test},
+  {"fs",        cmd_fs},
   {NULL, NULL}
 };
 
@@ -299,7 +409,7 @@ int main(void) {
   chSysInit();
 
   /*
-   * Activates the serial driver 1 using the driver default configuration.
+   * Activates the serial driver 1.
    */
   {
     const SerialConfig sc = {
@@ -311,6 +421,13 @@ int main(void) {
     sdObjectInit(&SD1, NULL, oNotifySD1);
     sdStart(&SD1, &sc);
   }
+
+  /* Initialize and start the MMC driver to work with SPI4. */
+  spiObjectInit(&SPID4);
+  mmcObjectInit(&MMCD1);
+  mmcStart(&MMCD1, &MMCC);
+  palSetPadMode(IOPORTC, 1, PAL_MODE_OUTPUT);
+  palSetPad(IOPORTC, 1);
 
   boardInfo();
 

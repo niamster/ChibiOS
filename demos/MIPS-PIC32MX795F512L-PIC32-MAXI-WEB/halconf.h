@@ -101,7 +101,7 @@
  * @brief   Enables the MMC_SPI subsystem.
  */
 #if !defined(HAL_USE_MMC_SPI) || defined(__DOXYGEN__)
-#define HAL_USE_MMC_SPI             FALSE
+#define HAL_USE_MMC_SPI             TRUE
 #endif
 
 /**
@@ -189,6 +189,55 @@
  */
 #if !defined(SERIAL_BUFFERS_SIZE) || defined(__DOXYGEN__)
 #define SERIAL_BUFFERS_SIZE         32
+#endif
+
+/*===========================================================================*/
+/* MMC_SPI driver related settings.                                          */
+/*===========================================================================*/
+
+/**
+ * @brief   Block size for MMC transfers.
+ */
+#if !defined(MMC_SECTOR_SIZE) || defined(__DOXYGEN__)
+#define MMC_SECTOR_SIZE             512
+#endif
+
+/**
+ * @brief   Delays insertions.
+ * @details If enabled this options inserts delays into the MMC waiting
+ *          routines releasing some extra CPU time for the threads with
+ *          lower priority, this may slow down the driver a bit however.
+ *          This option is recommended also if the SPI driver does not
+ *          use a DMA channel and heavily loads the CPU.
+ */
+#if !defined(MMC_NICE_WAITING) || defined(__DOXYGEN__)
+#define MMC_NICE_WAITING            FALSE
+#endif
+
+/**
+ * @brief   Number of positive insertion queries before generating the
+ *          insertion event.
+ */
+#if !defined(MMC_POLLING_INTERVAL) || defined(__DOXYGEN__)
+#define MMC_POLLING_INTERVAL        10
+#endif
+
+/**
+ * @brief   Interval, in milliseconds, between insertion queries.
+ */
+#if !defined(MMC_POLLING_DELAY) || defined(__DOXYGEN__)
+#define MMC_POLLING_DELAY           10
+#endif
+
+/**
+ * @brief   Uses the SPI polled API for small data transfers.
+ * @details Polled transfers usually improve performance because it
+ *          saves two context switches and interrupt servicing. Note
+ *          that this option has no effect on large transfers which
+ *          are always performed using DMAs/IRQs.
+ */
+#if !defined(MMC_USE_SPI_POLLING) || defined(__DOXYGEN__)
+#define MMC_USE_SPI_POLLING         TRUE
 #endif
 
 /*===========================================================================*/
