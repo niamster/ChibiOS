@@ -155,9 +155,9 @@ static void __spi_finish_transaction(SPIDriver *spid) {
 /**
  * @brief   SPI RX IRQ handler.
  *
- * @param[in] spid       communication channel associated to the SPI
+ * @param[in] data       Driver associated with the SPI channel
  */
-static void sd_lld_serve_rx_interrupt(void *data) {
+static void lld_serve_rx_interrupt(void *data) {
   SPIDriver *spid = data;
 
   chSysLockFromIsr();
@@ -199,7 +199,7 @@ void spi_lld_start(SPIDriver *spid) {
 
 #if HAL_USE_EIC
   if (spid->rx_irq != cfg->rx_irq) { /* Assuming this is done only once */
-    eicRegisterIrq(cfg->rx_irq, sd_lld_serve_rx_interrupt, spid);
+    eicRegisterIrq(cfg->rx_irq, lld_serve_rx_interrupt, spid);
     spid->rx_irq = cfg->rx_irq;
   }
   eicEnableIrq(cfg->rx_irq);

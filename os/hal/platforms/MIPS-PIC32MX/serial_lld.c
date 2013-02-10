@@ -161,9 +161,9 @@ uartRxByte(UartPort *port)
 /**
  * @brief   Common IRQ handler.
  *
- * @param[in] sdp       communication channel associated to the USART
+ * @param[in] sdp       Driver associated the the USART channel
  */
-static void sd_lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(void *data) {
   SerialDriver *sdp = data;
   UartPort *port = (UartPort *)sdp->base;
 
@@ -215,7 +215,7 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *cfg) {
 
   uartInit(sdp, cfg);
 #if HAL_USE_EIC
-  eicRegisterIrq(cfg->sc_rxirq, sd_lld_serve_interrupt, sdp);
+  eicRegisterIrq(cfg->sc_rxirq, lld_serve_interrupt, sdp);
   eicEnableIrq(cfg->sc_rxirq);
 #endif
 }
