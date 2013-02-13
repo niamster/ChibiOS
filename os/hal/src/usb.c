@@ -307,7 +307,10 @@ void usbInitEndpointI(USBDriver *usbp, usbep_t ep,
 
   chDbgCheckClassI();
   chDbgCheck((usbp != NULL) && (epcp != NULL), "usbInitEndpointI");
-  chDbgAssert(usbp->state == USB_ACTIVE,
+  chDbgAssert((USB_EP_MODE_TYPE_CTRL != (epcp->ep_mode & USB_EP_MODE_TYPE)
+                  && usbp->state == USB_ACTIVE)
+              || (USB_EP_MODE_TYPE_CTRL == (epcp->ep_mode & USB_EP_MODE_TYPE)
+                  && usbp->state == USB_READY),
               "usbEnableEndpointI(), #1", "invalid state");
   chDbgAssert(usbp->epc[ep] == NULL,
               "usbEnableEndpointI(), #2", "already initialized");
