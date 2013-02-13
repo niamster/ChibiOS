@@ -82,11 +82,11 @@ typedef struct {
 /**
  * @brief   UART initialization.
  *
- * @param[in] sdp       communication channel associated to the UART
+ * @param[in] sd        communication channel associated to the UART
  * @param[in] config    the architecture-dependent serial driver configuration
  */
-static void uartInit(SerialDriver *sdp, const SerialConfig *config) {
-  UartPort *port = (UartPort *)sdp->base;
+static void uartInit(SerialDriver *sd, const SerialConfig *config) {
+  UartPort *port = (UartPort *)sd->base;
   uint32_t fpb = MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
   uint32_t brg0, brg1;
   int32_t brgErr0, brgErr1;
@@ -161,16 +161,16 @@ uartRxByte(UartPort *port)
 /**
  * @brief   Common IRQ handler.
  *
- * @param[in] sdp       Driver associated the the USART channel
+ * @param[in] sd        Driver associated the the USART channel
  */
 static void lld_serve_interrupt(void *data) {
-  SerialDriver *sdp = data;
-  UartPort *port = (UartPort *)sdp->base;
+  SerialDriver *sd = data;
+  UartPort *port = (UartPort *)sd->base;
 
   chSysLockFromIsr();
 
   if (uartRxReady(port))
-    sdIncomingDataI(sdp, uartRxByte(port));
+    sdIncomingDataI(sd, uartRxByte(port));
 
   chSysUnlockFromIsr();
 }
@@ -179,8 +179,8 @@ static void lld_serve_interrupt(void *data) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-void sd_lld_putc(SerialDriver *sdp, uint8_t c) {
-  UartPort *port = (UartPort *)sdp->base;
+void sd_lld_putc(SerialDriver *sd, uint8_t c) {
+  UartPort *port = (UartPort *)sd->base;
 
   /* while (uartTxBufferFull(port)); */
 
@@ -200,22 +200,22 @@ void sd_lld_init(void) {
 /**
  * @brief   Low level serial driver configuration and (re)start.
  *
- * @param[in] sdp       pointer to a @p SerialDriver object
+ * @param[in] sd        pointer to a @p SerialDriver object
  * @param[in] config    the architecture-dependent serial driver configuration.
  *                      If this parameter is set to @p NULL then a default
  *                      configuration is used.
  *
  * @notapi
  */
-void sd_lld_start(SerialDriver *sdp, const SerialConfig *cfg) {
-  if (!sdp || !cfg)
+void sd_lld_start(SerialDriver *sd, const SerialConfig *cfg) {
+  if (!sd || !cfg)
     return;
 
-  sdp->base = (void *)MIPS_UNCACHED(cfg->sc_port);
+  sd->base = (void *)MIPS_UNCACHED(cfg->sc_port);
 
-  uartInit(sdp, cfg);
+  uartInit(sd, cfg);
 #if HAL_USE_EIC
-  eicRegisterIrq(cfg->sc_rxirq, lld_serve_interrupt, sdp);
+  eicRegisterIrq(cfg->sc_rxirq, lld_serve_interrupt, sd);
   eicEnableIrq(cfg->sc_rxirq);
 #endif
 }
@@ -225,12 +225,12 @@ void sd_lld_start(SerialDriver *sdp, const SerialConfig *cfg) {
  * @details De-initializes the UART, stops the associated clock, resets the
  *          interrupt vector.
  *
- * @param[in] sdp       pointer to a @p SerialDriver object
+ * @param[in] sd        pointer to a @p SerialDriver object
  *
  * @notapi
  */
-void sd_lld_stop(SerialDriver *sdp) {
-  (void)sdp;
+void sd_lld_stop(SerialDriver *sd) {
+  (void)sd;
 }
 
 #endif /* HAL_USE_SERIAL */

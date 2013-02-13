@@ -99,10 +99,10 @@ typedef struct {
 extern "C" {
 #endif
   void sd_lld_init(void);
-  void sd_lld_start(SerialDriver *sdp, const SerialConfig *config);
-  void sd_lld_stop(SerialDriver *sdp);
+  void sd_lld_start(SerialDriver *sd, const SerialConfig *config);
+  void sd_lld_stop(SerialDriver *sd);
 
-  void sd_lld_putc(SerialDriver *sdp, unsigned char c);
+  void sd_lld_putc(SerialDriver *sd, unsigned char c);
 #ifdef __cplusplus
 }
 #endif
