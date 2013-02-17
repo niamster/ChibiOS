@@ -77,6 +77,7 @@ CSRC = $(PORTSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        stubs.c \
+       usbcfg.c \
        main.c
 # List C++ source files here
 CPPSRC =

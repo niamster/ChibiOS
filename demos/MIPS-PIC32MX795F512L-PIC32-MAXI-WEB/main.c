@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 #include "ch.h"
 #include "hal.h"
@@ -29,11 +30,12 @@
 #include "ff.h"
 #include "test.h"
 
+#include "usbcfg.h"
+
 #include "mcu/pic32mxxx.h"
 
-SerialDriver SD1;
-
-#define printc(c) sdPut(&SD1, c)
+static SerialDriver SD1;
+static SerialUSBDriver SDU1;
 
 static void oNotifySD1(GenericQueue *qp) {
   msg_t b;
@@ -50,6 +52,8 @@ void dbgPanic(const char *m) {
     while (*m)
       sd_lld_putc(&SD1, *m++);
 }
+
+#define printc(c) sdPut(&SD1, c)
 
 static void print(const char *msgp) {
   while (*msgp) {
@@ -369,6 +373,10 @@ static const ShellConfig shCfg = {
   (BaseSequentialStream *)&SD1,
   shCmds
 };
+static const ShellConfig ushCfg = {
+  (BaseSequentialStream *)&SDU1,
+  shCmds
+};
 
 static VirtualTimer ledTmr;
 
@@ -397,6 +405,7 @@ static void ledTmrFunc(void *p) {
  */
 int main(void) {
   Thread *sh = NULL;
+  Thread *ush = NULL;
 
   /*
    * System initializations.
@@ -452,11 +461,36 @@ int main(void) {
     chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
   }
 
+
+  /*
+   * Activates the USB driver and then the USB bus pull-up on D+.
+   * Note, a delay is inserted in order to not have to disconnect the cable
+   * after a reset.
+   */
+  usbObjectInit(serUsbCfg.usbp);
+  usbStart(serUsbCfg.usbp, &usbCfg);
+
+  /*
+   * Initializes a serial-over-USB CDC driver.
+   */
+  sduObjectInit(&SDU1);
+  sduStart(&SDU1, &serUsbCfg);
+
+  usbConnectBus(serUsbCfg.usbp);
+
   /*
    * Normal main() thread activity ;).
    */
 
   for (;;) {
+    if (!ush) {
+      if (SDU1.config->usbp->state == USB_ACTIVE)
+        ush = shellCreate(&ushCfg, SHELL_WA_SIZE, NORMALPRIO);
+    } else if (chThdTerminated(ush)) {
+      chThdRelease(ush);    /* Recovers memory of the previous shell. */
+      ush = NULL;           /* Triggers spawning of a new shell.      */
+    }
+
     if (!sh)
       sh = shellCreate(&shCfg, SHELL_WA_SIZE, NORMALPRIO);
     else if (chThdTerminated(sh)) {
