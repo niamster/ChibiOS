@@ -46,6 +46,7 @@
 #define EIC_IRQ_SPI3_RX     _SPI3_RX_IRQ
 #define EIC_IRQ_SPI4_RX     _SPI4_RX_IRQ
 #define EIC_IRQ_USB         _USB_IRQ
+#define EIC_IRQ_EXT         _CHANGE_NOTICE_IRQ
 
 /* Max number of IRQ banks */
 #define EIC_IRQ_BANK_QTY    3

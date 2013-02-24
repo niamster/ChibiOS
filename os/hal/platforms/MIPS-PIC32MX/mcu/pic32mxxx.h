@@ -173,4 +173,7 @@
 #error Unknown PIC32MX MCU
 #endif
 
+/* Base addresses for non-standard peripherals */
+#define _EXT_BASE_ADDRESS (&CNCON)
+  
 #endif

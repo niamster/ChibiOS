@@ -64,7 +64,26 @@ static void print(const char *msgp) {
   }
 }
 
-SPIDriver SPID4;
+void pNotifyEXT1(EXTDriver *extd, expchannel_t channel) {
+  const EXTChannelConfig *ch = &extd->config->channels[channel];
+
+  chprintf((BaseSequentialStream *)&SD1,
+      "Channel %d, value %d\r\n",
+      channel, palReadPad(ch->port, ch->pad));
+}
+
+static const EXTConfig EXTC1 = {
+  .channels = {
+    [15] = {EXT_CH_MODE_AUTOSTART|EXT_CH_MODE_FALLING_EDGE, pNotifyEXT1, IOPORTD, 6},
+    [16] = {EXT_CH_MODE_AUTOSTART|EXT_CH_MODE_RISING_EDGE, pNotifyEXT1, IOPORTD, 7},
+    [19] = {EXT_CH_MODE_AUTOSTART|EXT_CH_MODE_BOTH_EDGES, pNotifyEXT1, IOPORTD, 13},
+  },
+  .irq = EIC_IRQ_EXT,
+  .base = _EXT_BASE_ADDRESS,
+};
+static EXTDriver EXTD1;
+
+static SPIDriver SPID4;
 
 bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
   (void)mmcp;
@@ -447,6 +466,12 @@ int main(void) {
    */
   chThdCreateStatic(waThread0, sizeof(waThread0), NORMALPRIO-2, Thread0, NULL);
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO-1, Thread1, NULL);
+
+  /*
+   * Buttons notifications
+   */
+  extObjectInit(&EXTD1);
+  extStart(&EXTD1, &EXTC1);
 
   /*
    * LED fun stuff
