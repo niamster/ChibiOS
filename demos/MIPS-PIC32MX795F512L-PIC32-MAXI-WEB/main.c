@@ -372,7 +372,7 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
   chprintf(chp,
            "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
            clusters, (uint32_t)MMC_FS.csize,
-           clusters * (uint32_t)MMC_FS.csize * (uint32_t)MMC_SECTOR_SIZE);
+           clusters * (uint32_t)MMC_FS.csize * 512);
 
   scan_files(chp);
 
