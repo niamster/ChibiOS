@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -21,6 +21,8 @@
 /**
  * @file    mmcsd.h
  * @brief   MMC/SD cards common header.
+ * @details This header defines an abstract interface useful to access MMC/SD
+ *          I/O block devices in a standardized way.
  *
  * @addtogroup MMCSD
  * @{

@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -163,21 +163,21 @@
  * @brief   DMA stream used for ADC1 operations.
  */
 #if !defined(STM32_ADC_ADC1_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC1_DMA_STREAM        STM32_DMA_STREAM_ID(2, 4)
+#define STM32_ADC_ADC1_DMA_STREAM           STM32_DMA_STREAM_ID(2, 4)
 #endif
 
 /**
  * @brief   DMA stream used for ADC2 operations.
  */
 #if !defined(STM32_ADC_ADC2_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC2_DMA_STREAM        STM32_DMA_STREAM_ID(2, 2)
+#define STM32_ADC_ADC2_DMA_STREAM           STM32_DMA_STREAM_ID(2, 2)
 #endif
 
 /**
  * @brief   DMA stream used for ADC3 operations.
  */
 #if !defined(STM32_ADC_ADC3_DMA_STREAM) || defined(__DOXYGEN__)
-#define STM32_ADC_ADC3_DMA_STREAM        STM32_DMA_STREAM_ID(2, 1)
+#define STM32_ADC_ADC3_DMA_STREAM           STM32_DMA_STREAM_ID(2, 1)
 #endif
 
 /**

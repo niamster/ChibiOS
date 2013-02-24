@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -234,12 +234,15 @@ typedef enum {
         /* Invokes the callback passing the whole buffer.*/                 \
         (adcp)->grpp->end_cb(adcp, (adcp)->samples, (adcp)->depth);         \
       }                                                                     \
-      if ((adcp)->state == ADC_COMPLETE)                                    \
+      if ((adcp)->state == ADC_COMPLETE) {                                  \
         (adcp)->state = ADC_READY;                                          \
+        (adcp)->grpp = NULL;                                                \
+      }                                                                     \
     }                                                                       \
-    else                                                                    \
+    else {                                                                  \
       (adcp)->state = ADC_READY;                                            \
-    (adcp)->grpp = NULL;                                                    \
+      (adcp)->grpp = NULL;                                                  \
+    }                                                                       \
     _adc_wakeup_isr(adcp);                                                  \
   }                                                                         \
 }

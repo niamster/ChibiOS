@@ -1,6 +1,6 @@
 /*
     ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012 Giovanni Di Sirio.
+                 2011,2012,2013 Giovanni Di Sirio.
 
     This file is part of ChibiOS/RT.
 
@@ -177,7 +177,7 @@ typedef struct MACDriver MACDriver;
  *
  * @api
  */
-#define magGetNextReceiveBuffer(rdp, sizep)                                 \
+#define macGetNextReceiveBuffer(rdp, sizep)                                 \
   mac_lld_get_next_receive_buffer(rdp, sizep)
 #endif /* MAC_USE_ZERO_COPY */
 /** @} */
