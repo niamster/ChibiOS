@@ -167,6 +167,13 @@
 #define HAL_USE_EIC                 TRUE
 #endif
 
+/**
+ * @brief   Enables the DMA subsystem.
+ */
+#if !defined(HAL_USE_DMA) || defined(__DOXYGEN__)
+#define HAL_USE_DMA                 FALSE
+#endif
+
 /*===========================================================================*/
 /* SERIAL driver related settings.                                           */
 /*===========================================================================*/
