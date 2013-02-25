@@ -160,6 +160,13 @@
 #define HAL_USE_USB                 FALSE
 #endif
 
+/**
+ * @brief   Enables the EIC subsystem.
+ */
+#if !defined(HAL_USE_EIC) || defined(__DOXYGEN__)
+#define HAL_USE_EIC                 FALSE
+#endif
+
 /*===========================================================================*/
 /* ADC driver related settings.                                              */
 /*===========================================================================*/
