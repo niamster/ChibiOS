@@ -34,7 +34,7 @@
 #include "mcu/pic32mxxx.h"
 
 /*===========================================================================*/
-/* Driver constants and error checks.                                       */
+/* Driver constants and error checks.                                        */
 /*===========================================================================*/
 
 #define UART_INTERRUPT_TX_EMPTY          (2 << 14)

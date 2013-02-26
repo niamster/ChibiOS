@@ -34,7 +34,7 @@
 #include "mcu/pic32mxxx.h"
 
 /*===========================================================================*/
-/* Driver constants and error checks.                                       */
+/* Driver constants and error checks.                                        */
 /*===========================================================================*/
 
 enum spiConBits {
