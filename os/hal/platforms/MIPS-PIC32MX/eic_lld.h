@@ -47,6 +47,14 @@
 #define EIC_IRQ_SPI4_RX     _SPI4_RX_IRQ
 #define EIC_IRQ_USB         _USB_IRQ
 #define EIC_IRQ_EXT         _CHANGE_NOTICE_IRQ
+#define EIC_IRQ_DMA0        _DMA0_IRQ
+#define EIC_IRQ_DMA1        _DMA1_IRQ
+#define EIC_IRQ_DMA2        _DMA2_IRQ
+#define EIC_IRQ_DMA3        _DMA3_IRQ
+#define EIC_IRQ_DMA4        _DMA4_IRQ
+#define EIC_IRQ_DMA5        _DMA5_IRQ
+#define EIC_IRQ_DMA6        _DMA6_IRQ
+#define EIC_IRQ_DMA7        _DMA7_IRQ
 
 /* Max number of IRQ banks */
 #define EIC_IRQ_BANK_QTY    3

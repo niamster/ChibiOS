@@ -62,6 +62,7 @@ include $(CHIBIOS)/os/ports/GCC/MIPS/MIPS32r2/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
 include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 include $(CHIBIOS)/test/test.mk
+include $(CHIBIOS)/testhal/testdma/testdma.mk
 
 # Define linker script file here
 LDSCRIPT= ld/mips_pic32mx795f512l.lds
@@ -70,6 +71,7 @@ LDSCRIPT= ld/mips_pic32mx795f512l.lds
 CSRC = $(PORTSRC) \
        $(KERNSRC) \
        $(TESTSRC) \
+       $(TESTDMASRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
@@ -84,7 +86,7 @@ CPPSRC =
 # List ASM source files here
 ASMSRC  = $(PORTASM) $(PLATFORMASM)
 
-INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
+INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) $(TESTDMAINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
          $(FATFSINC) \
          $(CHIBIOS)/os/various

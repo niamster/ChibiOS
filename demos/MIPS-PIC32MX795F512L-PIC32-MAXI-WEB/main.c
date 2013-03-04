@@ -29,10 +29,14 @@
 #include "chheap.h"
 #include "ff.h"
 #include "test.h"
+#include "testdma.h"
 
 #include "usbcfg.h"
 
 #include "mcu/pic32mxxx.h"
+
+static dmaDriver DMA1;
+static dmaChannel DMACH1;
 
 static SerialDriver SD1;
 static SerialUSBDriver SDU1;
@@ -48,9 +52,12 @@ static void oNotifySD1(GenericQueue *qp) {
 }
 
 void dbgPanic(const char *m) {
-  if (SD1.base && m)
+  if (SD1.base && m) {
+    port_enable();
     while (*m)
       sd_lld_putc(&SD1, *m++);
+    port_disable();
+  }
 }
 
 #define printc(c) sdPut(&SD1, c)
@@ -380,11 +387,43 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
   mmcDisconnect(&MMCD1);
 }
 
+static void cmd_dmatest(BaseSequentialStream *chp, int argc, char *argv[]) {
+  dmaChannelCfg ccfg = {.prio = DMA_CHANNEL_PRIO_LOWEST, .evt = FALSE};
+  (void)argc;
+  (void)argv;
+
+  chDbgAssert(dmaChannelAcquire(&DMACH1, TIME_INFINITE),
+      "Unable to acquire DMA channel", "");
+
+  ccfg.mode = DMA_CHANNEL_MEM_TO_MEM;
+  dmaChannelConfig(&DMACH1, &ccfg);
+  dmaChannelStart(&DMACH1);
+  TestDma(&DMACH1, DMA_TEST_MEM_TO_MEM, chp);
+  dmaChannelStop(&DMACH1);
+
+  ccfg.fifownd = 1;
+
+  ccfg.mode = DMA_CHANNEL_FIFO_TO_MEM;
+  dmaChannelConfig(&DMACH1, &ccfg);
+  dmaChannelStart(&DMACH1);
+  TestDma(&DMACH1, DMA_TEST_FIFO_TO_MEM, chp);
+  dmaChannelStop(&DMACH1);
+
+  ccfg.mode = DMA_CHANNEL_MEM_TO_FIFO;
+  dmaChannelConfig(&DMACH1, &ccfg);
+  dmaChannelStart(&DMACH1);
+  TestDma(&DMACH1, DMA_TEST_MEM_TO_FIFO, chp);
+  dmaChannelStop(&DMACH1);
+
+  dmaChannelRelease(&DMACH1);
+}
+
 static const ShellCommand shCmds[] = {
   {"mem",       cmd_mem},
   {"threads",   cmd_threads},
   {"test",      cmd_test},
   {"fs",        cmd_fs},
+  {"dmatest",   cmd_dmatest},
   {NULL, NULL}
 };
 
@@ -486,6 +525,17 @@ int main(void) {
     chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
   }
 
+  /*
+   * DMA configuration
+   */
+  {
+    const dmaCfg cfg = {.port = (void *)_DMAC_BASE_ADDRESS};
+    dmaObjectInit(&DMA1);
+    dmaConfig(&DMA1, &cfg);
+    dmaStart(&DMA1);
+
+    dmaChannelObjectInit(&DMA1, &DMACH1);
+  }
 
   /*
    * Activates the USB driver and then the USB bus pull-up on D+.
