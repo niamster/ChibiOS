@@ -46,7 +46,7 @@ enum spiConBits {
 };
 
 enum spiStatusBits {
-  SPI_STATUS_RXB  = 0,
+  SPI_STATUS_RBF  = 0,
 };
 
 /*===========================================================================*/
@@ -159,15 +159,19 @@ static void __spi_finish_transaction(SPIDriver *spid) {
  */
 static void lld_serve_rx_interrupt(void *data) {
   SPIDriver *spid = data;
+  volatile SpiPort *port = (SpiPort *)spid->base;
 
   chSysLockFromIsr();
 
-  __spi_finish_transaction(spid);
+  while (port->status.reg & (1 << SPI_STATUS_RBF)) {
+    __spi_finish_transaction(spid);
 
-  if (!spid->cnt) {
-    _spi_isr_code(spid);
-  } else
-    __spi_start_transaction(spid);
+    if (!spid->cnt) {
+      _spi_isr_code(spid);
+      break;
+    } else
+      __spi_start_transaction(spid);
+  }
 
   chSysUnlockFromIsr();
 }
@@ -346,7 +350,7 @@ uint32_t spi_lld_polled_exchange(SPIDriver *spid, uint32_t frame) {
 
   port->buf = frame;
 
-  while (!(port->status.reg & SPI_STATUS_RXB));
+  while (!(port->status.reg & (1 << SPI_STATUS_RBF)));
 
   frame = port->buf;
 
