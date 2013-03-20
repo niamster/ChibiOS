@@ -120,9 +120,9 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
         chDbgAssert(info->handler, "unhandled EIC IRQ", "");
 
-        info->handler(info->data);
-
         ifs->clear = 1 << i;
+
+        info->handler(info->data);
       }
 
       pending >>= 1;
@@ -135,9 +135,9 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
       chDbgAssert(info->handler, "unhandled EIC IRQ", "");
 
-      info->handler(info->data);
-
       ifs->clear = 1 << i;
+
+      info->handler(info->data);
 
       pending &= ~(1 << i);
     }
