@@ -174,6 +174,6 @@
 #endif
 
 /* Base addresses for non-standard peripherals */
-#define _EXT_BASE_ADDRESS (&CNCON)
+#define _EXT_BASE_ADDRESS ((unsigned long)&CNCON)
   
 #endif

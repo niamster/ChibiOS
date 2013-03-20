@@ -69,7 +69,7 @@ typedef struct dmaCfg {
   /**
    * @brief DMA port.
    */
-  void                  *port;
+  uint32_t               port;
 } dmaCfg;
 
 /**

@@ -460,7 +460,7 @@ static void __usb_lld_prepare_receive(USBDriver *usbd, usbep_t ep) {
  */
 static void lld_serve_interrupt(void *data) {
   USBDriver *usbd = data;
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
   uint8_t msk = usb_enabled_interrupts_mask(regs);
   uint8_t ir;
   bdtEpEntry *bdt = usbd->bdt;
@@ -594,7 +594,7 @@ void usb_lld_init(void) {
  */
 void usb_lld_start(USBDriver *usbd) {
   if (usbd->state == USB_STOP) {
-    usbRegs *regs = usbd->base;
+    usbRegs *regs = (usbRegs *)usbd->base;
     bdtEntry *bdt = usbd->bdt;
 
     chDbgAssert(regs, "USB port address is not defined", "");
@@ -638,7 +638,7 @@ void usb_lld_start(USBDriver *usbd) {
 void usb_lld_stop(USBDriver *usbd) {
   /* If in ready state then disables the USB module.*/
   if (usbd->state == USB_STOP) {
-    usbRegs *regs = usbd->base;
+    usbRegs *regs = (usbRegs *)usbd->base;
 
     usb_disable_all_interrupts(regs);
 
@@ -659,7 +659,7 @@ void usb_lld_stop(USBDriver *usbd) {
  * @notapi
  */
 void usb_lld_reset(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
 
   usb_lld_disable_endpoints(usbd);
 
@@ -678,7 +678,7 @@ void usb_lld_reset(USBDriver *usbd) {
  * @api
  */
 void usb_lld_connect_bus(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
 
   usb_enable(regs, TRUE);
 }
@@ -690,7 +690,7 @@ void usb_lld_connect_bus(USBDriver *usbd) {
  */
 
 void usb_lld_disconnect_bus(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
 
   usb_enable(regs, FALSE);
 }
@@ -704,7 +704,7 @@ void usb_lld_disconnect_bus(USBDriver *usbd) {
  * @notapi
  */
 uint16_t usb_lld_get_frame_number(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
 
   return (regs->frml.reg) | (regs->frmh.reg << 8);
 }
@@ -717,7 +717,7 @@ uint16_t usb_lld_get_frame_number(USBDriver *usbd) {
  * @notapi
  */
 void usb_lld_set_address(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
 
   regs->addr.reg = usbd->address & 0x7F;
 }
@@ -731,7 +731,7 @@ void usb_lld_set_address(USBDriver *usbd) {
  * @notapi
  */
 void usb_lld_init_endpoint(USBDriver *usbd, usbep_t ep) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
   const USBEndpointConfig *epc = usbd->epc[ep];
   uint32_t reg = 1 << REG_EP_HSHK;
 
@@ -769,7 +769,7 @@ void usb_lld_init_endpoint(USBDriver *usbd, usbep_t ep) {
  * @notapi
  */
 void usb_lld_disable_endpoints(USBDriver *usbd) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
   unsigned i;
 
   regs->con.set = 1 << REG_CON_PPBRST; // Put Ping-Pong buffers into reset
@@ -793,7 +793,7 @@ void usb_lld_disable_endpoints(USBDriver *usbd) {
  * @notapi
  */
 usbepstatus_t usb_lld_get_status_out(USBDriver *usbd, usbep_t ep) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
   uint32_t reg = regs->ep[ep].reg;
 
   if (!reg)
@@ -818,7 +818,7 @@ usbepstatus_t usb_lld_get_status_out(USBDriver *usbd, usbep_t ep) {
  * @notapi
  */
 usbepstatus_t usb_lld_get_status_in(USBDriver *usbd, usbep_t ep) {
-  usbRegs *regs = usbd->base;
+  usbRegs *regs = (usbRegs *)usbd->base;
   uint32_t reg = regs->ep[ep].reg;
 
   if (!reg)
@@ -960,7 +960,7 @@ void usb_lld_stall_out(USBDriver *usbd, usbep_t ep) {
  */
 void usb_lld_stall_in(USBDriver *usbd, usbep_t ep) {
   if (0 == ep) {
-    usbRegs *regs = usbd->base;
+    usbRegs *regs = (usbRegs *)usbd->base;
     regs->ep[0].set = 1 << REG_EP_STALL;
   }
 }
@@ -988,7 +988,7 @@ void usb_lld_clear_out(USBDriver *usbd, usbep_t ep) {
  */
 void usb_lld_clear_in(USBDriver *usbd, usbep_t ep) {
   if (0 == ep) {
-    usbRegs *regs = usbd->base;
+    usbRegs *regs = (usbRegs *)usbd->base;
     regs->ep[0].clear = 1 << REG_EP_STALL;
   }
 }

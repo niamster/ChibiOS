@@ -50,7 +50,7 @@
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-typedef struct {
+typedef volatile struct {
   PicReg   intcon;
   PicReg   intstat;
   PicReg   iptmr;

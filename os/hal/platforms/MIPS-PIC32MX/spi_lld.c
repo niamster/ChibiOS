@@ -53,7 +53,7 @@ enum spiStatusBits {
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-typedef struct {
+typedef volatile struct {
   PicReg   con;
   PicReg   status;
   volatile uint32_t buf;
@@ -74,7 +74,7 @@ typedef struct {
 /*===========================================================================*/
 
 static void __spi_config(SPIDriver *spid) {
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
   const SPIConfig *cfg = spid->config;
   uint32_t fpb = MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
   uint32_t con = 0;
@@ -112,19 +112,19 @@ static void __spi_config(SPIDriver *spid) {
 }
 
 static void __spi_start(SPIDriver *spid) {
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
 
   port->con.set = 1 << SPI_CON_ON;
 }
 
 static void __spi_stop(SPIDriver *spid) {
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
 
   port->con.clear = 1 << SPI_CON_ON;
 }
 
 static void __spi_start_transaction(SPIDriver *spid) {
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
 
   if (spid->txptr)
     port->buf = *spid->txptr;
@@ -133,7 +133,7 @@ static void __spi_start_transaction(SPIDriver *spid) {
 }
 
 static void __spi_finish_transaction(SPIDriver *spid) {
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
   uint32_t reg;
 
   reg = port->buf;
@@ -159,7 +159,7 @@ static void __spi_finish_transaction(SPIDriver *spid) {
  */
 static void lld_serve_rx_interrupt(void *data) {
   SPIDriver *spid = data;
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
 
   chSysLockFromIsr();
 
@@ -198,7 +198,7 @@ void spi_lld_init(void) {
 void spi_lld_start(SPIDriver *spid) {
   const SPIConfig *cfg = spid->config;
 
-  spid->base = cfg->base;
+  spid->base = (void *)cfg->base;
   __spi_config(spid);
 
 #if HAL_USE_EIC
@@ -342,7 +342,7 @@ void spi_lld_receive(SPIDriver *spid, size_t n, void *rxbuf) {
  */
 uint32_t spi_lld_polled_exchange(SPIDriver *spid, uint32_t frame) {
   const SPIConfig *cfg = spid->config;
-  volatile SpiPort *port = (SpiPort *)spid->base;
+  SpiPort *port = (SpiPort *)spid->base;
 
 #if HAL_USE_EIC
   eicDisableIrq(cfg->rx_irq);

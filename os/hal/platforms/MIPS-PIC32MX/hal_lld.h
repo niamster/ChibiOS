@@ -212,7 +212,7 @@
 /**
  * @brief   Defines generic PIC32 register block.
  */
-typedef struct {
+typedef volatile struct {
   volatile uint32_t reg;        /* Full access to the register */
   volatile uint32_t clear;      /* Clear corresponding bits in the register by writing bits at certain positions  */
   volatile uint32_t set;        /* Set corresponding bits in the register by writing bits at certain positions */

@@ -50,7 +50,7 @@ enum extConBits {
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-typedef struct {
+typedef volatile struct {
   PicReg   cncon;
   PicReg   cnen;
   PicReg   cnpue;

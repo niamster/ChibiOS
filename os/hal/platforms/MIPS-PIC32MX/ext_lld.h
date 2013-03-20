@@ -104,7 +104,7 @@ typedef struct {
   /**
    * @brief EXT port.
    */
-  volatile void         *base;
+  uint32_t              base;
 } EXTConfig;
 
 /**

@@ -147,7 +147,7 @@ enum dmaChanIntrBits {
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-typedef struct {
+typedef volatile struct {
   PicReg   dmacon;
   PicReg   dmastat;
   PicReg   dmaaddr;
@@ -218,7 +218,7 @@ static void dma_lld_process_transaction(dmaChannel *chan, bool_t poll) {
   struct dmaTransaction *tr = chan->current;
   dmaDriver *dmad = chan->dmad;
   DmaPort *port = dmad->port;
-  struct dchx *dchx = port->dchx + chan->id;
+  volatile struct dchx *dchx = port->dchx + chan->id;
   dmaChannelCfg *cfg = &chan->cfg;
   size_t n = chan->n;
 
@@ -305,7 +305,7 @@ static void lld_serve_interrupt(void *data) {
   struct dmaTransaction *tr = chan->current;
   dmaDriver *dmad = chan->dmad;
   DmaPort *port = dmad->port;
-  struct dchx *dchx = port->dchx + chan->id;
+  volatile struct dchx *dchx = port->dchx + chan->id;
   uint32_t intr;
 
   chSysLockFromIsr();
@@ -353,7 +353,7 @@ void dma_lld_config(dmaDriver *dmad, const dmaCfg *cfg) {
 
   chDbgAssert(cfg->port, "dma_lld_config(), #1", "invalid configuration");
 
-  dmad->port = cfg->port;
+  dmad->port = (void *)cfg->port;
 
   dmad->channels = 0;
   for (i=0;i<DMA_MAX_CHANNELS;++i)
@@ -416,7 +416,7 @@ void dma_lld_channel_start(dmaChannel *chan) {
   dmaDriver *dmad = chan->dmad;
   uint8_t id = dma_lld_get_channel(dmad);
   DmaPort *port = dmad->port;
-  struct dchx *dchx = port->dchx + id;
+  volatile struct dchx *dchx = port->dchx + id;
   dmaChannelCfg *cfg = &chan->cfg;
 
   chDbgAssert(id < DMA_MAX_CHANNELS,
@@ -502,7 +502,7 @@ void dma_lld_start_transaction(dmaChannel *chan, struct dmaTransaction *tr, bool
 void dma_lld_abort_transaction(dmaChannel *chan) {
   dmaDriver *dmad = chan->dmad;
   DmaPort *port = dmad->port;
-  struct dchx *dchx = port->dchx + chan->id;
+  volatile struct dchx *dchx = port->dchx + chan->id;
 
   dchx->econ.set = 1 << DMA_CHAN_ECON_CABORT;
 }

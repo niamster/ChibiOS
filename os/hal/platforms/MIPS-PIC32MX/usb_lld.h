@@ -319,11 +319,11 @@ struct USBDriver {
   /**
    * @brief USBx port.
    */
-  volatile void                 *base;
+  uint32_t                      base;
   /**
    * @brief USBx buffer descriptor table.
    */
-  volatile void                 *bdt;
+  void                          *bdt;
 #if CH_USE_MEMPOOLS
   /**
    * @brief Memory pool for transactions which need .

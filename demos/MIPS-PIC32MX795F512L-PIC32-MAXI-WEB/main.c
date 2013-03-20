@@ -113,7 +113,7 @@ static SPIConfig HS_SPIC = {
   .clk      = 20000000,
   .clk_mode = SPI_CLK_MODE0,
   .rx_irq   = EIC_IRQ_SPI4_RX,
-  .base     = (void *)_SPI4_BASE_ADDRESS,
+  .base     = _SPI4_BASE_ADDRESS,
 };
 
 /* Low speed SPI configuration (200KHz, CPHA=0, CPOL=0).*/
@@ -125,7 +125,7 @@ static SPIConfig LS_SPIC = {
   .clk      = 200000,
   .clk_mode = SPI_CLK_MODE0,
   .rx_irq   = EIC_IRQ_SPI4_RX,
-  .base     = (void *)_SPI4_BASE_ADDRESS,
+  .base     = _SPI4_BASE_ADDRESS,
 };
 
 MMCDriver MMCD1;
@@ -529,7 +529,7 @@ int main(void) {
    * DMA configuration
    */
   {
-    const dmaCfg cfg = {.port = (void *)_DMAC_BASE_ADDRESS};
+    const dmaCfg cfg = {.port = _DMAC_BASE_ADDRESS};
     dmaObjectInit(&DMA1);
     dmaConfig(&DMA1, &cfg);
     dmaStart(&DMA1);

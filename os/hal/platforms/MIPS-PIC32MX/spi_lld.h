@@ -129,7 +129,7 @@ typedef struct {
   /**
    * @brief SPIx port.
    */
-  volatile void         *base;
+  uint32_t              base;
 } SPIConfig;
 
 /**
@@ -168,7 +168,7 @@ struct SPIDriver {
   /**
    * @brief SPIx port.
    */
-  volatile void         *base;
+  void                  *base;
   /**
    * @brief SPI RX interrupt.
    */

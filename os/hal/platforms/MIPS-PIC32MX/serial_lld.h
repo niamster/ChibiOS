@@ -85,7 +85,7 @@ typedef struct {
   /* End of the mandatory fields.*/                   \
                                                       \
   /* UART port.*/                                     \
-  volatile void             *base;
+  void                      *base;
 
 /*===========================================================================*/
 /* Driver macros.                                                            */

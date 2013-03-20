@@ -326,7 +326,7 @@ static DECLEAR_USB_BDT(bdt);
 
 static USBDriver USBD1 = {
   .irq  = EIC_IRQ_USB,
-  .base = (void *)_USB_BASE_ADDRESS,
+  .base = _USB_BASE_ADDRESS,
   .bdt  = bdt,
 };
 
