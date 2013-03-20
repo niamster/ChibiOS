@@ -142,6 +142,10 @@ void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
     if (c == 0)
       return;
     if (c != '%') {
+#if CHPRINTF_CR_INSERT
+      if ('\n' == c)
+        chSequentialStreamPut(chp, '\r');
+#endif
       chSequentialStreamPut(chp, (uint8_t)c);
       continue;
     }

@@ -38,6 +38,13 @@
 #define CHPRINTF_USE_FLOAT          FALSE
 #endif
 
+/**
+ * @brief   Insert CR before NL.
+ */
+#if !defined(CHPRINTF_CR_INSERT) || defined(__DOXYGEN__)
+#define CHPRINTF_CR_INSERT          FALSE
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
