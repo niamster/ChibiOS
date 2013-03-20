@@ -35,9 +35,6 @@
 /* Driver constants.                                                         */
 /*===========================================================================*/
 
-/* Max number of IRQs */
-#define EIC_NUM_IRQS        75
-
 /* Well known IRQ numbers */
 #define EIC_IRQ_CT          _CORE_TIMER_IRQ
 #define EIC_IRQ_UART1_RX    _UART1_RX_IRQ
@@ -55,9 +52,6 @@
 #define EIC_IRQ_DMA5        _DMA5_IRQ
 #define EIC_IRQ_DMA6        _DMA6_IRQ
 #define EIC_IRQ_DMA7        _DMA7_IRQ
-
-/* Max number of IRQ banks */
-#define EIC_IRQ_BANK_QTY    3
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

@@ -34,24 +34,30 @@
 #include "mcu/pic32mxxx.h"
 
 /*===========================================================================*/
+/* Driver constants.                                                         */
+/*===========================================================================*/
+
+/* Max number of IRQs */
+#define EIC_NUM_IRQS          75
+
+/* Number of IRQ banks */
+#define EIC_IRQ_BANK_QTY      3
+
+/* Number of priority registers */
+#define EIC_IRQ_ICP_REGS_QTY  13
+
+/*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
-/**
- * @brief   EIC IRQ bank data.
- */
-typedef struct EicIrqBank {
-  /** @brief IRQ status register.*/
-  volatile uint32_t *status;
-  /** @brief IRQ clear register.*/
-  volatile uint32_t *clear;
-  /** @brief IRQ enable register.*/
-  volatile uint32_t *enable;
-  /** @brief IRQ disable register.*/
-  volatile uint32_t *disable;
-  /** @brief cached IRQ mask.*/
-  uint32_t mask;
-} EicIrqBank;
+typedef struct {
+  PicReg   intcon;
+  PicReg   intstat;
+  PicReg   iptmr;
+  PicReg   ifs[EIC_IRQ_BANK_QTY];
+  PicReg   iec[EIC_IRQ_BANK_QTY];
+  PicReg   ipc[EIC_IRQ_ICP_REGS_QTY];
+} EicPort;
 
 /**
  * @brief   EIC IRQ handler data.
@@ -72,7 +78,8 @@ typedef struct EicIrqInfo {
 /*===========================================================================*/
 
 static EicIrqInfo iInfo[EIC_NUM_IRQS];
-static EicIrqBank iBank[EIC_IRQ_BANK_QTY];
+static EicPort *iPort = (EicPort *)_INT_BASE_ADDRESS;
+static uint32_t iMask[EIC_IRQ_BANK_QTY];
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -100,7 +107,8 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
   uint32_t bank;
 
   for (bank=0;bank<EIC_IRQ_BANK_QTY;++bank) {
-    uint32_t pending = *iBank[bank].status & iBank[bank].mask;
+    PicReg *ifs = &iPort->ifs[bank];
+    uint32_t pending = ifs->reg & iMask[bank];
 
 #if defined(MIPS_USE_MIPS16_ISA)
     uint32_t i;
@@ -114,7 +122,7 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
         info->handler(info->data);
 
-        *iBank[bank].clear = 1 << i;
+        ifs->clear = 1 << i;
       }
 
       pending >>= 1;
@@ -129,9 +137,9 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
       info->handler(info->data);
 
-      pending &= ~(1 << i);
+      ifs->clear = 1 << i;
 
-      *iBank[bank].clear = 1 << i;
+      pending &= ~(1 << i);
     }
 #endif
   }
@@ -151,7 +159,9 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
  * @init
  */
 void eic_lld_init(void) {
-  INTCONCLR = _INTCON_MVEC_MASK; // Single-vectored mode
+  int i;
+
+  iPort->intcon.clear = _INTCON_MVEC_MASK; // Single-vectored mode
 #if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
   /* Since we now in IV mode and EIC=1 need to clear IPL(IM) bits */
   {
@@ -160,57 +170,18 @@ void eic_lld_init(void) {
     c0_set_status(sr);
   }
 #if defined(MIPS_USE_SHADOW_GPR)
-  INTCONSET = _INTCON_SS0_MASK; // Use second shadow set on any vectored interrupt
+  iPort->intcon.set = _INTCON_SS0_MASK; // Use second shadow set on any vectored interrupt
 #endif
 #endif
 
-  iBank[0].status = (volatile uint32_t *)&IFS0;
-  iBank[0].clear = (volatile uint32_t *)&IFS0CLR;
-  iBank[0].enable = (volatile uint32_t *)&IEC0SET;
-  iBank[0].disable = (volatile uint32_t *)&IEC0CLR;
-
-  iBank[1].status = (volatile uint32_t *)&IFS1;
-  iBank[1].clear = (volatile uint32_t *)&IFS1CLR;
-  iBank[1].enable = (volatile uint32_t *)&IEC1SET;
-  iBank[1].disable = (volatile uint32_t *)&IEC1CLR;
-
-  iBank[2].status = (volatile uint32_t *)&IFS2;
-  iBank[2].clear = (volatile uint32_t *)&IFS2CLR;
-  iBank[2].enable = (volatile uint32_t *)&IEC2SET;
-  iBank[2].disable = (volatile uint32_t *)&IEC2CLR;
-
-  /* *iBank[0].disable = 0xFFFFFFFF; */
-  /* *iBank[1].disable = 0xFFFFFFFF; */
-  /* *iBank[2].disable = 0xFFFFFFFF; */
+  for (i=0;i<EIC_IRQ_BANK_QTY;++i)
+    iPort->iec[i].clear = 0xFFFFFFFF;
 
   /* All interrupts have equal priority ... */
-  IPC0CLR  = 0x1F1F1F1F;
-  IPC1CLR  = 0x1F1F1F1F;
-  IPC2CLR  = 0x1F1F1F1F;
-  IPC3CLR  = 0x1F1F1F1F;
-  IPC4CLR  = 0x1F1F1F1F;
-  IPC5CLR  = 0x1F1F1F1F;
-  IPC6CLR  = 0x1F1F1F1F;
-  IPC7CLR  = 0x1F1F1F1F;
-  IPC8CLR  = 0x1F1F1F1F;
-  IPC9CLR  = 0x1F1F1F1F;
-  IPC10CLR = 0x1F1F1F1F;
-  IPC11CLR = 0x1F1F1F1F;
-  IPC12CLR = 0x1F1F1F1F;
-
-  IPC0SET  = 0x04040404;
-  IPC1SET  = 0x04040404;
-  IPC2SET  = 0x04040404;
-  IPC3SET  = 0x04040404;
-  IPC4SET  = 0x04040404;
-  IPC5SET  = 0x04040404;
-  IPC6SET  = 0x04040404;
-  IPC7SET  = 0x04040404;
-  IPC8SET  = 0x04040404;
-  IPC9SET  = 0x04040404;
-  IPC10SET = 0x04040404;
-  IPC11SET = 0x04040404;
-  IPC12SET = 0x04040404;
+  for (i=0;i<EIC_IRQ_ICP_REGS_QTY;++i) {
+    iPort->ipc[i].clear = 0x1F1F1F1F;
+    iPort->ipc[i].set = 0x04040404;
+  }
 
   port_init_mips_timer();
   eic_lld_register_irq(EIC_IRQ_CT, eicCoreTimerIsr, NULL);
@@ -261,8 +232,8 @@ void eic_lld_enable_irq(int irq) {
   else
     bank = 2;
 
-  iBank[bank].mask |= 1 << (irq - bank*32);
-  *iBank[bank].enable = 1 << (irq - bank*32);
+  iMask[bank] |= 1 << (irq - bank*32);
+  iPort->iec[bank].set = 1 << (irq - bank*32);
 }
 
 /**
@@ -282,8 +253,8 @@ void eic_lld_disable_irq(int irq) {
   else
     bank = 2;
 
-  iBank[bank].mask &= ~(1 << (irq - bank*32));
-  *iBank[bank].disable = 1 << (irq - bank*32);
+  iMask[bank] &= ~(1 << (irq - bank*32));
+  iPort->iec[bank].clear = 1 << (irq - bank*32);
 }
 
 #endif /* HAL_USE_EIC */
