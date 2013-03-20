@@ -41,6 +41,14 @@ static dmaChannel DMACH1;
 static SerialDriver SD1;
 static SerialUSBDriver SDU1;
 
+void dbgprintf(const char *fmt, ...) {
+  va_list ap;
+
+  va_start(ap, fmt);
+  chvprintf((BaseSequentialStream *)&SD1, fmt, ap);
+  va_end(ap);
+}
+
 static void oNotifySD1(GenericQueue *qp) {
   msg_t b;
 
@@ -62,22 +70,10 @@ void dbgPanic(const char *m) {
   hal_lld_reset();
 }
 
-#define printc(c) sdPut(&SD1, c)
-
-static void print(const char *msgp) {
-  while (*msgp) {
-    char c = *msgp++;
-    if ('\n' == c)
-      printc('\r');
-    printc(c);
-  }
-}
-
 void pNotifyEXT1(EXTDriver *extd, expchannel_t channel) {
   const EXTChannelConfig *ch = &extd->config->channels[channel];
 
-  chprintf((BaseSequentialStream *)&SD1,
-      "Channel %d, value %d\r\n",
+  dbgprintf("Channel %d, value %d\n",
       channel, palReadPad(ch->port, ch->pad));
 }
 
@@ -139,7 +135,7 @@ uint32_t hardJob(uint32_t arg) {
   return chTimeNow() + US2ST(arg);
 }
 
-static WORKING_AREA(waThread0, 128);
+static WORKING_AREA(waThread0, 256);
 static msg_t Thread0(void *p) {
   uint32_t c = 0;
 
@@ -147,7 +143,7 @@ static msg_t Thread0(void *p) {
 
   chRegSetThreadName("T0");
 
-  print("T0\n");
+  dbgprintf("T0\n");
 
   while (TRUE) {
     c = hardJob(++c);
@@ -157,7 +153,7 @@ static msg_t Thread0(void *p) {
   return 0;
 }
 
-static WORKING_AREA(waThread1, 128);
+static WORKING_AREA(waThread1, 256);
 static msg_t Thread1(void *p) {
   uint32_t c = 0;
 
@@ -165,7 +161,7 @@ static msg_t Thread1(void *p) {
 
   chRegSetThreadName("T1");
 
-  print("T1\n");
+  dbgprintf("T1\n");
 
   while (TRUE) {
     c = hardJob(c += 2);
@@ -176,22 +172,22 @@ static msg_t Thread1(void *p) {
 }
 
 void boardInfo(void) {
-  print("*** Kernel:       " CH_KERNEL_VERSION "\n");
+  dbgprintf("*** Kernel:       " CH_KERNEL_VERSION "\n");
 #ifdef CH_COMPILER_NAME
-  print("*** Compiler:     " CH_COMPILER_NAME "\n");
+  dbgprintf("*** Compiler:     " CH_COMPILER_NAME "\n");
 #endif
-  print("*** Architecture: " CH_ARCHITECTURE_NAME "\n");
+  dbgprintf("*** Architecture: " CH_ARCHITECTURE_NAME "\n");
 #ifdef CH_CORE_VARIANT_NAME
-  print("*** Core Variant: " CH_CORE_VARIANT_NAME "\n");
+  dbgprintf("*** Core Variant: " CH_CORE_VARIANT_NAME "\n");
 #endif
 #ifdef CH_PORT_INFO
-  print("*** Port Info:    " CH_PORT_INFO "\n");
+  dbgprintf("*** Port Info:    " CH_PORT_INFO "\n");
 #endif
 #ifdef PLATFORM_NAME
-  print("*** Platform:     " PLATFORM_NAME "\n");
+  dbgprintf("*** Platform:     " PLATFORM_NAME "\n");
 #endif
 #ifdef BOARD_NAME
-  print("*** Test Board:   " BOARD_NAME "\n");
+  dbgprintf("*** Test Board:   " BOARD_NAME "\n");
 #endif
 }
 
@@ -215,9 +211,9 @@ static FRESULT scan_files(BaseSequentialStream *chp) {
         continue;
       fn = fno.fname;
       if (fno.fattrib & AM_DIR)
-        chprintf(chp, "[D] /%s\r\n", fn);
+        chprintf(chp, "[D] /%s\n", fn);
       else
-        chprintf(chp, "[F] /%s\r\n", fn);
+        chprintf(chp, "[F] /%s\n", fn);
     }
   }
 
@@ -259,42 +255,42 @@ static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
   size_t n, hSize;
 
   n = chHeapStatus(NULL, &hSize);
-  chprintf(chp, "heap fragments   : %u\r\n", n);
-  chprintf(chp, "heap total fragmented free space : %u bytes\r\n", hSize);
+  chprintf(chp, "heap fragments   : %u\n", n);
+  chprintf(chp, "heap total fragmented free space : %u bytes\n", hSize);
 #else
-  chprintf(chp, "Heap was not built in\r\n");
+  chprintf(chp, "Heap was not built in\n");
 #endif
 #if CH_USE_MEMCORE
-  chprintf(chp, "core free memory : %u bytes\r\n", chCoreStatus());
+  chprintf(chp, "core free memory : %u bytes\n", chCoreStatus());
 #endif
-  chprintf(chp, "init:    %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "init:    %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__init_start__, (uint32_t)(uint8_t *)__init_end__, (uint32_t)(uint8_t *)__init_end__ - (uint32_t)(uint8_t *)__init_start__);
-  chprintf(chp, "vectors: %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "vectors: %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__vectors_start__, (uint32_t)(uint8_t *)__vectors_end__, (uint32_t)(uint8_t *)__vectors_end__ - (uint32_t)(uint8_t *)__vectors_start__);
-  chprintf(chp, "text:    %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "text:    %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__text_start__, (uint32_t)(uint8_t *)__text_end__, (uint32_t)(uint8_t *)__text_end__ - (uint32_t)(uint8_t *)__text_start__);
-  chprintf(chp, "ro-data: %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "ro-data: %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__rodata_start__, (uint32_t)(uint8_t *)__rodata_end__, (uint32_t)(uint8_t *)__rodata_end__ - (uint32_t)(uint8_t *)__rodata_start__);
 #ifndef __XC32
-  chprintf(chp, "data:    %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "data:    %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__ram_data_start__, (uint32_t)(uint8_t *)__ram_data_end__, (uint32_t)(uint8_t *)__ram_data_end__ - (uint32_t)(uint8_t *)__ram_data_start__);
 #endif
-  chprintf(chp, "bss :    %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "bss :    %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__bss_start__, (uint32_t)(uint8_t *)__bss_end__, (uint32_t)(uint8_t *)__bss_end__ - (uint32_t)(uint8_t *)__bss_start__);
-  chprintf(chp, "heap:    %.8x:%.8x(%d bytes)\r\n",
+  chprintf(chp, "heap:    %.8x:%.8x(%d bytes)\n",
       (uint32_t)(uint8_t *)__heap_base__, (uint32_t)(uint8_t *)__heap_end__, (uint32_t)(uint8_t *)__heap_end__ - (uint32_t)(uint8_t *)__heap_base__);
 
 #ifdef __XC32
   if (dinit->dst)
-    chprintf(chp, " dinit entries:\r\n");
+    chprintf(chp, " dinit entries:\n");
   while (dinit->dst) {
-    chprintf(chp, "   dst %.8x len %.8x fmt %s\r\n", dinit->dst, dinit->len, dinit->fmt?"copy":"clear");
+    chprintf(chp, "   dst %.8x len %.8x fmt %s\n", dinit->dst, dinit->len, dinit->fmt?"copy":"clear");
     dinit = (struct dinit *)(((uint32_t)((uint8_t *)dinit + sizeof(struct dinit) + (dinit->fmt?dinit->len:0)) + 3) & ~3);
   }
 #else
   if ((uint8_t *)__ram_data_start__ != (uint8_t *)__ram_data_end__
       && (uint8_t *)__rom_data_start__ != (uint8_t *)__ram_data_start__)
-    chprintf(chp, " ROM .data was relocated from %.8x to %.8x\r\n",
+    chprintf(chp, " ROM .data was relocated from %.8x to %.8x\n",
         (uint32_t)(uint8_t *)__rom_data_start__,
         (uint32_t)(uint8_t *)__ram_data_start__);
 #endif
@@ -324,7 +320,7 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
   };
   Thread *tp;
 
-  chprintf(chp, "    addr       name    stack prio refs     state time\r\n");
+  chprintf(chp, "    addr       name    stack prio refs     state time\n");
   tp = chRegFirstThread();
   do {
 #if CH_DBG_THREADS_PROFILING
@@ -332,14 +328,14 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
 #else
     systime_t p_time = 0;
 #endif
-    chprintf(chp, "%.8x %10s %.8x %4lu %4lu %9s %lu\r\n",
+    chprintf(chp, "%.8x %10s %.8x %4lu %4lu %9s %lu\n",
         (uint32_t)tp, tp->p_name, (uint32_t)tp->p_ctx.sp,
         (uint32_t)tp->p_prio, (uint32_t)(tp->p_refs - 1),
         states[tp->p_state], (uint32_t)p_time);
     tp = chRegNextThread(tp);
   } while (tp != NULL);
 #else
-  chprintf(chp, "Registry was not built in\r\n");
+  chprintf(chp, "Registry was not built in\n");
 #endif
 
   (void)argc;
@@ -362,24 +358,24 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)argv;
 
   if (mmcConnect(&MMCD1) != CH_SUCCESS) {
-    chprintf(chp, "MMC not connected\r\n");
+    chprintf(chp, "MMC not connected\n");
     return;
   }
 
   err = f_mount(0, &MMC_FS);
   if (err != FR_OK) {
-    chprintf(chp, "FS: f_mount() failed\r\n");
+    chprintf(chp, "FS: f_mount() failed\n");
     goto out;
   }
 
   err = f_getfree("/", &clusters, &fsp);
   if (FR_OK != err) {
-    chprintf(chp, "FS: f_getfree() failed\r\n");
+    chprintf(chp, "FS: f_getfree() failed\n");
     goto out;
   }
 
   chprintf(chp,
-           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\r\n",
+           "FS: %lu free clusters, %lu sectors per cluster, %lu bytes free\n",
            clusters, (uint32_t)MMC_FS.csize,
            clusters * (uint32_t)MMC_FS.csize * 512);
 

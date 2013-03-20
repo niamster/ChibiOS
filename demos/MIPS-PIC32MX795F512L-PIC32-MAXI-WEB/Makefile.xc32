@@ -10,6 +10,7 @@ ifeq ($(USE_OPT),)
   # usually gives very good i-cache hit rate
   USE_OPT += -falign-functions=16
   USE_OPT += -D__32MX795F512L__ -mprocessor=32MX795F512L
+  USE_OPT += -DCHPRINTF_CR_INSERT=TRUE
 endif
 
 # C specific options here (added to USE_OPT).
