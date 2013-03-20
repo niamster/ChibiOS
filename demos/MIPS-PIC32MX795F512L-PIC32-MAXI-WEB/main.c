@@ -191,7 +191,7 @@ void boardInfo(void) {
 #endif
 }
 
-static FRESULT scan_files(BaseSequentialStream *chp) {
+static FRESULT scan_files(BaseSequentialStream *chp, const char *path) {
   FRESULT res;
   FILINFO fno;
   DIR dir;
@@ -201,7 +201,7 @@ static FRESULT scan_files(BaseSequentialStream *chp) {
   fno.lfname = 0;
   fno.lfsize = 0;
 #endif
-  res = f_opendir(&dir, "");
+  res = f_opendir(&dir, path);
   if (FR_OK == res) {
     for (;;) {
       res = f_readdir(&dir, &fno);
@@ -354,9 +354,6 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
   uint32_t clusters;
   FATFS *fsp;
 
-  (void)argc;
-  (void)argv;
-
   if (mmcConnect(&MMCD1) != CH_SUCCESS) {
     chprintf(chp, "MMC not connected\n");
     return;
@@ -379,7 +376,7 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
            clusters, (uint32_t)MMC_FS.csize,
            clusters * (uint32_t)MMC_FS.csize * 512);
 
-  scan_files(chp);
+  scan_files(chp, argc>0?argv[0]:"");
 
  out:
   mmcDisconnect(&MMCD1);
