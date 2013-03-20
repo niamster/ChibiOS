@@ -9,6 +9,7 @@ ifeq ($(USE_OPT),)
   USE_OPT += -mtune=24kc
   # usually gives very good i-cache hit rate
   USE_OPT += -falign-functions=32
+  USE_OPT += -DCHPRINTF_CR_INSERT=TRUE
 endif
 
 # C specific options here (added to USE_OPT).
