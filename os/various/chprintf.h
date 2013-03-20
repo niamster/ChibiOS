@@ -29,6 +29,8 @@
 #ifndef _CHPRINTF_H_
 #define _CHPRINTF_H_
 
+#include <stdarg.h>
+
 /**
  * @brief   Float type support.
  */
@@ -40,6 +42,7 @@
 extern "C" {
 #endif
   void chprintf(BaseSequentialStream *chp, const char *fmt, ...);
+  void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap);
 #ifdef __cplusplus
 }
 #endif
