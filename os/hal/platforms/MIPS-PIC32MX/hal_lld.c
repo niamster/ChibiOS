@@ -79,4 +79,31 @@ void hal_lld_init(void) {
   BMXCONCLR = _BMXCON_BMXWSDRM_MASK; /* Data RAM accesses from CPU have zero wait states for address setup */
 }
 
+/**
+ * @brief   Device software reset.
+ *
+ * @notapi
+ */
+void hal_lld_reset(void) {
+  volatile uint32_t dummy;
+
+  port_disable();
+
+  /* Suspend DMA */
+  DMACONSET = _DMACON_SUSPEND_MASK;
+  while ((DMACON >> _DMACON_DMABUSY_POSITION)&1);
+  
+  /* Unlock the system */
+  SYSKEY = 0;
+  SYSKEY = 0xAA996655;
+  SYSKEY = 0x556699AA;
+
+  /* Toggle SW reset */
+  RSWRSTSET = 1 << _RSWRST_SWRST_POSITION;
+  dummy = RSWRST;
+  (void)dummy;
+
+  for (;;);
+}
+
 /** @} */

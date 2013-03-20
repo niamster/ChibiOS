@@ -58,6 +58,8 @@ void dbgPanic(const char *m) {
       sd_lld_putc(&SD1, *m++);
     port_disable();
   }
+
+  hal_lld_reset();
 }
 
 #define printc(c) sdPut(&SD1, c)
