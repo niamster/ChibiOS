@@ -65,7 +65,9 @@ SECTIONS
     . = ALIGN(16);
     __text_start__ = .;
     *(.text*)
-    *(.ctors)
+    __ctors_start__ = .;
+    KEEP (*(.ctors))
+    __ctors_end__ = .;
     __text_end__ = .;
   } > kseg0_program_mem
 

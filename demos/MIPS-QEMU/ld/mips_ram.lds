@@ -48,8 +48,9 @@ SECTIONS
     KEEP (*(.core.entry*))
     KEEP (*(.context*))
     *(.text*)
-    *(.gcc*)
-    *(.ctors)
+    __ctors_start__ = .;
+    KEEP (*(.ctors))
+    __ctors_end__ = .;
     __text_end__ = .;
   }
 

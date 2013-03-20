@@ -453,13 +453,7 @@ static void ledTmrFunc(void *p) {
   chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
 }
 
-/*
- * Application entry point.
- */
-int main(void) {
-  Thread *sh = NULL;
-  Thread *ush = NULL;
-
+void __attribute__((constructor)) ll_init(void) {
   /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
@@ -547,6 +541,14 @@ int main(void) {
   sduStart(&SDU1, &serUsbCfg);
 
   usbConnectBus(serUsbCfg.usbp);
+}
+
+/*
+ * Application entry point.
+ */
+int main(void) {
+  Thread *sh = NULL;
+  Thread *ush = NULL;
 
   /*
    * Normal main() thread activity ;).

@@ -216,12 +216,7 @@ static const ShellConfig shCfg = {
   shCmds
 };
 
-/*
- * Application entry point.
- */
-int main(void) {
-  Thread *sh = NULL;
-
+void __attribute__((constructor)) ll_init(void) {
   /*
    * System initializations.
    * - HAL initialization, this also initializes the configured device drivers
@@ -246,6 +241,13 @@ int main(void) {
    */
   chThdCreateStatic(waThread0, sizeof(waThread0), NORMALPRIO-2, Thread0, NULL);
   chThdCreateStatic(waThread1, sizeof(waThread1), NORMALPRIO-1, Thread1, NULL);
+}
+
+/*
+ * Application entry point.
+ */
+int main(void) {
+  Thread *sh = NULL;
 
   /*
    * Normal main() thread activity ;).

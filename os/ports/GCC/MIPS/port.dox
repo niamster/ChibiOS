@@ -164,6 +164,8 @@
  * - @p __ram_data_end__   end location of .data in RAM for relocation from ROM.
  * - @p __bss_start__      start location of .bss.
  * - @p __bss_end__        end location of .bss.
+ * - @p __ctors_start__      start location of constructors vector.
+ * - @p __ctors_end__        end location of constructors vector.
  * .
  * @note if .data section is already in RAM no relocation is performed(i.e. in case chibi was loaded by external loader)
  * in this case __rom_data_start__ and __ram_data_start__ should point to the same location

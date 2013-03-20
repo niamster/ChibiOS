@@ -143,14 +143,29 @@ _dinit_end:
   /* </copy:data> */
 
 _early_init:
-  /* FIXME: execute ctors */
-
-  .extern port_early_init
   la      $sp, main_stack_bottom
-  la      $t0, port_early_init
-  jalr    $t0
   subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
+  .extern port_early_init
+  la      $t0, port_early_init
+  jalr    $t0
+  nop
+
+  /* <exec:ctors> */
+  la      $s0, __ctors_start__
+  la      $s1, __ctors_end__
+  beq     $s0, $s1, start_app
+  nop
+
+3:
+  lw      $s2, 0($s0)
+  jalr    $s2
+  addiu   $s0, $s0, 4
+  bne     $s0, $s1, 3b
+  nop
+  /* </exec:ctors> */
+
+start_app:
   .extern main
   la      $t0, main
   jalr    $t0
