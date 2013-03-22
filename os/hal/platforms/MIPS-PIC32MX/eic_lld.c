@@ -257,6 +257,26 @@ void eic_lld_disable_irq(int irq) {
   iPort->iec[bank].clear = 1 << (irq - bank*32);
 }
 
+/**
+ * @brief   Ack EIC IRQ.
+ *
+ * @param[in] irq       irq number.
+ */
+void eic_lld_ack_irq(int irq) {
+  int bank;
+
+  chDbgAssert(irq < EIC_NUM_IRQS, "IRQ number out of range", "");
+
+  if (irq < 32)
+    bank = 0;
+  else if (irq < 64)
+    bank = 1;
+  else
+    bank = 2;
+
+  iPort->ifs[bank].clear = 1 << (irq - bank*32);
+}
+
 #endif /* HAL_USE_EIC */
 
 /** @} */

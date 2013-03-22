@@ -188,6 +188,18 @@ void eic_lld_disable_irq(int irq) {
   chSysUnlock();
 }
 
+/**
+ * @brief   Ack EIC IRQ.
+ *
+ * @param[in] irq       irq number.
+ */
+void eic_lld_ack_irq(int irq) {
+  if (irq >= EIC_NUM_IRQS)
+    return;
+
+  eic_ack(irq);
+}
+
 #endif /* HAL_USE_EIC */
 
 /** @} */

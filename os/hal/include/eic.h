@@ -95,6 +95,13 @@ typedef void (*eicIrqHandler)(void *);
  */
 #define eicDisableIrq(irq) eic_lld_disable_irq(irq)
 
+/**
+ * @brief   Ack EIC IRQ.
+ *
+ * @param[in] irq       irq number.
+ */
+#define eicAckIrq(irq) eic_lld_ack_irq(irq)
+
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/

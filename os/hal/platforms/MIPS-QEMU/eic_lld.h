@@ -99,6 +99,7 @@ extern "C" {
   void eic_lld_unregister_irq(int irq);
   void eic_lld_enable_irq(int irq);
   void eic_lld_disable_irq(int irq);
+  void eic_lld_ack_irq(int irq);
 #ifdef __cplusplus
 }
 #endif
