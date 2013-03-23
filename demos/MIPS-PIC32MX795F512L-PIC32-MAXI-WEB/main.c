@@ -110,6 +110,7 @@ static SPIConfig HS_SPIC = {
   .master   = TRUE,
   .clk      = 20000000,
   .clk_mode = SPI_CLK_MODE0,
+  .dmad     = &DMA1,
   .rx_irq   = EIC_IRQ_SPI4_RX,
   .base     = _SPI4_BASE_ADDRESS,
 };
@@ -122,6 +123,7 @@ static SPIConfig LS_SPIC = {
   .master   = TRUE,
   .clk      = 200000,
   .clk_mode = SPI_CLK_MODE0,
+  .dmad     = &DMA1,
   .rx_irq   = EIC_IRQ_SPI4_RX,
   .base     = _SPI4_BASE_ADDRESS,
 };
@@ -220,7 +222,7 @@ static FRESULT scan_files(BaseSequentialStream *chp, const char *path) {
   return res;
 }
 
-#define SHELL_WA_SIZE   THD_WA_SIZE(1024)
+#define SHELL_WA_SIZE   THD_WA_SIZE(1024*2)
 
 static void cmd_mem(BaseSequentialStream *chp, int argc, char *argv[]) {
   extern uint8_t __heap_base__[];

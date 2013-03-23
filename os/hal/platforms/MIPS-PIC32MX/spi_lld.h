@@ -29,6 +29,8 @@
 #ifndef _SPI_LLD_H_
 #define _SPI_LLD_H_
 
+#include "dma.h"
+
 #if HAL_USE_SPI || defined(__DOXYGEN__)
 
 /*===========================================================================*/
@@ -47,6 +49,15 @@ enum spiDataWidth {
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */
 /*===========================================================================*/
+
+/**
+ * @brief   Defines size of the buffer TX DMA channel
+ *          for RX-only SPI transactions and
+ *          RX buffer for TX-only transactions
+ */
+#if !defined(SPI_DUMMY_DMA_BUFFER_SIZE)
+#define SPI_DUMMY_DMA_BUFFER_SIZE     512
+#endif
 
 /*===========================================================================*/
 /* Derived constants and error checks.                                       */
@@ -123,6 +134,10 @@ typedef struct {
    */
   enum spiClkMode       clk_mode;
   /**
+   * @brief DMA driver for the transactions.
+   */
+  dmaDriver             *dmad;
+  /**
    * @brief SPI RX interrupt.
    */
   uint8_t               rx_irq;
@@ -185,6 +200,26 @@ struct SPIDriver {
    * @brief Transmit pointer or @p NULL.
    */
   const uint8_t         *txptr;
+  /**
+   * @brief DMA channel for the TX transactions.
+   */
+  dmaChannel            txDmaChan;
+  /**
+   * @brief DMA TX transaction descriptor.
+   */
+  dmaTransaction        txDmaTransaction;
+  /**
+   * @brief DMA channel for the RX transactions.
+   */
+  dmaChannel            rxDmaChan;
+  /**
+   * @brief DMA RX transaction descriptor.
+   */
+  dmaTransaction        rxDmaTransaction;
+  /**
+   * @brief DMA mapped SPI RX/TX port.
+   */
+  dmaptr_t              dmaPort;
 };
 
 /*===========================================================================*/

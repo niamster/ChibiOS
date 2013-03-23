@@ -50,6 +50,19 @@ enum spiStatusBits {
 };
 
 /*===========================================================================*/
+/* Driver macros.                                                            */
+/*===========================================================================*/
+
+#define offsetof(type, member)  __builtin_offsetof (type, member)
+
+#define container_of(ptr, type, member) ({                  \
+      const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+      (type *)( (char *)__mptr - offsetof(type,member) );   \
+    })
+
+#define min(x, y) ((x)<(y)?(x):(y))
+
+/*===========================================================================*/
 /* Driver data structures and types.                                         */
 /*===========================================================================*/
 
@@ -68,6 +81,9 @@ typedef volatile struct {
 /*===========================================================================*/
 /* Driver local variables.                                                   */
 /*===========================================================================*/
+
+static uint8_t dummyDmaTxBuffer[SPI_DUMMY_DMA_BUFFER_SIZE];
+static uint8_t dummyDmaRxBuffer[SPI_DUMMY_DMA_BUFFER_SIZE];
 
 /*===========================================================================*/
 /* Driver local functions.                                                   */
@@ -123,13 +139,134 @@ static void __spi_stop(SPIDriver *spid) {
   port->con.clear = 1 << SPI_CON_ON;
 }
 
+static void __spi_dma_tx_complete(struct dmaTransaction *tr);
+static void __spi_dma_rx_complete(struct dmaTransaction *tr);
+
+static inline void __spi_dma_set_completion(SPIDriver *spid, dmaTransaction *rx, dmaTransaction *tx) {
+    /* The trick around EIC's way to handle interrupts:
+     * the higher number interrupts are handled first, so
+     * we need to finish SPI transaction after the last DMA irq in the chain,
+     * that is we chose the lowest IRQ number
+     */
+    if (spid->rxDmaChan.irq < spid->txDmaChan.irq) {
+      rx->cb = __spi_dma_rx_complete;
+      tx->cb = NULL;
+    } else {
+      rx->cb = NULL;
+      tx->cb = __spi_dma_tx_complete;
+    }
+}
+
+static void __spi_dma_complete(SPIDriver *spid, dmaTransaction *rx, dmaTransaction *tx, size_t n) {
+  SpiPort *port = (SpiPort *)spid->base;
+
+  dmaUnmap(tx->src);
+  dmaUnmap(rx->dst);
+
+  spid->cnt -= n;
+
+  if (!spid->cnt
+      || tx->status != DMA_TRANSACTION_SUCCESSFULL
+      || rx->status != DMA_TRANSACTION_SUCCESSFULL) {
+#if HAL_USE_EIC
+    eicAckIrq(spid->config->rx_irq);
+    eicEnableIrq(spid->config->rx_irq);
+#endif
+
+    _spi_isr_code(spid);
+  } else {
+    uint32_t cnt = spid->cnt;
+
+    if (!spid->txptr || !spid->rxptr)
+      cnt = min(spid->cnt, SPI_DUMMY_DMA_BUFFER_SIZE);
+
+    if (spid->txptr)
+      spid->txptr += n;
+    if (spid->rxptr)
+      spid->rxptr += n;
+
+    tx->src = dmaMap(spid->txptr?(uint8_t *)spid->txptr+1:dummyDmaTxBuffer);
+    tx->n = cnt-1;
+    tx->status = DMA_TRANSACTION_FAILED;
+
+    rx->dst = dmaMap(spid->rxptr?:dummyDmaRxBuffer);
+    rx->n = cnt;
+    rx->status = DMA_TRANSACTION_FAILED;
+
+    __spi_dma_set_completion(spid, rx, tx);
+
+    dmaStartTransactionI(&spid->txDmaChan, tx);
+    dmaStartTransactionI(&spid->rxDmaChan, rx);
+
+    if (spid->txptr)
+      port->buf = *spid->txptr;
+    else
+      port->buf = 0xFFFFFFFF;
+  }
+}
+
+static void __spi_dma_rx_complete(struct dmaTransaction *tr) {
+  SPIDriver *spid = container_of(tr, SPIDriver, rxDmaTransaction);
+
+  /* chDbgAssert(DMA_CHANNEL_ACTIVE == spid->txDmaChan.state, */
+  /*     "DMA TX transaction was not complete", ""); */
+
+  if (spid->txDmaChan.state != DMA_CHANNEL_ACTIVE)
+    spid->txDmaTransaction.cb = __spi_dma_tx_complete;
+  else
+    __spi_dma_complete(spid, tr, &spid->txDmaTransaction, tr->n);
+}
+
+static void __spi_dma_tx_complete(struct dmaTransaction *tr) {
+  SPIDriver *spid = container_of(tr, SPIDriver, txDmaTransaction);
+
+  /* chDbgAssert(DMA_CHANNEL_ACTIVE == spid->rxDmaChan.state, */
+  /*     "DMA RX transaction was not complete", ""); */
+
+  if (spid->rxDmaChan.state != DMA_CHANNEL_ACTIVE)
+    spid->rxDmaTransaction.cb = __spi_dma_rx_complete;
+  else
+    __spi_dma_complete(spid, &spid->rxDmaTransaction, tr, tr->n+1);
+}
+
 static void __spi_start_transaction(SPIDriver *spid) {
   SpiPort *port = (SpiPort *)spid->base;
 
-  if (spid->txptr)
-    port->buf = *spid->txptr;
-  else
-    port->buf = 0xFFFFFFFF;
+  if (spid->config->dmad && spid->cnt > 1) {
+    dmaTransaction *tx = &spid->txDmaTransaction;
+    dmaTransaction *rx = &spid->rxDmaTransaction;
+    uint32_t cnt = spid->cnt;
+
+    if (!spid->txptr || !spid->txptr)
+      cnt = min(spid->cnt, SPI_DUMMY_DMA_BUFFER_SIZE);
+
+    tx->src = dmaMap(spid->txptr?(uint8_t *)spid->txptr+1:dummyDmaTxBuffer);
+    tx->n = cnt-1;
+    tx->status = DMA_TRANSACTION_FAILED;
+
+    rx->dst = dmaMap(spid->rxptr?:dummyDmaRxBuffer);
+    rx->n = cnt;
+    rx->status = DMA_TRANSACTION_FAILED;
+
+#if HAL_USE_EIC
+    eicDisableIrq(spid->config->rx_irq);
+#endif
+
+    __spi_dma_set_completion(spid, rx, tx);
+
+    dmaStartTransactionI(&spid->txDmaChan, tx);
+    dmaStartTransactionI(&spid->rxDmaChan, rx);
+
+    if (spid->txptr)
+      port->buf = *spid->txptr;
+    else
+      port->buf = 0xFFFFFFFF;
+  } else {
+    if (spid->txptr)
+      port->buf = *spid->txptr;
+    else
+      port->buf = 0xFFFFFFFF;
+  }
 }
 
 static void __spi_finish_transaction(SPIDriver *spid) {
@@ -186,6 +323,10 @@ static void lld_serve_rx_interrupt(void *data) {
  * @notapi
  */
 void spi_lld_init(void) {
+  uint32_t i;
+
+  for (i=0;i<SPI_DUMMY_DMA_BUFFER_SIZE;++i)
+    dummyDmaTxBuffer[i] = 0xFF;
 }
 
 /**
@@ -200,6 +341,37 @@ void spi_lld_start(SPIDriver *spid) {
 
   spid->base = (void *)cfg->base;
   __spi_config(spid);
+
+  if (cfg->dmad && SPI_STOP == spid->state) {
+    SpiPort *port = (SpiPort *)spid->base;
+    dmaTransaction *tx = &spid->txDmaTransaction;
+    dmaTransaction *rx = &spid->rxDmaTransaction;
+    dmaChannelCfg ccfg = {
+      .prio = DMA_CHANNEL_PRIO_LOWEST,
+      .fifownd = 1,
+      .evt = TRUE,
+      .eirq = cfg->rx_irq,
+    };
+
+    dmaChannelObjectInit(cfg->dmad, &spid->txDmaChan);
+    dmaChannelObjectInit(cfg->dmad, &spid->rxDmaChan);
+
+    ccfg.mode = DMA_CHANNEL_MEM_TO_FIFO;
+    chDbgAssert(dmaChannelAcquire(&spid->txDmaChan, TIME_IMMEDIATE),
+        "Unable to acquire DMA channel for TX SPI", "");
+    dmaChannelConfig(&spid->txDmaChan, &ccfg);
+    dmaChannelStart(&spid->txDmaChan);
+
+    ccfg.mode = DMA_CHANNEL_FIFO_TO_MEM;
+    chDbgAssert(dmaChannelAcquire(&spid->rxDmaChan, TIME_IMMEDIATE),
+        "Unable to acquire DMA channel for RX SPI", "");
+    dmaChannelConfig(&spid->rxDmaChan, &ccfg);
+    dmaChannelStart(&spid->rxDmaChan);
+
+    spid->dmaPort = dmaMap((uint8_t *)&port->buf);
+    rx->src = spid->dmaPort;
+    tx->dst = spid->dmaPort;
+  }
 
 #if HAL_USE_EIC
   if (spid->rx_irq != cfg->rx_irq) { /* Assuming this is done only once */
@@ -227,6 +399,16 @@ void spi_lld_stop(SPIDriver *spid) {
 #endif
 
   __spi_stop(spid);
+
+  if (cfg->dmad) {
+    dmaChannelStop(&spid->rxDmaChan);
+    dmaChannelRelease(&spid->rxDmaChan);
+
+    dmaChannelStop(&spid->txDmaChan);
+    dmaChannelRelease(&spid->txDmaChan);
+
+    dmaUnmap(spid->dmaPort);
+  }
 }
 
 /**
