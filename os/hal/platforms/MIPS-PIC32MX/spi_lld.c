@@ -53,11 +53,9 @@ enum spiStatusBits {
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
-#define offsetof(type, member)  __builtin_offsetof (type, member)
-
 #define container_of(ptr, type, member) ({                  \
       const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
-      (type *)( (char *)__mptr - offsetof(type,member) );   \
+      (type *)( (char *)__mptr - __builtin_offsetof(type, member) );   \
     })
 
 #define min(x, y) ((x)<(y)?(x):(y))
