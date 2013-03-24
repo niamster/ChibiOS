@@ -39,13 +39,15 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-/** @brief I2C1 driver identifier.*/
+/**
+ * @brief   I2C1 driver identifier.
+ */
 #if PLATFORM_I2C_USE_I2C1 || defined(__DOXYGEN__)
 I2CDriver I2CD1;
 #endif
 
 /*===========================================================================*/
-/* Driver local variables.                                                   */
+/* Driver local variables and types.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -82,7 +84,7 @@ void i2c_lld_init(void) {
 void i2c_lld_start(I2CDriver *i2cp) {
 
   if (i2cp->state == I2C_STOP) {
-    /* Enables the pehipheral.*/
+    /* Enables the peripheral.*/
 #if PLATFORM_I2C_USE_I2C1
     if (&I2CD1 == i2cp) {
 
@@ -141,6 +143,12 @@ msg_t i2c_lld_master_receive_timeout(I2CDriver *i2cp, i2caddr_t addr,
                                      uint8_t *rxbuf, size_t rxbytes,
                                      systime_t timeout) {
 
+  (void)i2cp;
+  (void)addr;
+  (void)rxbuf;
+  (void)rxbytes;
+  (void)timeout;
+
   return RDY_OK;
 }
 
@@ -173,6 +181,14 @@ msg_t i2c_lld_master_transmit_timeout(I2CDriver *i2cp, i2caddr_t addr,
                                       const uint8_t *txbuf, size_t txbytes,
                                       uint8_t *rxbuf, size_t rxbytes,
                                       systime_t timeout) {
+
+  (void)i2cp;
+  (void)addr;
+  (void)txbuf;
+  (void)txbytes;
+  (void)rxbuf;
+  (void)rxbytes;
+  (void)timeout;
 
   return RDY_OK;
 }

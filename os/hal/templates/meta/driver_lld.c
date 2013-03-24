@@ -39,13 +39,19 @@
 /* Driver exported variables.                                                */
 /*===========================================================================*/
 
-/** @brief XXX1 driver identifier.*/
+/**
+ * @brief   XXX1 driver identifier.
+ */
 #if PLATFORM_XXX_USE_XXX1 || defined(__DOXYGEN__)
 XXXDriver XXXD1;
 #endif
 
 /*===========================================================================*/
-/* Driver local variables.                                                   */
+/* Driver local types.                                                       */
+/*===========================================================================*/
+
+/*===========================================================================*/
+/* Driver local variables and types.                                         */
 /*===========================================================================*/
 
 /*===========================================================================*/
@@ -83,7 +89,7 @@ void xxx_lld_init(void) {
 void xxx_lld_start(XXXDriver *xxxp) {
 
   if (xxxp->state == XXX_STOP) {
-    /* Enables the pehipheral.*/
+    /* Enables the peripheral.*/
 #if PLATFORM_XXX_USE_XXX1
     if (&XXXD1 == xxxp) {
 

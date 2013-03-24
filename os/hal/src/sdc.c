@@ -40,7 +40,7 @@
 /*===========================================================================*/
 
 /*===========================================================================*/
-/* Driver local variables.                                                   */
+/* Driver local variables and types.                                         */
 /*===========================================================================*/
 
 /**
@@ -218,8 +218,8 @@ bool_t sdcConnect(SDCDriver *sdcp) {
   else {
 #if SDC_MMC_SUPPORT
     /* MMC or SD V1.1 detection.*/
-    if (sdc_lld_send_cmd_short_crc(sdcp, SDMMC_CMD_APP_CMD, 0, resp) ||
-        SDC_R1_ERROR(resp[0]))
+    if (sdc_lld_send_cmd_short_crc(sdcp, MMCSD_CMD_APP_CMD, 0, resp) ||
+        MMCSD_R1_ERROR(resp[0]))
       sdcp->cardmode = SDC_MODE_CARDTYPE_MMC;
     else
 #endif /* SDC_MMC_SUPPORT */
@@ -562,6 +562,7 @@ bool_t sdcErase(SDCDriver *sdcp, uint32_t startblk, uint32_t endblk) {
   /* Wait for it to return to transfer state to indicate it has finished erasing */
   _sdc_wait_for_transfer_state(sdcp);
 
+  sdcp->state = BLK_READY;
   return CH_SUCCESS;
 
 failed:
