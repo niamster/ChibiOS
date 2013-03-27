@@ -61,10 +61,11 @@ MIPS_FUNC_START(e_vector)
 
   mfc0    $a0, cause          /* Passed to port_handle_exception */
   mfc0    $a1, status         /* Passed to port_handle_exception */
+  move    $a2, $sp            /* Passed to port_handle_exception */
     
-  mfc0    $a2, epc            /* Passed to port_handle_exception */
+  mfc0    $k1, epc
   ehb
-  sw      $a2, 84 ($sp)
+  sw      $k1, 84 ($sp)
 
   move    $k1, $sp            /* Save original SP in k1 */
 

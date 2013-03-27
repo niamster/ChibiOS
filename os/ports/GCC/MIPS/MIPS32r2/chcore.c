@@ -250,11 +250,51 @@ static mips_hw_irq_t hw_irq_table[] = {
 #endif
 };
 
-bool_t __nomips16
-port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
-  uint32_t ex = (cause >> 2) & 0x1f;
+static char * __nomips16
+ultoh(char *p, unsigned long n) {
+  char *q = p + 8;
 
-  (void)epc;
+  while (q != p) {
+    unsigned long rem = n%16;
+    if (rem < 10)
+      *q-- = '0' + rem;
+    else
+      *q-- = 'a' + rem - 10;
+    n >>= 4;
+  }
+
+  return p + 8;
+}
+
+static void __nomips16
+hexfmt(char *p, uint32_t l, uint32_t nums[], uint32_t n) {
+  char *s = p, *e = s+l;
+  uint32_t i = 0;
+
+  while (s<e && i<n) {
+    if ('x' == *s && s > p && '0' == *(s-1))
+      s = ultoh(s, nums[i++]);
+    else
+      ++s;
+  }
+}
+
+static void __attribute__((noinline)) __nomips16
+port_unhandled_exception(uint32_t ex, struct extctx *regs) {
+  uint32_t eepc = MFC0($30, 0);
+  char msg[] =
+    "exception 0xXXXXXXXX: eepc 0xXXXXXXXX, pc 0xXXXXXXXX, ra 0xXXXXXXXX, sp 0xXXXXXXXX";
+  uint32_t nums[] = {ex, eepc, (uint32_t)regs->pc, (uint32_t)regs->ra,
+                     (uint32_t)(regs - 1)};
+
+  hexfmt(msg, sizeof(msg), nums, ARRAY_SIZE(nums));
+
+  chDbgPanic(msg);
+}
+
+bool_t __nomips16
+port_handle_exception(uint32_t cause, uint32_t status, struct extctx *regs) {
+  uint32_t ex = (cause >> 2) & 0x1f;
 
   if (0 == ex) { /* IRQ */
     uint32_t ip = ((cause & status) >> 8) & 0xFF; /* only masked IRQs */
@@ -293,7 +333,7 @@ port_handle_exception(uint32_t cause, uint32_t status, uint32_t epc) {
     }
 #endif
   } else
-    chDbgPanic("unhandled exception");
+    port_unhandled_exception(ex, regs);
 
   return chSchIsPreemptionRequired();
 }
