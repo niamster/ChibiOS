@@ -150,7 +150,7 @@ MIPS_FUNC_START(i_vector)
 
   /* Switch to exception stack. Recall, nested exceptions are not supported here */
   .extern port_handle_irq
-  la      $sp, exception_stack_bottom
+  la      $sp, irq_stack_bottom
   jal     port_handle_irq
   subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 
@@ -204,7 +204,7 @@ prev_srs:
 
   /* Switch to exception stack. Recall, nested exceptions are not supported here */
   .extern port_handle_irq
-  la      $sp, exception_stack_bottom
+  la      $sp, irq_stack_bottom
   jal     port_handle_irq
   subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
 

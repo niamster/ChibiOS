@@ -296,6 +296,13 @@ bool_t __nomips16
 port_handle_exception(uint32_t cause, uint32_t status, struct extctx *regs) {
   uint32_t ex = (cause >> 2) & 0x1f;
 
+#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
+  (void)status;
+
+  port_unhandled_exception(ex, regs);
+
+  return FALSE;
+#else
   if (0 == ex) { /* IRQ */
     uint32_t ip = ((cause & status) >> 8) & 0xFF; /* only masked IRQs */
 
@@ -336,8 +343,10 @@ port_handle_exception(uint32_t cause, uint32_t status, struct extctx *regs) {
     port_unhandled_exception(ex, regs);
 
   return chSchIsPreemptionRequired();
+#endif
 }
 
+#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
 bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
 #if defined(MIPS_PORT_HANDLE_CORE_TIMER)
   if (cause&(1<<30))
@@ -352,6 +361,7 @@ bool_t port_handle_irq(uint32_t irq, uint32_t cause) {
 
   return chSchIsPreemptionRequired();
 }
+#endif
 
 static void __entry port_init_irq(void) {
   uint32_t mask = 0, i;

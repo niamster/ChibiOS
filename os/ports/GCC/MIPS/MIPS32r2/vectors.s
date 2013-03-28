@@ -56,6 +56,19 @@ exception_stack_top:
   .global exception_stack_bottom
 exception_stack_bottom:
 
+#if defined(MIPS_USE_SHADOW_GPR) || defined(MIPS_USE_VECTORED_IRQ)
+  /* Separate stack for IRQ routines for simplicity */
+  .balign 4
+  .global irq_stack_top
+irq_stack_top:
+  .rept MIPS_IRQ_STACK_SIZE
+  .byte 0
+  .endr
+  .balign 4
+  .global irq_stack_bottom
+irq_stack_bottom:
+#endif
+
 #endif
 
 /** @} */

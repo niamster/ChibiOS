@@ -116,8 +116,12 @@
  * - @p IDLE_THREAD_STACK_SIZE, stack area size to be assigned to the IDLE
  *   thread. Usually there is no need to change this value unless inserting
  *   code in the IDLE thread using the @p IDLE_LOOP_HOOK hook macro.
- * - @p MIPS_EXC_STACK_SIZE, stack area size to be assigned to the exception
- *   context. There is no default value and should be defined per board.
+ * - @p MIPS_IRQ_STACK_SIZE, stack area size to be assigned to the IRQ
+ *   context in case of vectored IRQ mode. 
+ *   There is no default value and should be defined per board.
+ * - @p MIPS_EXC_STACK_SIZE, stack area size to be assigned to the exception context.
+ *   This stack is also used for IRQ context in case of non-vectored IRQ mode.
+ *   There is no default value and should be defined per board.
  * - @p MIPS_MAIN_STACK_SIZE, stack area size to be assigned to the main()
  *   thread. There is no default value and should be defined per board.
  * - @p MIPS_TIMER_FREQ, frequency of MIPS core timer. This is CPU

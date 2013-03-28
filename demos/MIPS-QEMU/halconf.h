@@ -203,10 +203,18 @@
 /*===========================================================================*/
 
 /**
- * @brief   Exception(interrupt) stack size.
+ * @brief   Exception stack size.
+ * @note    This stack is also used for IRQ context in case of non-vectored IRQ mode.
  */
 #if !defined(MIPS_EXC_STACK_SIZE) || defined(__DOXYGEN__)
 #define MIPS_EXC_STACK_SIZE         1024
+#endif
+
+/**
+ * @brief   Interrupt stack size in case of vectored IRQ mode.
+ */
+#if !defined(MIPS_IRQ_STACK_SIZE) || defined(__DOXYGEN__)
+#define MIPS_IRQ_STACK_SIZE         1024
 #endif
 
 /**
