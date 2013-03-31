@@ -66,6 +66,12 @@ CFLAGS   += -MD -MP -MF .dep/$(@F).d
 ASFLAGS  += -MD -MP -MF .dep/$(@F).d
 CPPFLAGS += -MD -MP -MF .dep/$(@F).d
 
+ifeq ($(USE_VERBOSE_COMPILE),yes)
+Q :=
+else
+Q := @
+endif
+
 # Paths where to search for sources
 VPATH     = $(SRCPATHS)
 
@@ -80,72 +86,38 @@ MAKE_ALL_RULE_HOOK:
 $(OBJS): | $(BUILDDIR)
 
 $(BUILDDIR) $(OBJDIR) $(LSTDIR):
-ifneq ($(USE_VERBOSE_COMPILE),yes)
 	@echo Compiler Options
-	@echo $(CC) -c $(CFLAGS) -I. $(IINCDIR) main.c -o main.o
-	@echo
-endif
-	mkdir -p $(OBJDIR)
-	mkdir -p $(LSTDIR)
+	@echo $(CC) -c $(CFLAGS) -I. $(IINCDIR)
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(LSTDIR)
 
 $(CPPOBJS) : $(OBJDIR)/%.o : %.cpp Makefile
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(CPPC) -c $(CPPFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
-else
 	@echo Compiling $<
-	@$(CPPC) -c $(CPPFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
-endif
+	$(Q)$(CPPC) -c $(CPPFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
 
 $(COBJS) : $(OBJDIR)/%.o : %.c Makefile
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(CC) -c $(CFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
-else
 	@echo Compiling $<
-	@$(CC) -c $(CFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
-endif
+	$(Q)$(CC) -c $(CFLAGS) $(AOPT) -I. $(IINCDIR) $< -o $@
 
 $(ASMOBJS) : $(OBJDIR)/%.o : %.s Makefile
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
-else
 	@echo Compiling $<
-	@$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
-endif
+	$(Q)$(AS) -c $(ASFLAGS) -I. $(IINCDIR) $< -o $@
 
 $(BUILDDIR)/%.elf: $(OBJS) $(LDSCRIPT)
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
-else
 	@echo Linking $@
-	@$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
-endif
+	$(Q)$(LD) $(OBJS) $(LDFLAGS) $(LIBS) -o $@
 
 $(BUILDDIR)/%.elf.strip: $(BUILDDIR)/%.elf
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	@echo
-	$(STRIP) $< -o $@
-else
 	@echo Linking $@
-	@$(STRIP) $< -o $@
-endif
+	$(Q)$(STRIP) $< -o $@
 
 $(BUILDDIR)/%.dmp: $(BUILDDIR)/%.elf
-ifeq ($(USE_VERBOSE_COMPILE),yes)
-	$(OD) $(ODFLAGS) $< > $@
-else
 	@echo Creating $@
-	@$(OD) $(ODFLAGS) $< > $@
-	@echo Done
-endif
+	$(Q)$(OD) $(ODFLAGS) $< > $@
 
 clean:
 	@echo Cleaning
 	-rm -fR .dep $(BUILDDIR)
-	@echo Done
 
 #
 # Include the dependency files, should be the last of the makefile
