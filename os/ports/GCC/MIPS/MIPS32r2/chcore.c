@@ -250,7 +250,7 @@ static mips_hw_irq_t hw_irq_table[] = {
 #endif
 };
 
-static char * __nomips16
+static __nomips16 char *
 ultoh(char *p, unsigned long n) {
   char *q = p + 8;
 
@@ -312,22 +312,6 @@ port_handle_exception(uint32_t cause, uint32_t status, struct extctx *regs) {
     ip &= mt_ip_msk;
 #endif
 
-#if defined(MIPS_USE_MIPS16_ISA)
-    {
-      uint32_t i;
-
-      for (i=0;i<8;++i) {
-        if (ip&1) {
-          if (!hw_irq_table[i])
-            chDbgPanic("spurious IRQ");
-
-          hw_irq_table[i]();
-        }
-
-        ip >>= 1;
-      }
-    }
-#else
     while (ip) {
       uint32_t i = 31 - __builtin_clz(ip);
 
@@ -338,7 +322,6 @@ port_handle_exception(uint32_t cause, uint32_t status, struct extctx *regs) {
 
       ip &= ~(1 << i);
     }
-#endif
   } else
     port_unhandled_exception(ex, regs);
 
