@@ -59,10 +59,9 @@ MIPS_FUNC_START(e_vector)
 
   isr_save_ctx
 
-  mfc0    $a0, cause          /* Passed to port_handle_exception */
   mfc0    $a1, status         /* Passed to port_handle_exception */
   move    $a2, $sp            /* Passed to port_handle_exception */
-    
+
   mfc0    $k1, epc
   ehb
   sw      $k1, 84 ($sp)
@@ -71,12 +70,12 @@ MIPS_FUNC_START(e_vector)
 
   /* Switch to exception stack. Recall, nested exceptions are not supported here */
   .extern port_handle_exception
-  la      $sp, exception_stack_bottom
+  la      $sp, exception_stack_ready
   jal     port_handle_exception
-  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  mfc0    $a0, cause          /* Passed to port_handle_exception */
 
   /* Restore CPU state or maybe reschedule */
-    
+
   move    $sp, $k1            /* Switch back to preempted task's SP */
 
   beqz    $v0, resume
@@ -135,7 +134,7 @@ restore:
   addi    $sp, $sp, 88        /* sizeof(struct extctx) */
 
   /* return to the interrupted task with interrupts enabled */
-  jr      $k0                 
+  jr      $k0
   ei
 MIPS_FUNC_END(e_vector)
 

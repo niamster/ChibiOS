@@ -39,13 +39,25 @@
 #if !defined(__DOXYGEN__)
 
 #if defined(MIPS_USE_SHADOW_GPR)
+  /* FIXME: do we have to save mfhi/mflo here? */
+  .extern port_handle_irq
+  /* A very simple exception handler that uses shadow registers for ISRs.
+   * Does not support preemption.
+   * ISR should be very lightweight and return quickly. All the other job should be done out of interrupt context.
+   * That's the point of RTOS, isn't it =)?
+   */
 #define MIPS_IVECTOR_X(x)         \
   MIPS_FUNC_START(i_vector ## x)  \
-  j       i_vector;               \
   li      $a0, x;                 \
-  .rept 6;                        \
+                                  \
+  la      $sp, irq_stack_ready;   \
+  jal     port_handle_irq;        \
+  mfc0    $a1, cause;             \
+                                  \
+  bnez    $v0, srs_resched;       \
   nop;                            \
-  .endr;                          \
+                                  \
+  eret;                           \
 MIPS_FUNC_END(i_vector ## x)
 #else
 #define MIPS_IVECTOR_X(x)         \
@@ -138,30 +150,6 @@ MIPS_FUNC_END(gen_vector)
 
 MIPS_FUNC_START(i_vector)
 #if defined(MIPS_USE_SHADOW_GPR)
-  /* A very simple exception handler that uses shadow registers for ISRs.
-   * Does not support preemption. All other exceptions are disabled.
-   * ISR should be very lightweight and return quickly. All the other job should be done out of exception context.
-   * That's the point of RTOS, isn't it =)? Also it's possible to run out of stack ...
-   */
-
-  mfc0    $a1, cause          /* Passed to port_handle_irq */
-
-  /* FIXME: do we have to save mfhi/mflo here? */
-
-  /* Switch to exception stack. Recall, nested exceptions are not supported here */
-  .extern port_handle_irq
-  la      $sp, irq_stack_bottom
-  jal     port_handle_irq
-  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
-
-  /* Restore CPU state or maybe reschedule */
-
-  bnez    $v0, srs_resched
-  nop
-
-  /* Do nothing but return from exception */
-  eret                        /* PC <- EPC, EXL = ERL = 0, SRSCtlCSS <- SRSCtlPSS */
-
   /* Interrupts are still disabled(EXL=1 or ERL=1) during the switch and restored when new task status reg is set */
 srs_resched:
   /* Switch to previous SRS */
@@ -193,9 +181,9 @@ prev_srs:
 #else
   isr_save_ctx
 
-  move    $a0, $k0            /* Passed to port_handle_irq */
+
   mfc0    $a1, cause          /* Passed to port_handle_irq */
-    
+
   mfc0    $t0, epc
   ehb
   sw      $t0, 84 ($sp)
@@ -204,12 +192,12 @@ prev_srs:
 
   /* Switch to exception stack. Recall, nested exceptions are not supported here */
   .extern port_handle_irq
-  la      $sp, irq_stack_bottom
+  la      $sp, irq_stack_ready
   jal     port_handle_irq
-  subu    $sp, $sp, MIPS_STACK_FRAME_SIZE
+  move    $a0, $k0            /* Passed to port_handle_irq */
 
   /* Restore CPU state or maybe reschedule */
-    
+
   move    $sp, $k1            /* Switch back to preempted task's SP */
 
   beqz    $v0, resume

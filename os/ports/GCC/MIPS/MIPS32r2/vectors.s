@@ -49,7 +49,13 @@
   .balign 4
   .global exception_stack_top
 exception_stack_top:
-  .rept MIPS_EXC_STACK_SIZE
+  .rept MIPS_EXC_STACK_SIZE - MIPS_STACK_FRAME_SIZE
+  .byte 0
+  .endr
+  .balign 4
+  .global exception_stack_ready
+exception_stack_ready:
+  .rept MIPS_STACK_FRAME_SIZE
   .byte 0
   .endr
   .balign 4
@@ -61,7 +67,13 @@ exception_stack_bottom:
   .balign 4
   .global irq_stack_top
 irq_stack_top:
-  .rept MIPS_IRQ_STACK_SIZE
+  .rept MIPS_IRQ_STACK_SIZE - MIPS_STACK_FRAME_SIZE
+  .byte 0
+  .endr
+  .balign 4
+  .global irq_stack_ready
+irq_stack_ready:
+  .rept MIPS_STACK_FRAME_SIZE
   .byte 0
   .endr
   .balign 4
