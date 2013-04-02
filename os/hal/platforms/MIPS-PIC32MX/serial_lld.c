@@ -161,7 +161,7 @@ uartRxByte(UartPort *port)
 /**
  * @brief   Common IRQ handler.
  *
- * @param[in] sd        Driver associated the the USART channel
+ * @param[in] data        Driver associated with the USART channel
  */
 static void lld_serve_interrupt(void *data) {
   SerialDriver *sd = data;
