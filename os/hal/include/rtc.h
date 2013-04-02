@@ -69,6 +69,11 @@
 typedef struct RTCDriver RTCDriver;
 
 /**
+ * @brief   Type of a structure representing an RTC driver configuration.
+ */
+typedef struct RTCConfig RTCConfig;
+
+/**
  * @brief   Type of a structure representing an RTC time stamp.
  */
 typedef struct RTCTime RTCTime;
@@ -149,6 +154,7 @@ typedef struct RTCTime RTCTime;
 extern "C" {
 #endif
   void rtcInit(void);
+  void rtcConfigure(RTCDriver *rtcp, const RTCConfig *config);
   void rtcSetTime(RTCDriver *rtcp, const RTCTime *timespec);
   void rtcGetTime(RTCDriver *rtcp, RTCTime *timespec);
 #if RTC_ALARMS > 0

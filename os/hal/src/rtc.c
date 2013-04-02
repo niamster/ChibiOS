@@ -68,6 +68,19 @@ void rtcInit(void) {
 }
 
 /**
+ * @brief   RTC Driver configuration.
+ *
+ * @param[in] rtcp      pointer to RTC driver structure
+ * @param[in] config    pointer to a @p RTCConfig structure
+ *
+ * @api
+ */
+void rtcConfigure(RTCDriver *rtcp, const RTCConfig *config) {
+
+  rtc_lld_config(rtcp, config);
+}
+
+/**
  * @brief   Set current time.
  *
  * @param[in] rtcp      pointer to RTC driver structure
