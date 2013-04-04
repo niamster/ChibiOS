@@ -61,7 +61,6 @@ include $(CHIBIOS)/os/hal/platforms/MIPS-PIC32MX/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
 include $(CHIBIOS)/os/ports/GCC/MIPS/MIPS32r2/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
-include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
 include $(CHIBIOS)/test/test.mk
 include $(CHIBIOS)/testhal/testdma/testdma.mk
 
@@ -76,7 +75,6 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
-       $(FATFSSRC) \
        $(CHIBIOS)/os/various/shell.c \
        $(CHIBIOS)/os/various/chprintf.c \
        stubs.c \
@@ -89,8 +87,14 @@ ASMSRC  = $(PORTASM) $(PLATFORMASM)
 
 INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) $(TESTDMAINC) \
          $(HALINC) $(PLATFORMINC) $(BOARDINC) \
-         $(FATFSINC) \
          $(CHIBIOS)/os/various
+
+ifneq ($(USE_FATFS),no)
+include $(CHIBIOS)/os/various/fatfs_bindings/fatfs.mk
+CSRC += $(FATFSSRC)
+INCDIR += $(FATFSINC)
+USE_OPT += -DFATFS_DEMO
+endif
 
 ifneq ($(USE_GFX),no)
 GFXLIB = $(CHIBIOS)/ext/gfx

@@ -28,7 +28,9 @@
 #include "chprintf.h"
 #include "chheap.h"
 
+#if defined(FATFS_DEMO)
 #include "ff.h"
+#endif
 
 #include "test.h"
 #include "testdma.h"
@@ -95,6 +97,7 @@ static const EXTConfig EXTC1 = {
 };
 static EXTDriver EXTD1;
 
+#if defined(FATFS_DEMO)
 static SPIDriver SPID4;
 
 bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
@@ -139,6 +142,7 @@ MMCDriver MMCD1;
 MMCConfig MMCC = {&SPID4, &LS_SPIC, &HS_SPIC};
 
 FATFS MMC_FS;
+#endif
 
 uint32_t hardJob(uint32_t arg) {
   return chTimeNow() + US2ST(arg);
@@ -200,6 +204,7 @@ void boardInfo(void) {
 #endif
 }
 
+#if defined(FATFS_DEMO)
 static FRESULT scan_files(BaseSequentialStream *chp, const char *path) {
   FRESULT res;
   FILINFO fno;
@@ -228,6 +233,7 @@ static FRESULT scan_files(BaseSequentialStream *chp, const char *path) {
 
   return res;
 }
+#endif
 
 #define SHELL_WA_SIZE   THD_WA_SIZE(1024*2)
 
@@ -358,6 +364,7 @@ static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)argv;
 }
 
+#if defined(FATFS_DEMO)
 static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
   FRESULT err;
   uint32_t clusters;
@@ -390,6 +397,7 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
  out:
   mmcDisconnect(&MMCD1);
 }
+#endif
 
 static void cmd_dmatest(BaseSequentialStream *chp, int argc, char *argv[]) {
   dmaChannelCfg ccfg = {.prio = DMA_CHANNEL_PRIO_LOWEST, .evt = FALSE};
@@ -426,7 +434,9 @@ static const ShellCommand shCmds[] = {
   {"mem",       cmd_mem},
   {"threads",   cmd_threads},
   {"test",      cmd_test},
+#if defined(FATFS_DEMO)
   {"fs",        cmd_fs},
+#endif
   {"dmatest",   cmd_dmatest},
   {NULL, NULL}
 };
@@ -487,12 +497,14 @@ void __attribute__((constructor)) ll_init(void) {
     sdStart(&SD1, &sc);
   }
 
+#if defined(FATFS_DEMO)
   /* Initialize and start the MMC driver to work with SPI4. */
   spiObjectInit(&SPID4);
   mmcObjectInit(&MMCD1);
   mmcStart(&MMCD1, &MMCC);
   palSetPadMode(IOPORTC, 1, PAL_MODE_OUTPUT);
   palSetPad(IOPORTC, 1);
+#endif
 
   boardInfo();
 
