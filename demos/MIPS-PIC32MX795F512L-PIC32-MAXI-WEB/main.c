@@ -27,9 +27,16 @@
 #include "shell.h"
 #include "chprintf.h"
 #include "chheap.h"
+
 #include "ff.h"
+
 #include "test.h"
 #include "testdma.h"
+
+#if defined(GFX_DEMO)
+#include "gfx.h"
+#include "fruits.h"
+#endif
 
 #include "usbcfg.h"
 
@@ -543,6 +550,33 @@ void __attribute__((constructor)) ll_init(void) {
   sduStart(&SDU1, &serUsbCfg);
 
   usbConnectBus(serUsbCfg.usbp);
+
+#if defined(GFX_DEMO)
+  {
+    extern uint32_t DISPLAY_CODE;
+    coord_t	width, height;
+    coord_t	i, j;
+
+    gdispInit();
+
+    dbgprintf("LCD %x\n", DISPLAY_CODE);
+
+    width = gdispGetWidth();
+    height = gdispGetHeight();
+
+    gdispClear(Fuchsia);
+
+    gdispSetOrientation(GDISP_ROTATE_90);
+    gdispBlitArea(0, 0, fruits.width, fruits.height, (const pixel_t *)fruits.pixel_data);
+
+    gdispDrawBox(10, 10, width/2, height/2, Yellow);
+    gdispFillArea(width/2, height/2, width/2-10, height/2-10, Blue);
+    gdispDrawLine(5, 30, width-50, height-40, Red);
+    
+    for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
+    	gdispDrawPixel (i, j, White);
+  }
+#endif
 }
 
 /*

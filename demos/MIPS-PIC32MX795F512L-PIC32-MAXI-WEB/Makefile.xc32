@@ -92,6 +92,15 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) $(TESTDMAINC) \
          $(FATFSINC) \
          $(CHIBIOS)/os/various
 
+ifneq ($(USE_GFX),no)
+GFXLIB = $(CHIBIOS)/ext/gfx
+include $(GFXLIB)/gfx.mk
+include $(GFXLIB)/drivers/gdisp/ILI9320/gdisp_lld.mk
+CSRC += $(GFXSRC)
+INCDIR += $(GFXINC)
+USE_OPT += -DGFX_DEMO
+endif
+
 #
 # Project, sources and paths
 ##############################################################################
