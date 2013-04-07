@@ -243,6 +243,8 @@ typedef volatile struct {
 extern "C" {
 #endif
   void hal_lld_init(void);
+  void hal_system_unlock(void);
+  void hal_system_lock(void);
   void hal_lld_reset(void);
 #ifdef __cplusplus
 }

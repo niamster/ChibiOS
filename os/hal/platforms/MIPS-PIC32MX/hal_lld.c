@@ -79,6 +79,16 @@ void hal_lld_init(void) {
   BMXCONCLR = _BMXCON_BMXWSDRM_MASK; /* Data RAM accesses from CPU have zero wait states for address setup */
 }
 
+void hal_system_unlock(void) {
+  SYSKEY = 0;
+  SYSKEY = 0xAA996655;
+  SYSKEY = 0x556699AA;
+}
+
+void hal_system_lock(void) {
+  SYSKEY = 0x33333333;
+}
+
 /**
  * @brief   Device software reset.
  *
@@ -92,11 +102,8 @@ void hal_lld_reset(void) {
   /* Suspend DMA */
   DMACONSET = _DMACON_SUSPEND_MASK;
   while ((DMACON >> _DMACON_DMABUSY_POSITION)&1);
-  
-  /* Unlock the system */
-  SYSKEY = 0;
-  SYSKEY = 0xAA996655;
-  SYSKEY = 0x556699AA;
+
+  hal_system_unlock();
 
   /* Toggle SW reset */
   RSWRSTSET = 1 << _RSWRST_SWRST_POSITION;
