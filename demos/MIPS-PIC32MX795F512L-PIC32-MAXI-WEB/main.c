@@ -44,6 +44,8 @@
 
 #include "mcu/pic32mxxx.h"
 
+RTCDriver RTC;
+
 static dmaDriver DMA1;
 static dmaChannel DMACH1;
 
@@ -357,6 +359,32 @@ static void cmd_threads(BaseSequentialStream *chp, int argc, char *argv[]) {
   (void)argv;
 }
 
+static void cmd_rtc(BaseSequentialStream *chp, int argc, char *argv[]) {
+  RTCTime timespec;
+
+  if (!argc) {
+   usage:
+    chprintf(chp, "Usage:\n");
+    chprintf(chp, "rtc get\n");
+    chprintf(chp, "rtc set year month day wday hour minutes seconds\n");
+    return;
+  }
+
+  if (!strcasecmp(argv[0], "get")) {
+    rtcGetTime(&RTC, &timespec);
+    chprintf(chp, "year 20%d month %d day %d wday %d hour %d minute %d second %d\n",
+        timespec.year, timespec.month, timespec.day, timespec.wday,
+        timespec.hours, timespec.min, timespec.sec);
+  } else if (!strcasecmp(argv[0], "set")) {
+    if (argc != 9)
+      goto usage;
+
+    /* rtcSetTime(&RTC, &timespec); */
+    chprintf(chp, "unimplemented\n");
+  } else
+    goto usage;
+}
+
 static void cmd_test(BaseSequentialStream *chp, int argc, char *argv[]) {
   TestThread(chp);
 
@@ -433,6 +461,7 @@ static void cmd_dmatest(BaseSequentialStream *chp, int argc, char *argv[]) {
 static const ShellCommand shCmds[] = {
   {"mem",       cmd_mem},
   {"threads",   cmd_threads},
+  {"rtc",       cmd_rtc},
   {"test",      cmd_test},
 #if defined(FATFS_DEMO)
   {"fs",        cmd_fs},
@@ -470,6 +499,63 @@ static void ledTmrFunc(void *p) {
   }
 
   chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
+}
+
+#define RTC_THREAD_WORKAREA_SIZE 512
+
+static BSEMAPHORE_DECL(rtcSem, TRUE);
+static WORKING_AREA(waRtcThread, RTC_THREAD_WORKAREA_SIZE);
+
+static void
+ubtod(char *p, uint8_t n) {
+  unsigned long rem;
+
+  rem = n%10;
+  n /= 10;
+  p[1] = '0' + rem;
+  rem = n%10;
+  p[0] = '0' + rem;
+}
+
+ static msg_t rtcThread(void *p) {
+  RTCTime ts;
+  static char time[] = "HH:MM:SS";
+#if defined(GFX_DEMO)
+  font_t font;
+  coord_t	width, height;
+#endif
+
+  (void)p;
+
+#if defined(GFX_DEMO)
+  font = gdispOpenFont("LargeNumbers");
+  width = gdispGetWidth();
+  height = gdispGetHeight();
+#endif
+
+  for (;;) {
+    chBSemWait(&rtcSem);
+
+    rtcGetTime(&RTC, &ts);
+
+    ubtod(time, ts.hours);
+    ubtod(time+3, ts.min);
+    ubtod(time+3+3, ts.sec);
+    //dbgprintf("%s\n", time);
+    
+#if defined(GFX_DEMO)
+    gdispFillString(width/2-gdispGetStringWidth(time, font), height/2, time, font, Green, Orange);
+#endif
+  }
+
+  return 0;
+}
+
+static void rtcEvt(RTCDriver *rtcd, rtcevent_t event) {
+  (void)rtcd;
+  (void)event;
+
+  chBSemSignalI(&rtcSem);
 }
 
 void __attribute__((constructor)) ll_init(void) {
@@ -540,6 +626,7 @@ void __attribute__((constructor)) ll_init(void) {
    */
   {
     const dmaCfg cfg = {.port = _DMAC_BASE_ADDRESS};
+
     dmaObjectInit(&DMA1);
     dmaConfig(&DMA1, &cfg);
     dmaStart(&DMA1);
@@ -589,6 +676,41 @@ void __attribute__((constructor)) ll_init(void) {
     	gdispDrawPixel (i, j, White);
   }
 #endif
+
+  /*
+   * RTC configuration
+   */
+  {
+    const RTCConfig cfg = {.base = _RTCC_BASE_ADDRESS, .irq = EIC_IRQ_RTC};
+    const RTCTime timespec = {
+      .year = 13,
+      .month = 5,
+      .day = 13,
+      .wday = 0,
+      .hours = 21,
+      .min = 01,
+      .sec = 20,
+    };
+    const RTCAlarm alarmspec = {
+      .ts = {
+        .month = 5,
+        .day = 13,
+        .wday = 0,
+        .hours = 21,
+        .min = 01,
+        .sec = 21,
+      },
+      .repeat = TRUE,
+      .period = ALARM_PERIOD_SECOND,
+    };
+
+    chThdCreateStatic(waRtcThread, sizeof(waRtcThread), LOWPRIO, rtcThread, NULL);
+
+    rtcConfigure(&RTC, &cfg);
+    rtcSetTime(&RTC, &timespec);
+    rtcSetAlarm(&RTC, 0, &alarmspec);
+    rtcSetCallback(&RTC, rtcEvt);
+  }
 }
 
 /*

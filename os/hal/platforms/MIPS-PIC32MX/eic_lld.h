@@ -52,6 +52,7 @@
 #define EIC_IRQ_DMA5        _DMA5_IRQ
 #define EIC_IRQ_DMA6        _DMA6_IRQ
 #define EIC_IRQ_DMA7        _DMA7_IRQ
+#define EIC_IRQ_RTC         _RTCC_IRQ
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

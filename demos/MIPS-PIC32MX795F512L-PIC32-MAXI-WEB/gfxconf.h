@@ -21,7 +21,7 @@
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION	TRUE
 #define GDISP_NEED_CLIP			TRUE
-#define GDISP_NEED_TEXT			FALSE
+#define GDISP_NEED_TEXT			TRUE
 #define GDISP_NEED_CIRCLE		FALSE
 #define GDISP_NEED_ELLIPSE		FALSE
 #define GDISP_NEED_ARC			FALSE
