@@ -111,6 +111,9 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
   switch (mode) {
     default:
       chDbgPanic("Unsupported PAD mode\n");
+      break;
+    case PAL_MODE_OUTPUT_OPENDRAIN:
+      port->odc.set = mask;
     case PAL_MODE_OUTPUT:
       AD1PCFGSET = mask;
       port->tris.clear = mask;
@@ -118,9 +121,6 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
     case PAL_MODE_INPUT:
       AD1PCFGSET = mask;
       port->tris.set = mask;
-      break;
-    case PAL_MODE_OUTPUT_OPENDRAIN:
-      port->odc.set = mask;
       break;
     case PAL_MODE_INPUT_ANALOG:
       AD1PCFGCLR = mask;
