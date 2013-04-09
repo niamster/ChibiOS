@@ -100,6 +100,7 @@ ifneq ($(USE_GFX),no)
 GFXLIB = $(CHIBIOS)/ext/gfx
 include $(GFXLIB)/gfx.mk
 include $(GFXLIB)/drivers/gdisp/ILI9320/gdisp_lld.mk
+include $(GFXLIB)/drivers/ginput/touch/MCU/ginput_lld.mk
 CSRC += $(GFXSRC)
 INCDIR += $(GFXINC)
 USE_OPT += -DGFX_DEMO

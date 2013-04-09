@@ -14,9 +14,9 @@
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			TRUE
 #define GFX_USE_GWIN			FALSE
-#define GFX_USE_GEVENT			FALSE
-#define GFX_USE_GTIMER			FALSE
-#define GFX_USE_GINPUT			FALSE
+#define GFX_USE_GEVENT			TRUE
+#define GFX_USE_GTIMER			TRUE
+#define GFX_USE_GINPUT			TRUE
 
 /* Features for the GDISP sub-system. */
 #define GDISP_NEED_VALIDATION	TRUE
@@ -28,8 +28,10 @@
 #define GDISP_NEED_SCROLL		FALSE
 #define GDISP_NEED_PIXELREAD	FALSE
 #define GDISP_NEED_CONTROL		TRUE
-#define GDISP_NEED_MULTITHREAD	FALSE
+#define GDISP_NEED_MULTITHREAD	TRUE
 #define GDISP_NEED_ASYNC		FALSE
 #define GDISP_NEED_MSGAPI		FALSE
+
+#define GINPUT_NEED_MOUSE		TRUE
 
 #endif /* _GFXCONF_H */

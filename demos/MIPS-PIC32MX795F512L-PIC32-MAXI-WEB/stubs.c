@@ -91,8 +91,7 @@ char *strchr(const char *s, int c) {
 }
 
 char *
-strpbrk(const char *s1, const char *s2) 
-{
+strpbrk(const char *s1, const char *s2)  {
   const char *s;
   int c, sc; 
 
@@ -105,4 +104,18 @@ strpbrk(const char *s1, const char *s2)
   }   
 
   return NULL;
+}
+
+void *
+memcpy(void *dest, const void *src, size_t n) {
+  char *d = dest;
+  const char *s = src;
+
+  if (!n)
+    return dest;
+
+  while (n--)
+    *d++ = *s++;
+
+  return dest;
 }

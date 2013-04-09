@@ -517,7 +517,7 @@ ubtod(char *p, uint8_t n) {
   p[0] = '0' + rem;
 }
 
- static msg_t rtcThread(void *p) {
+static msg_t rtcThread(void *p) {
   RTCTime ts;
   static char time[] = "HH:MM:SS";
 #if defined(GFX_DEMO)
@@ -551,6 +551,45 @@ ubtod(char *p, uint8_t n) {
   return 0;
 }
 
+#if defined(GFX_DEMO)
+#define MOUSE_THREAD_WORKAREA_SIZE 512
+static WORKING_AREA(waMouseThread, MOUSE_THREAD_WORKAREA_SIZE);
+
+static msg_t mouseThread(void *p) {
+  GEventMouse ev1, ev2;
+  coord_t	width, height;
+
+  (void)p;
+
+  width = gdispGetWidth() - 1;
+  height = gdispGetHeight() - 1;
+
+  for (;;) {
+    ginputGetMouseStatus(0, &ev1);
+    ginputGetMouseStatus(0, &ev2);
+
+    if (!(ev1.current_buttons & GINPUT_TOUCH_PRESSED))
+      continue;
+    if (!(ev2.current_buttons & GINPUT_TOUCH_PRESSED))
+      continue;
+
+    if (ev1.x != ev2.x)
+      continue;
+    if (ev1.y != ev2.y)
+      continue;
+
+    if (ev1.x >= width || ev1.x < 2)
+      continue;
+    if (ev1.y >= height || ev1.y < 2)
+      continue;
+
+    dbgprintf("x %d, y  %d\n", ev1.x, ev1.y);
+  }
+
+  return 0;
+}
+#endif
+ 
 static void rtcEvt(RTCDriver *rtcd, rtcevent_t event) {
   (void)rtcd;
   (void)event;
@@ -662,6 +701,7 @@ void __attribute__((constructor)) ll_init(void) {
 
     width = gdispGetWidth();
     height = gdispGetHeight();
+    ginputGetMouse(0);
 
     gdispClear(Fuchsia);
 
@@ -674,6 +714,8 @@ void __attribute__((constructor)) ll_init(void) {
     
     for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
     	gdispDrawPixel (i, j, White);
+
+    chThdCreateStatic(waMouseThread, sizeof(waMouseThread), LOWPRIO, mouseThread, NULL);
   }
 #endif
 
