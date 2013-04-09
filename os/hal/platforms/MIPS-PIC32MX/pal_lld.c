@@ -73,8 +73,6 @@ static void _pal_lld_init_port(ioportid_t port) {
  * @notapi
  */
 void _pal_lld_init(void) {
-  AD1PCFG = 0xFFFFFFFF & _AD1PCFG_PCFG_MASK; /* Configure all pins as digital I/Os */
-
 #if defined(IOPORTA)
   _pal_lld_init_port(IOPORTA);
 #endif
@@ -114,13 +112,19 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
     default:
       chDbgPanic("Unsupported PAD mode\n");
     case PAL_MODE_OUTPUT:
+      AD1PCFGSET = mask;
       port->tris.clear = mask;
       break;
     case PAL_MODE_INPUT:
+      AD1PCFGSET = mask;
       port->tris.set = mask;
       break;
     case PAL_MODE_OUTPUT_OPENDRAIN:
       port->odc.set = mask;
+      break;
+    case PAL_MODE_INPUT_ANALOG:
+      AD1PCFGCLR = mask;
+      port->tris.set = mask;
       break;
   }
 }
