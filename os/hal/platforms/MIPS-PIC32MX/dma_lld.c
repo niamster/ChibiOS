@@ -484,6 +484,7 @@ void dma_lld_start_transaction(dmaChannel *chan, struct dmaTransaction *tr, bool
     } while (chan->n);
 
 #if HAL_USE_EIC
+    eicAckIrq(chan->irq);
     eicEnableIrq(chan->irq);
 #endif
   }
