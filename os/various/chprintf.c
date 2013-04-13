@@ -245,9 +245,9 @@ void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
       c = 8;
 unsigned_common:
       if (is_long)
-        l = va_arg(ap, long);
+        l = va_arg(ap, unsigned long);
       else
-        l = va_arg(ap, int);
+        l = va_arg(ap, unsigned int);
       p = ltoa(p, l, c);
       break;
     default:

@@ -1,21 +1,17 @@
 /*
-    ChibiOS/RT - Copyright (C) 2006,2007,2008,2009,2010,
-                 2011,2012,2013 Giovanni Di Sirio.
+    ChibiOS/RT - Copyright (C) 2006-2013 Giovanni Di Sirio
 
-    This file is part of ChibiOS/RT.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    ChibiOS/RT is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 3 of the License, or
-    (at your option) any later version.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    ChibiOS/RT is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 */
 
 /**
@@ -469,10 +465,6 @@ typedef struct {
        */
       uint32_t                  jchgr;
       /**
-       * @brief   SDADC CONFxR registers initialization data.
-       */
-      uint32_t                  confxr[3];
-      /**
        * @brief   SDADC CONFCHxR registers initialization data.
        */
       uint32_t                  confchr[2];
@@ -491,6 +483,10 @@ typedef struct {
    * @brief   SDADC CR1 register initialization data.
    */
   uint32_t                  cr1;
+  /**
+   * @brief   SDADC CONFxR registers initialization data.
+   */
+  uint32_t                  confxr[3];
 #else /* !STM32_ADC_USE_SDADC */
   uint32_t                  dummy;
 #endif /* !STM32_ADC_USE_SDADC */
@@ -668,18 +664,6 @@ struct ADCDriver {
 #define SDADC_CONFR_COMMON_VDDSD2   (1U << 30)
 #define SDADC_CONFR_COMMON_VDDSD    (2U << 30)
 /** @} */
-
-#define  SDADC_CONF1R_OFFSET1                    ((uint32_t)0x00000FFF)       /*!< 12-bit calibration offset for configuration 1 */
-#define  SDADC_CONF1R_GAIN1                      ((uint32_t)0x00700000)       /*!< Gain setting for configuration 1 */
-#define  SDADC_CONF1R_GAIN1_0                    ((uint32_t)0x00100000)       /*!< Gain setting for configuration 1 Bit 0 */
-#define  SDADC_CONF1R_GAIN1_1                    ((uint32_t)0x00200000)       /*!< Gain setting for configuration 1 Bit 1 */
-#define  SDADC_CONF1R_GAIN1_2                    ((uint32_t)0x00400000)       /*!< Gain setting for configuration 1 Bit 2 */
-#define  SDADC_CONF1R_SE1                        ((uint32_t)0x0C000000)       /*!< Single ended mode for configuration 1 */
-#define  SDADC_CONF1R_SE1_0                      ((uint32_t)0x04000000)       /*!< Single ended mode for configuration 1 Bit 0 */
-#define  SDADC_CONF1R_SE1_1                      ((uint32_t)0x08000000)       /*!< Single ended mode for configuration 1 Bit 1 */
-#define  SDADC_CONF1R_COMMON1                    ((uint32_t)0xC0000000)       /*!< Common mode for configuration 1 */
-#define  SDADC_CONF1R_COMMON1_0                  ((uint32_t)0x40000000)       /*!< Common mode for configuration 1 Bit 0 */
-#define  SDADC_CONF1R_COMMON1_1                  ((uint32_t)0x40000000)       /*!< Common mode for configuration 1 Bit 1 */
 
 /*===========================================================================*/
 /* External declarations.                                                    */
