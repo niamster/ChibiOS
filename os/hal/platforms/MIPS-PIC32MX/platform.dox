@@ -27,15 +27,71 @@
 
 /**
  * @defgroup MIPS_PIC32MX_SERIAL PIC32MX Serial Support
- * @details The Serial driver supports UART controller used in PIC32MX.
+ * @details The Serial driver supports UART controller.
  * .
  * @ingroup MIPS_PIC32MX
  */
 
 /**
- * @defgroup MIPS_PIC32MX_PIC PIC32MX EIC Support
- * @details The EIC driver supports interrupt controller used in PIC32MX.
- *
+ * @defgroup MIPS_PIC32MX_EIC PIC32MX EIC Support
+ * @details The EIC driver supports interrupt controller.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_ADC PIC32MX ADC Support
+ * @details The ADC driver supports A/D convertion controller.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_DMA PIC32MX DMA Support
+ * @details The ADC driver supports DMA engine.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_EXT PIC32MX EXT Support
+ * @details The EXT driver supports reaction on change on external pin.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_GPT PIC32MX GPT Support
+ * @details The GPT driver supports SoC timers.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_PAL PIC32MX PAL Support
+ * @details The PAL driver supports GPIO peripherals.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_RTC PIC32MX RTC Support
+ * @details The RTC driver supports embedded real time clock and calendar.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_SPI PIC32MX SPI Support
+ * @details The SPI driver supports SPI controller.
+ * Optionally supports DMA transactions.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_USB PIC32MX USB Support
+ * @details The USB driver supports USB controller in USB device mode.
  * .
  * @ingroup MIPS_PIC32MX
  */
