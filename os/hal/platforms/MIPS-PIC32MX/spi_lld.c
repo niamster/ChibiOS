@@ -271,6 +271,9 @@ static void __spi_finish_transaction(SPIDriver *spid) {
   uint32_t reg;
 
   reg = port->buf;
+#if HAL_USE_EIC
+  eicAckIrq(spid->config->rx_irq);
+#endif
   if (spid->rxptr) {
     *spid->rxptr = reg;
     ++spid->rxptr;
