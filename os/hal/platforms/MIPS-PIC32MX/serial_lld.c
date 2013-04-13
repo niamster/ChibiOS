@@ -160,11 +160,19 @@ uartRxByte(UartPort *port) {
 static void lld_serve_interrupt(void *data) {
   SerialDriver *sd = data;
   UartPort *port = (UartPort *)sd->base;
+  uint8_t b;
 
   chSysLockFromIsr();
 
-  if (uartRxReady(port))
-    sdIncomingDataI(sd, uartRxByte(port));
+  if (uartRxReady(port)) {
+    b = uartRxByte(port);
+
+#if HAL_USE_EIC
+    eicAckIrq(sd->rxirq);
+#endif
+    
+    sdIncomingDataI(sd, b);
+  }
 
   chSysUnlockFromIsr();
 }
@@ -208,9 +216,11 @@ void sd_lld_start(SerialDriver *sd, const SerialConfig *cfg) {
   sd->base = (void *)MIPS_UNCACHED(cfg->sc_port);
 
   uartInit(sd, cfg);
+
+  sd->rxirq = cfg->sc_rxirq;
 #if HAL_USE_EIC
-  eicRegisterIrq(cfg->sc_rxirq, lld_serve_interrupt, sd);
-  eicEnableIrq(cfg->sc_rxirq);
+  eicRegisterIrq(sd->rxirq, lld_serve_interrupt, sd);
+  eicEnableIrq(sd->rxirq);
 #endif
 }
 

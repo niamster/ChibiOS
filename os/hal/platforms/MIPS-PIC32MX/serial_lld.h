@@ -83,6 +83,8 @@ typedef struct {
   uint8_t                   ob[SERIAL_BUFFERS_SIZE];  \
   /* End of the mandatory fields.*/                   \
                                                       \
+  /* @brief   RX IRQ number.*/                        \
+  uint8_t                   rxirq;                    \
   /* UART port.*/                                     \
   void                      *base;
 
