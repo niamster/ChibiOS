@@ -537,6 +537,7 @@ uint32_t spi_lld_polled_exchange(SPIDriver *spid, uint32_t frame) {
   frame = port->buf;
 
 #if HAL_USE_EIC
+  eicAckIrq(cfg->rx_irq);
   eicEnableIrq(cfg->rx_irq);
 #endif
 
