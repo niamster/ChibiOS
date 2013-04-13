@@ -53,6 +53,11 @@
 #define EIC_IRQ_DMA7        _DMA7_IRQ
 #define EIC_IRQ_RTC         _RTCC_IRQ
 #define EIC_IRQ_ADC         _ADC_IRQ
+#define EIC_IRQ_TMR1        _TIMER_1_IRQ
+#define EIC_IRQ_TMR2        _TIMER_2_IRQ
+#define EIC_IRQ_TMR3        _TIMER_3_IRQ
+#define EIC_IRQ_TMR4        _TIMER_4_IRQ
+#define EIC_IRQ_TMR5        _TIMER_5_IRQ
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

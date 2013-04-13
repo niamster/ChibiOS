@@ -98,6 +98,61 @@ static const EXTConfig EXTC1 = {
 };
 static EXTDriver EXTD1;
 
+// timer prescaler is set to 64; peripheral clk prescaler is set to 1
+// thereby timer frequency is 1.25MHz(assuming core clk is 80MHz), setting period to 50 milliseconds
+
+#define GPT_FREQ_MHZ   (MIPS_CPU_FREQ/64)
+#define GPT_TICK_NS    (1000000000ULL/GPT_FREQ_MHZ)
+#define GPT_PERIOD_MS  50ULL
+#define GPT_COUNT      ((GPT_PERIOD_MS*1000000ULL)/GPT_TICK_NS)
+
+static void gptCb(GPTDriver *gptd) {
+  static uint32_t cnt[2];
+
+  int tmr = -1;
+
+  switch (gptd->config->base) {
+    case _TMR1_BASE_ADDRESS:
+      tmr = 0;
+      break;
+    case _TMR2_BASE_ADDRESS:
+      tmr = 1;
+      break;
+  }
+
+  if (-1 == tmr)
+    dbgprintf("unsupported timer");
+
+  ++cnt[tmr];
+
+  if (!(cnt[tmr]%100)) {
+    RTCTime ts;
+
+
+    rtcGetTime(&RTC, &ts);
+    /* dbgprintf("TMR%d: %02d:%02d:%02d -> %u\n", tmr+1, */
+    /*     ts.hours, ts.min, ts.sec, cnt[tmr]); */
+  }
+}
+
+static GPTDriver GPT1;
+static const GPTConfig GPTC1 = {
+  .prescaler = GPT_PRESCALER_64,
+  .ext = FALSE,
+  .callback = gptCb,
+  .irq = EIC_IRQ_TMR1,
+  .base = _TMR1_BASE_ADDRESS,
+};
+      
+static GPTDriver GPT2;
+static const GPTConfig GPTC2 = {
+  .prescaler = GPT_PRESCALER_64,
+  .ext = FALSE,
+  .callback = gptCb,
+  .irq = EIC_IRQ_TMR2,
+  .base = _TMR2_BASE_ADDRESS,
+};
+
 #if defined(FATFS_DEMO)
 static SPIDriver SPID4;
 
@@ -752,6 +807,14 @@ void __attribute__((constructor)) ll_init(void) {
     rtcSetAlarm(&RTC, 0, &alarmspec);
     rtcSetCallback(&RTC, rtcEvt);
   }
+
+  gptObjectInit(&GPT2);
+  gptStart(&GPT2, &GPTC2);
+  gptStartContinuous(&GPT2, GPT_COUNT);
+
+  gptObjectInit(&GPT1);
+  gptStart(&GPT1, &GPTC1);
+  gptStartContinuous(&GPT1, GPT_COUNT);
 }
 
 /*
