@@ -121,36 +121,31 @@ static void uartInit(SerialDriver *sd, const SerialConfig *config) {
  * @brief Transmit buffer is full
  */
 static inline bool_t
-uartTxBufferFull(UartPort *port)
-{
-    return port->status.reg & _U1STA_UTXBF_MASK;
+uartTxBufferFull(UartPort *port) {
+  return port->status.reg & _U1STA_UTXBF_MASK;
 }
 
 /**
  * @brief Transmit shift register is empty and transmit buffer is empty(the last transmission has completed)
  */
 static inline bool_t
-uartTxComplete(UartPort *port)
-{
-    return !!(port->status.reg & _U1STA_TRMT_MASK);
+uartTxComplete(UartPort *port) {
+  return !!(port->status.reg & _U1STA_TRMT_MASK);
 }
 
 static inline void
-uartTxByte(UartPort *port, uint8_t b)
-{
-    port->tx.reg = b;
+uartTxByte(UartPort *port, uint8_t b) {
+  port->tx.reg = b;
 }
 
 static inline bool_t
-uartRxReady(UartPort *port)
-{
-    return !!(port->status.reg & _U1STA_URXDA_MASK);
+uartRxReady(UartPort *port) {
+  return !!(port->status.reg & _U1STA_URXDA_MASK);
 }
 
 static inline uint8_t
-uartRxByte(UartPort *port)
-{
-    return port->rx.reg;
+uartRxByte(UartPort *port) {
+  return port->rx.reg;
 }
 
 /*===========================================================================*/
