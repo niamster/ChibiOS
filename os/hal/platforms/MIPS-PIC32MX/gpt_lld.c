@@ -265,14 +265,16 @@ void gpt_lld_polled_delay(GPTDriver *gptd, gptcnt_t interval) {
   const GPTConfig *cfg = gptd->config;
   TmrPort *port = (TmrPort *)cfg->base;
 
+  chDbgAssert(interval < 0xFFF0, "gpt_lld_polled_delay()", "interval value too big");
+
 #if HAL_USE_EIC
   eicDisableIrq(cfg->irq);
 #endif
 
-  port->pr.reg = interval;
+  port->pr.reg = 0xFFFF;
   port->con.set = 1 << CON_ON;
 
-  while (port->tmr.reg != interval);
+  while (port->tmr.reg < interval);
 
   port->con.clear = 1 << CON_ON;
 
