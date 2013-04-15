@@ -67,7 +67,6 @@ enum gptPrescaler {
 
 /**
  * @brief   Driver configuration structure.
- * @note    It could be empty on some architectures.
  */
 typedef struct {
   /**
@@ -107,9 +106,6 @@ struct GPTDriver {
    * @brief Current configuration data.
    */
   const GPTConfig           *config;
-#if defined(GPT_DRIVER_EXT_FIELDS)
-  GPT_DRIVER_EXT_FIELDS
-#endif
   /* End of the mandatory fields.*/
 };
 
