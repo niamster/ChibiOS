@@ -48,14 +48,6 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static void _pal_lld_init_port(ioportid_t port) {
-  /* Configure the I/Os as inputs w/o pullups */
-
-  /* Nothing to do as this is default configuration after reset */
-
-  (void)port;
-}
-
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
@@ -63,37 +55,6 @@ static void _pal_lld_init_port(ioportid_t port) {
 /*===========================================================================*/
 /* Driver exported functions.                                                */
 /*===========================================================================*/
-
-/**
- * @brief   PIC32 I/O ports configuration.
- *
- * @param[in] config    the PIC32 ports configuration
- *
- * @notapi
- */
-void _pal_lld_init(void) {
-#if defined(IOPORTA)
-  _pal_lld_init_port(IOPORTA);
-#endif
-#if defined(IOPORTB)
-  _pal_lld_init_port(IOPORTB);
-#endif
-#if defined(IOPORTC)
-  _pal_lld_init_port(IOPORTC);
-#endif
-#if defined(IOPORTD)
-  _pal_lld_init_port(IOPORTD);
-#endif
-#if defined(IOPORTE)
-  _pal_lld_init_port(IOPORTE);
-#endif
-#if defined(IOPORTF)
-  _pal_lld_init_port(IOPORTF);
-#endif
-#if defined(IOPORTG)
-  _pal_lld_init_port(IOPORTG);
-#endif
-}
 
 /**
  * @brief   Pads mode setup.

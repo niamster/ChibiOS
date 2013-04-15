@@ -152,15 +152,9 @@ typedef volatile struct PicReg {
  *
  * @param[in] config    the PIC32 ports configuration
  *
- * @note      On PIC32 SoC some I/Os are configured as analog inputs.
- *            To make a uniform configuration all I/Os are configured
- *            as digital inputs w/o the pullups after the call to @p palInit.
- *            In the order of initialization @p palInit() is called before @p adcInit,
- *            which may reconfigure corresponding I/Os as analog if needed.
- *
  * @notapi
  */
-#define pal_lld_init(config) do { _pal_lld_init(); } while (0)
+#define pal_lld_init(config) do { } while (0)
 
 /**
  * @brief   Reads the physical I/O port states.
@@ -262,7 +256,6 @@ typedef volatile struct PicReg {
 #ifdef __cplusplus
 extern "C" {
 #endif
-  void _pal_lld_init(void);
   void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode);
 #ifdef __cplusplus
 }
