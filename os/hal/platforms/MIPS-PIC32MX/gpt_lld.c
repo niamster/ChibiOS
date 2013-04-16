@@ -138,7 +138,8 @@ void gpt_lld_start(GPTDriver *gptd) {
 
 #if HAL_USE_EIC
     eicRegisterIrq(cfg->irq, lld_serve_interrupt, gptd);
-    eicEnableIrq(cfg->irq);
+    if (cfg->callback)
+      eicEnableIrq(cfg->irq);
 #endif
 
     if (_TMR1_BASE_ADDRESS == cfg->base) {
@@ -212,7 +213,8 @@ void gpt_lld_stop(GPTDriver *gptd) {
 
   if (gptd->state == GPT_READY) {
 #if HAL_USE_EIC
-    eicDisableIrq(cfg->irq);
+    if (cfg->callback)
+      eicDisableIrq(cfg->irq);
     eicUnregisterIrq(cfg->irq);
 #endif
 
@@ -268,7 +270,8 @@ void gpt_lld_polled_delay(GPTDriver *gptd, gptcnt_t interval) {
   chDbgAssert(interval < 0xFFF0, "gpt_lld_polled_delay()", "interval value too big");
 
 #if HAL_USE_EIC
-  eicDisableIrq(cfg->irq);
+  if (cfg->callback)
+    eicDisableIrq(cfg->irq);
 #endif
 
   port->pr.reg = 0xFFFF;
@@ -279,8 +282,10 @@ void gpt_lld_polled_delay(GPTDriver *gptd, gptcnt_t interval) {
   port->con.clear = 1 << CON_ON;
 
 #if HAL_USE_EIC
-  eicAckIrq(cfg->irq);
-  eicEnableIrq(cfg->irq);
+  if (cfg->callback) {
+    eicAckIrq(cfg->irq);
+    eicEnableIrq(cfg->irq);
+  }
 #endif
 }
 
