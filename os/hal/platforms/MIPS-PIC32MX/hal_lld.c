@@ -112,4 +112,16 @@ void hal_lld_reset(void) {
   for (;;);
 }
 
+/**
+ * @brief   Returns the frequency of peripheral bus clock.
+ *
+ * @return  Peripheral bus clock frequency
+ *
+ * @notapi
+ */
+uint32_t hal_pb_frequency(void)
+{
+  return MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
+}
+
 /** @} */

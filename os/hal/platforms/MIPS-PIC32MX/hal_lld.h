@@ -245,6 +245,7 @@ extern "C" {
   void hal_system_unlock(void);
   void hal_system_lock(void);
   void hal_lld_reset(void);
+  uint32_t hal_pb_frequency(void);
 #ifdef __cplusplus
 }
 #endif

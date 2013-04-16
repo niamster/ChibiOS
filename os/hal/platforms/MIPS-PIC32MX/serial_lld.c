@@ -86,7 +86,7 @@ typedef volatile struct {
  */
 static void uartInit(SerialDriver *sd, const SerialConfig *config) {
   UartPort *port = (UartPort *)sd->base;
-  uint32_t fpb = MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
+  uint32_t fpb = hal_pb_frequency();
   uint32_t brg0, brg1;
   int32_t brgErr0, brgErr1;
 

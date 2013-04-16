@@ -89,7 +89,7 @@ static uint8_t dummyDmaRxBuffer[SPI_DUMMY_DMA_BUFFER_SIZE];
 static void __spi_config(SPIDriver *spid) {
   SpiPort *port = (SpiPort *)spid->base;
   const SPIConfig *cfg = spid->config;
-  uint32_t fpb = MIPS_CPU_FREQ >> OSCCONbits.PBDIV;
+  uint32_t fpb = hal_pb_frequency();
   uint32_t con = 0;
 
   chDbgAssert(cfg->master,
