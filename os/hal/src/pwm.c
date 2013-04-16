@@ -202,6 +202,35 @@ void pwmDisableChannel(PWMDriver *pwmp, pwmchannel_t channel) {
   chSysUnlock();
 }
 
+/**
+ * @brief   Changes the width of the pulse of the PWM channel.
+ * @details This function changes the width of the pulse of a PWM channel
+ *          that has already been activated using @p pwmEnableChannel().
+ * @pre     The PWM channel must have been activated using @p pwmEnableChannel().
+ * @post    The width of the pulse of PWM channel is changed to the new value.
+ * @note    If a pulse width is specified that is longer than the period
+ *          programmed in the PWM unit then the behavior is undefined.
+ *
+ * @param[in] pwmp      pointer to a @p PWMDriver object
+ * @param[in] channel   PWM channel identifier (0...PWM_CHANNELS-1)
+ * @param[in] width     new width of the pulse in ticks
+ *
+ * @api
+ */
+void pwmChannelChangeWidth(PWMDriver *pwmp,
+                           pwmchannel_t channel,
+                           pwmcnt_t width) {
+
+  chDbgCheck((pwmp != NULL) && (channel < PWM_CHANNELS),
+             "pwmChannelChangeWidth");
+
+  chSysLock();
+  chDbgAssert(pwmp->state == PWM_READY,
+              "pwmChannelChangeWidth(), #1", "not ready");
+  pwmChannelChangeWidthI(pwmp, channel, width);
+  chSysUnlock();
+}
+
 #endif /* HAL_USE_PWM */
 
 /** @} */

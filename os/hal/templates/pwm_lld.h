@@ -184,6 +184,9 @@ extern "C" {
                               pwmchannel_t channel,
                               pwmcnt_t width);
   void pwm_lld_disable_channel(PWMDriver *pwmp, pwmchannel_t channel);
+  void pwm_lld_channel_change_width(PWMDriver *pwmp,
+                                    pwmchannel_t channel,
+                                    pwmcnt_t width);
 #ifdef __cplusplus
 }
 #endif
