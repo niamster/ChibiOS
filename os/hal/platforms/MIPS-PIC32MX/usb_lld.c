@@ -457,12 +457,14 @@ static void __usb_lld_prepare_receive(USBDriver *usbd, usbep_t ep) {
  *
  * @param[in] usbd       Driver associated to the USB
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   USBDriver *usbd = data;
   usbRegs *regs = (usbRegs *)usbd->base;
   uint8_t msk = usb_enabled_interrupts_mask(regs);
   uint8_t ir;
   bdtEpEntry *bdt = usbd->bdt;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

@@ -94,10 +94,12 @@ typedef volatile struct {
  *
  * @param[in] data        Driver associated with GPT
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   GPTDriver *gptd = data;
   const GPTConfig *cfg = gptd->config;
   TmrPort *port = (TmrPort *)cfg->base;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

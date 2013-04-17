@@ -115,10 +115,12 @@ static void oNotify(GenericQueue *qp) {
  *
  * @param[in] sdp       communication channel associated to the USART
  */
-void sd_lld_serve_interrupt(void *data) {
+void sd_lld_serve_interrupt(uint32_t irq, void *data) {
   SerialDriver *sdp = data;
   volatile SerialRegs *port = sdp->base;
   uint8_t lsr = port->lsr;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

@@ -104,7 +104,7 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) {
     if (!info->handler)
       chDbgPanic("unhandled EIC irq");
 
-    info->handler(info->data);
+    info->handler(i, info->data);
 
     pending &= ~(1 << i);
   }

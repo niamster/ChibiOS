@@ -76,9 +76,13 @@ typedef volatile struct {
  *
  * @param[in] extd       Driver associated to the EXT
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   EXTDriver *extd = data;
   int i;
+
+  (void)irq;
+
+  chSysLockFromIsr();
 
   /* FIXME: call the callbacks after probing the channels? */
   for (i = 0; i < EXT_MAX_CHANNELS; ++i) {
@@ -96,6 +100,8 @@ static void lld_serve_interrupt(void *data) {
       }
     }
   }
+
+  chSysUnlockFromIsr();
 }
 
 /*===========================================================================*/

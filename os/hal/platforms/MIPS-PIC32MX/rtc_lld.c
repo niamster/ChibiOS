@@ -99,8 +99,10 @@ typedef volatile struct {
  *
  * @param[in] data        Driver associated with RTC
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   RTCDriver *rtcd = data;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

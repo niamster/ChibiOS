@@ -50,7 +50,7 @@
 /**
  * @brief   Type of a callback called to handle IRQ.
  */
-typedef void (*eicIrqHandler)(void *);
+typedef void (*eicIrqHandler)(uint32_t irq, void *);
 
 /*===========================================================================*/
 /* Driver macros.                                                            */

@@ -136,13 +136,15 @@ static uint8_t adc_channel_index(adc_channels_t channels) {
  *
  * @param[in] data        Driver associated with ADC
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   ADCDriver *adcd = data;
   const ADCConfig *cfg = adcd->config;
   AdcPort *port = (AdcPort *)cfg->base;
   const ADCConversionGroup *grpp = adcd->grpp;
   adcsample_t *samples;
   uint8_t i;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

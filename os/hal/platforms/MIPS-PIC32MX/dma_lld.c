@@ -299,13 +299,15 @@ static void dma_lld_process_transaction(dmaChannel *chan, bool_t poll) {
  *
  * @param[in] data       Driver associated with the DMA channel
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   dmaChannel *chan = data;
   struct dmaTransaction *tr = chan->current;
   dmaDriver *dmad = chan->dmad;
   DmaPort *port = dmad->port;
   volatile struct dchx *dchx = port->dchx + chan->id;
   uint32_t intr;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

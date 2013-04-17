@@ -157,10 +157,12 @@ uartRxByte(UartPort *port) {
  *
  * @param[in] data        Driver associated with the USART channel
  */
-static void lld_serve_interrupt(void *data) {
+static void lld_serve_interrupt(uint32_t irq, void *data) {
   SerialDriver *sd = data;
   UartPort *port = (UartPort *)sd->base;
   uint8_t b;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

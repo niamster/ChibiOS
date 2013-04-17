@@ -294,9 +294,11 @@ static void __spi_finish_transaction(SPIDriver *spid) {
  *
  * @param[in] data       Driver associated with the SPI channel
  */
-static void lld_serve_rx_interrupt(void *data) {
+static void lld_serve_rx_interrupt(uint32_t irq, void *data) {
   SPIDriver *spid = data;
   SpiPort *port = (SpiPort *)spid->base;
+
+  (void)irq;
 
   chSysLockFromIsr();
 

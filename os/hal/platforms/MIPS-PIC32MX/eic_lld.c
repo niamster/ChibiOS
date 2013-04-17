@@ -84,8 +84,9 @@ static uint32_t iMask[EIC_IRQ_BANK_QTY];
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
-static void eicCoreTimerIsr(void *data) {
+static void eicCoreTimerIsr(uint32_t irq, void *data) {
   (void)data;
+  (void)irq;
   
   port_reset_mips_timer();
 
@@ -121,7 +122,7 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
         ifs->clear = 1 << i;
 
-        info->handler(info->data);
+        info->handler(irq, info->data);
       }
 
       pending >>= 1;
@@ -136,7 +137,7 @@ CH_IRQ_HANDLER(MIPS_HW_IRQ2) // In PIC32 single-vectored compat mode all interru
 
       ifs->clear = 1 << i;
 
-      info->handler(info->data);
+      info->handler(irq, info->data);
 
       pending &= ~(1 << i);
     }
