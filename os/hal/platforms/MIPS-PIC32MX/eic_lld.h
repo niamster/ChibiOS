@@ -58,6 +58,11 @@
 #define EIC_IRQ_TMR3        _TIMER_3_IRQ
 #define EIC_IRQ_TMR4        _TIMER_4_IRQ
 #define EIC_IRQ_TMR5        _TIMER_5_IRQ
+#define EIC_IRQ_OC1         _OUTPUT_COMPARE_1_IRQ
+#define EIC_IRQ_OC2         _OUTPUT_COMPARE_2_IRQ
+#define EIC_IRQ_OC3         _OUTPUT_COMPARE_3_IRQ
+#define EIC_IRQ_OC4         _OUTPUT_COMPARE_4_IRQ
+#define EIC_IRQ_OC5         _OUTPUT_COMPARE_5_IRQ
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

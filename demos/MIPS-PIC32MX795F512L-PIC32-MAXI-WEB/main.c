@@ -100,9 +100,8 @@ static EXTDriver EXTD1;
 
 // timer prescaler is set to 64; peripheral clk prescaler is set to 1
 // thereby timer frequency is 1.25MHz(assuming core clk is 80MHz), setting period to 50 milliseconds
-
-#define GPT_FREQ_MHZ   (MIPS_CPU_FREQ/64)
-#define GPT_TICK_NS    (1000000000ULL/GPT_FREQ_MHZ)
+#define GPT_FREQ_HZ    (MIPS_CPU_FREQ/64)
+#define GPT_TICK_NS    (1000000000ULL/GPT_FREQ_HZ)
 #define GPT_PERIOD_MS  50ULL
 #define GPT_COUNT      ((GPT_PERIOD_MS*1000000ULL)/GPT_TICK_NS)
 
@@ -151,6 +150,62 @@ static const GPTConfig GPTC2 = {
   .callback = gptCb,
   .irq = EIC_IRQ_TMR2,
   .base = _TMR2_BASE_ADDRESS,
+};
+
+#define PWM_FREQ_HZ        14000ULL
+#define PB_FREQ_HZ         MIPS_CPU_FREQ
+// PWM Frequency = 1/[({PWM Period} + 1) * Tpb * Tp]
+// Tp  := timer prescaler
+// Tpb := 1/Fpb
+// Fpb := peripheral bus clock frequency
+// PWM Period = [Fpb/({PWM Frequency} * Tp)] - 1
+// PWM resolution = log2(PWM Period)
+// ---
+// max(map(lambda Tp: (log2((PB_FREQ_HZ/(PWM_FREQ_HZ*Tp))-1), Tp), (1, 2, 4, 8, 16, 32, 64, 256))) -> (12.48, 1)
+// to achieve max resolution for given PWM frequency 1:1 timer prescaler fits best
+#define GPT_PR             1ULL
+#define PWM_PERIOD         ((PB_FREQ_HZ/(PWM_FREQ_HZ*GPT_PR)) - 1)
+
+#define container_of(ptr, type, member) ({                  \
+      const typeof( ((type *)0)->member ) *__mptr = (ptr);	\
+      (type *)( (char *)__mptr - __builtin_offsetof(type, member) );   \
+    })
+
+void pwmCb(GPTDriver *gptd) {
+  PWMDriver *pwmd = container_of(gptd, PWMDriver, gptd);
+  static uint32_t cnt;
+  static uint16_t width;
+  static int8_t dir;
+
+  ++cnt;
+  if (!(cnt%1000)) { // approximately 70mS at 14kHz PWM frequency
+    if (width == 10000)
+      dir = -100;
+    else if (width == 0)
+      dir = 100;
+
+    width += dir;
+    pwmChannelChangeWidthI(pwmd, 0, PWM_PERCENTAGE_TO_WIDTH(pwmd, width));
+  }
+}
+
+static PWMDriver PWMD3;
+static const PWMConfig PWMC3 = {
+  .period = PWM_PERIOD,
+  .channels = {
+    {
+      .mode = PWM_OUTPUT_ACTIVE_HIGH,
+      .irq = EIC_IRQ_OC3,
+      .base = _OCMP3_BASE_ADDRESS,
+    },
+  },
+  .gptc = {
+    .prescaler = GPT_PRESCALER_1,
+    .callback = pwmCb,
+    .ext = FALSE,
+    .irq = EIC_IRQ_TMR3,
+    .base = _TMR3_BASE_ADDRESS,
+  },
 };
 
 #if defined(FATFS_DEMO)
@@ -540,15 +595,12 @@ static void ledTmrFunc(void *p) {
 
   (void)p;
 
-  switch (led++%3) {
+  switch (led++%2) {
     case 0:
       palTogglePad(IOPORTB, 10);
       break;
     case 1:
       palTogglePad(IOPORTD, 1);
-      break;
-    case 2:
-      palTogglePad(IOPORTD, 2);
       break;
   }
 
@@ -709,9 +761,21 @@ void __attribute__((constructor)) ll_init(void) {
     palClearPad(IOPORTB, 10);
     palSetPadMode(IOPORTD, 1, PAL_MODE_OUTPUT);
     palClearPad(IOPORTD, 1);
+
+    chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
+  }
+
+  /*
+   * PWM fun
+   * OC3 is bound to D.2
+   */
+  {
     palSetPadMode(IOPORTD, 2, PAL_MODE_OUTPUT);
     palClearPad(IOPORTD, 2);
-    chVTSet(&ledTmr, MS2ST(500), ledTmrFunc, NULL);
+
+    pwmObjectInit(&PWMD3);
+    pwmStart(&PWMD3, &PWMC3);
+    pwmEnableChannel(&PWMD3, 0, PWM_PERCENTAGE_TO_WIDTH(&PWMD3, 0));
   }
 
   /*
