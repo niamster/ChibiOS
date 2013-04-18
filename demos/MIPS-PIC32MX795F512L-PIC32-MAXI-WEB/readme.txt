@@ -36,15 +36,3 @@ File->New Project
 The flash it using your favorite PIC debugger/programmer(works fine with PICKIT3).
 
 Enjoy!
-
-Please note that it's not possible to do this trick with prebuilt image with old MPLAB(not X).
-
-/QA/
-Q1: Why not to use xc32 to build the world?
-A1: It apppears that free version of xc32 is very slow(seems like they put smth like {if (free) sleep(60);})
-    and it has optimization level limitations(max -O1) 
-    as well as a limitation on the size of output image(64KB if I'm not mistaken).
-    Drawbacks of current dependency on xc32: 
-      lots of CC warning for the files where plib is included;
-      extra dependency on external headers and sources.
-      
