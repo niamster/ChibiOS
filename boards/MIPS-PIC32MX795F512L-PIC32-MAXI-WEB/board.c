@@ -28,7 +28,6 @@ PIC32MX_DEVCFG1(
                 DEVCFG1_FNOSC_PRIPLL  // Primary oscillator with PLL
                 | DEVCFG1_IESO        // Internal-external switch over
                 | DEVCFG1_POSCMOD_HS  // HS oscillator
-                | DEVCFG1_OSCIOFNC    // CLKO output active
                 | DEVCFG1_FPBDIV_1    // SYSCLK / 1
     );
 PIC32MX_DEVCFG2(

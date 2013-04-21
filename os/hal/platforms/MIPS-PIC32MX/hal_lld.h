@@ -94,7 +94,12 @@
  || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG1_UNIMPLEMENTED   0xFF600858
 #define DEVCFG1_DEFAULT         0x00000000
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX) \
+ || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
+#define DEVCFG1_INVERTED        0x0000C700
+#else
 #define DEVCFG1_INVERTED        0x0000C300
+#endif
 
 /* Oscillator selection */
 #define DEVCFG1_FNOSC_FRC       0x00000000 /* Fast RC */
