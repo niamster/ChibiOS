@@ -217,16 +217,18 @@
  * DEVCFG3 register.
  */
 #if defined(PIC32MX1XX) || defined(PIC32MX2XX)
-#define DEVCFG0_UNIMPLEMENTED   0x0FFF0000
-#define DEVCFG0_DEFAULT         0x00000000
-#define DEVCFG0_INVERTED        0x00000000
+#define DEVCFG3_UNIMPLEMENTED   0x0FFF0000
+#define DEVCFG3_DEFAULT         0x00000000
+#define DEVCFG3_INVERTED        0x00000000
 
+#define DEVCFG3_PMDl1WAY        0x10000000 /* Peripheral Module Disable Configuration bit */
+#define DEVCFG3_IOLWAY          0x20000000 /* Peripheral Pin Select Configuration bit */
 #define DEVCFG3_FUSBIDIO        0x40000000 /* USBID controlled by port function */
 #define DEVCFG3_FVBUSONIO       0x80000000 /* VBUS_ON controlled by port function */
 #elif defined(PIC32MX3XX) || defined(PIC32MX4XX)
-#define DEVCFG0_UNIMPLEMENTED   0xFFFF0000
-#define DEVCFG0_DEFAULT         0x00000000
-#define DEVCFG0_INVERTED        0x00000000
+#define DEVCFG3_UNIMPLEMENTED   0xFFFF0000
+#define DEVCFG3_DEFAULT         0x00000000
+#define DEVCFG3_INVERTED        0x00000000
 #elif defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG3_UNIMPLEMENTED   0x38F80000
 #define DEVCFG3_DEFAULT         0x00000000
