@@ -42,39 +42,13 @@
 #error DMA LLD can not detect max number of DMA channels
 #endif
 
-#if defined(__32MX320F032H__)
-  || defined(__32MX320F064H__)
-  || defined(__32MX320F128H__)
-  || defined(__32MX320F128L__)
-  || defined(__32MX330F064H__)
-  || defined(__32MX330F064L__)
-  || defined(__32MX340F128H__)
-  || defined(__32MX340F128L__)
-  || defined(__32MX340F256H__)
-  || defined(__32MX340F512H__)
-  || defined(__32MX350F128H__)
-  || defined(__32MX350F128L__)
-  || defined(__32MX350F256H__)
-  || defined(__32MX350F256L__)
-  || defined(__32MX360F256L__)
-  || defined(__32MX360F512L__)
-  || defined(__32MX420F032H__)
-  || defined(__32MX430F064H__)
-  || defined(__32MX430F064L__)
-  || defined(__32MX440F128H__)
-  || defined(__32MX440F128L__)
-  || defined(__32MX440F256H__)
-  || defined(__32MX440F512H__)
-  || defined(__32MX450F128H__)
-  || defined(__32MX450F128L__)
-  || defined(__32MX450F256H__)
-  || defined(__32MX450F256L__)
-  || defined(__32MX460F256L__)
-  || defined(__32MX460F512L__)
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX) \
+ || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
+#define DMA_TRANSACTION_MAX_SIZE  65535
+#elif defined(PIC32MX3XX) || defined(PIC32MX4XX)
 #define DMA_TRANSACTION_MAX_SIZE  255
 #else
-#warning Using 65535 DMA max block size, check your MCU manual if this value is applicable
-#define DMA_TRANSACTION_MAX_SIZE  65535
+#define DMA LLD can not detect max size of DMA transaction
 #endif
 
 /**
