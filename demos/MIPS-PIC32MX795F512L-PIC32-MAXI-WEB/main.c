@@ -36,7 +36,7 @@
 
 #if defined(GFX_DEMO)
 #include "gfx.h"
-#include "fruits.h"
+#include "nyan.h"
 #endif
 
 #include "usbcfg.h"
@@ -650,7 +650,7 @@ static msg_t rtcThread(void *p) {
     //dbgprintf("%s\n", time);
     
 #if defined(GFX_DEMO)
-    gdispFillString(width/2-gdispGetStringWidth(time, font), height/2, time, font, Green, Orange);
+    gdispFillString(width-10-gdispGetStringWidth(time, font), 10, time, font, Green, Orange);
 #endif
   }
 
@@ -658,11 +658,11 @@ static msg_t rtcThread(void *p) {
 }
 
 #if defined(GFX_DEMO)
-#define MOUSE_THREAD_WORKAREA_SIZE 512
+#define MOUSE_THREAD_WORKAREA_SIZE 1024
 static WORKING_AREA(waMouseThread, MOUSE_THREAD_WORKAREA_SIZE);
 
 static msg_t mouseThread(void *p) {
-  GEventMouse ev1, ev2;
+  GEventMouse ev;
   coord_t	width, height;
 
   (void)p;
@@ -671,25 +671,21 @@ static msg_t mouseThread(void *p) {
   height = gdispGetHeight() - 1;
 
   for (;;) {
-    ginputGetMouseStatus(0, &ev1);
-    ginputGetMouseStatus(0, &ev2);
+    ginputGetMouseStatus(0, &ev);
 
-    if (!(ev1.current_buttons & GINPUT_TOUCH_PRESSED))
-      continue;
-    if (!(ev2.current_buttons & GINPUT_TOUCH_PRESSED))
+    if (!(ev.current_buttons & GINPUT_TOUCH_PRESSED))
       continue;
 
-    if (ev1.x != ev2.x)
+    if (ev.x >= width || ev.x < 2)
       continue;
-    if (ev1.y != ev2.y)
+    if (ev.y >= height || ev.y < 2)
       continue;
-
-    if (ev1.x >= width || ev1.x < 2)
-      continue;
-    if (ev1.y >= height || ev1.y < 2)
+    if (ev.z < 100)
       continue;
 
-    dbgprintf("x %d, y  %d\n", ev1.x, ev1.y);
+    // dbgprintf("x %d y %d z %d\n", (uint32_t)ev.x, (uint32_t)ev.y, (uint32_t)ev.z);
+
+    gdispFillCircle(ev.x, ev.y, 10, Black);
   }
 
   return 0;
@@ -811,7 +807,7 @@ void __attribute__((constructor)) ll_init(void) {
   {
     extern uint32_t DISPLAY_CODE;
     coord_t	width, height;
-    coord_t	i, j;
+    /* coord_t	i, j; */
 
     gdispInit();
 
@@ -823,15 +819,14 @@ void __attribute__((constructor)) ll_init(void) {
 
     gdispClear(Fuchsia);
 
-    gdispSetOrientation(GDISP_ROTATE_90);
-    gdispBlitArea(0, 0, fruits.width, fruits.height, (const pixel_t *)fruits.pixel_data);
+    gdispBlitArea(0, 0, nyan.width, nyan.height, (const pixel_t *)nyan.pixel_data);
 
-    gdispDrawBox(10, 10, width/2, height/2, Yellow);
-    gdispFillArea(width/2, height/2, width/2-10, height/2-10, Blue);
-    gdispDrawLine(5, 30, width-50, height-40, Red);
+    /* gdispDrawBox(10, 10, width/2, height/2, Yellow); */
+    /* gdispFillArea(width/2, height/2, width/2-10, height/2-10, Blue); */
+    /* gdispDrawLine(5, 30, width-50, height-40, Red); */
     
-    for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
-    	gdispDrawPixel (i, j, White);
+    /* for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20) */
+    /* 	gdispDrawPixel (i, j, White); */
 
     chThdCreateStatic(waMouseThread, sizeof(waMouseThread), LOWPRIO, mouseThread, NULL);
   }
