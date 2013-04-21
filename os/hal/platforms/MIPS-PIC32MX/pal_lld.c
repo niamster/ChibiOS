@@ -46,6 +46,29 @@
 /* Driver local functions.                                                   */
 /*===========================================================================*/
 
+static void
+pal_enable_analog_pin(ioportid_t port, ioportmask_t mask, bool_t enable) {
+#if defined(_AD1PCFG_PCFG_POSITION)
+#if defined(PIC32MX3XX) || defined(PIC32MX4XX) \
+ || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
+  if (port != IOPORTB)
+    return;
+#else
+#error PAL LLD can not detect analog port
+#endif
+
+  if (enable)
+    AD1PCFGCLR = mask;
+  else
+    AD1PCFGSET = mask;
+#else
+  if (enable)
+    port->ansel.set = mask;
+  else
+    port->ansel.clear = mask;
+#endif
+}
+
 /*===========================================================================*/
 /* Driver interrupt handlers.                                                */
 /*===========================================================================*/
@@ -73,27 +96,15 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
     case PAL_MODE_OUTPUT_OPENDRAIN:
       port->odc.set = mask;
     case PAL_MODE_OUTPUT:
-#if defined(_AD1PCFG_PCFG_POSITION)
-      AD1PCFGSET = mask;
-#else
-      port->ansel.clear = mask;
-#endif
+      pal_enable_analog_pin(port, mask, false);
       port->tris.clear = mask;
       break;
     case PAL_MODE_INPUT:
-#if defined(_AD1PCFG_PCFG_POSITION)
-      AD1PCFGSET = mask;
-#else
-      port->ansel.clear = mask;
-#endif
+      pal_enable_analog_pin(port, mask, false);
       port->tris.set = mask;
       break;
     case PAL_MODE_INPUT_ANALOG:
-#if defined(_AD1PCFG_PCFG_POSITION)
-      AD1PCFGCLR = mask;
-#else
-      port->ansel.set = mask;
-#endif
+      pal_enable_analog_pin(port, mask, true);
       port->tris.set = mask;
       break;
   }
