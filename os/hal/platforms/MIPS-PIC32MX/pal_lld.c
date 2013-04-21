@@ -76,7 +76,7 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
 #if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGSET = mask;
 #else
-      port->ansel.set = mask;
+      port->ansel.clear = mask;
 #endif
       port->tris.clear = mask;
       break;
@@ -84,7 +84,7 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
 #if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGSET = mask;
 #else
-      port->ansel.set = mask;
+      port->ansel.clear = mask;
 #endif
       port->tris.set = mask;
       break;
@@ -92,7 +92,7 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
 #if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGCLR = mask;
 #else
-      port->ansel.clear = mask;
+      port->ansel.set = mask;
 #endif
       port->tris.set = mask;
       break;
