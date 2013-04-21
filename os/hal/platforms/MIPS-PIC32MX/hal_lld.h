@@ -28,6 +28,8 @@
 #ifndef _HAL_LLD_H_
 #define _HAL_LLD_H_
 
+#include "mcu/pic32mxxx.h"
+
 /*===========================================================================*/
 /* Driver constants.                                                         */
 /*===========================================================================*/
@@ -54,21 +56,42 @@
  * DEVCFG0 register.
  */
 /*===========================================================================*/
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX)
+#define DEVCFG0_UNIMPLEMENTED   0x6EFE03E0
+#define DEVCFG0_DEFAULT         0x00000000
+#define DEVCFG0_INVERTED        0x1101FC00
+
+#define DEVCFG0_DEBUG_DISABLED  0x00000002 /* Debugger disabled */
+#define DEVCFG0_ICESEL_CH1      0x00000018 /* Use PGC1/PGD1 */
+#define DEVCFG0_ICESEL_CH2      0x00000010 /* Use PGC2/PGD2 */
+#define DEVCFG0_ICESEL_CH3      0x00000008 /* Use PGC3/PGD3 */
+#define DEVCFG0_ICESEL_CH4      0x00000000 /* Use PGC4/PGD4 */
+#define DEVCFG0_BWP             0x01000000 /* Boot flash write protect */
+#define DEVCFG0_CP              0x10000000 /* Code protect */
+#elif defined(PIC32MX3XX) || defined(PIC32MX4XX) \
+   || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG0_UNIMPLEMENTED   0x6EF00FF4
 #define DEVCFG0_DEFAULT         0x00000002
 #define DEVCFG0_INVERTED        0x110FF000
 
 #define DEVCFG0_DEBUG_DISABLED  0x00000003 /* Debugger disabled */
+#define DEVCFG0_ICESEL_CH1      0x00000000 /* Use PGC1/PGD1 */
 #define DEVCFG0_ICESEL_CH2      0x00000008 /* Use PGC2/PGD2 */
 #define DEVCFG0_BWP             0x01000000 /* Boot flash write protect */
-#define DEVCFG0_PWP             0x00080000 /* Program flash write protect */
 #define DEVCFG0_CP              0x10000000 /* Code protect */
+#else
+#error Unknown PIC32MX MCU
+#endif
+
 /*===========================================================================*/
 
 /*
  * DEVCFG1 register.
  */
 /*===========================================================================*/
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX) \
+ || defined(PIC32MX3XX) || defined(PIC32MX4XX) \
+ || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG1_UNIMPLEMENTED   0xFF600858
 #define DEVCFG1_DEFAULT         0x00000000
 #define DEVCFG1_INVERTED        0x0000C300
@@ -126,12 +149,19 @@
 #define DEVCFG1_WDT_PS_262144   0x00120000 /* 1:262144 */
 #define DEVCFG1_WDT_PS_524288   0x00130000 /* 1:524288 */
 #define DEVCFG1_WDT_PS_1048576  0x00140000 /* 1:1048576 */
+#else
+#error Unknown PIC32MX MCU
+#endif
+
 /*===========================================================================*/
 
 /*
  * DEVCFG2 register.
  */
 /*===========================================================================*/
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX) \
+    || defined(PIC32MX3XX) || defined(PIC32MX4XX) \
+    || defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG2_UNIMPLEMENTED   0xFFF87888
 #define DEVCFG2_DEFAULT         0x00000000
 #define DEVCFG2_INVERTED        0x00008000
@@ -177,11 +207,27 @@
 #define DEVCFG2_FPLLODIV_32     0x00050000 /* 32x */
 #define DEVCFG2_FPLLODIV_64     0x00060000 /* 64x */
 #define DEVCFG2_FPLLODIV_256    0x00070000 /* 256x */
+#else
+#error Unknown PIC32MX MCU
+#endif
+
 /*===========================================================================*/
 
 /*
  * DEVCFG3 register.
  */
+#if defined(PIC32MX1XX) || defined(PIC32MX2XX)
+#define DEVCFG0_UNIMPLEMENTED   0x0FFF0000
+#define DEVCFG0_DEFAULT         0x00000000
+#define DEVCFG0_INVERTED        0x00000000
+
+#define DEVCFG3_FUSBIDIO        0x40000000 /* USBID controlled by port function */
+#define DEVCFG3_FVBUSONIO       0x80000000 /* VBUS_ON controlled by port function */
+#elif defined(PIC32MX3XX) || defined(PIC32MX4XX)
+#define DEVCFG0_UNIMPLEMENTED   0xFFFF0000
+#define DEVCFG0_DEFAULT         0x00000000
+#define DEVCFG0_INVERTED        0x00000000
+#elif defined(PIC32MX5XX) || defined(PIC32MX6XX) || defined(PIC32MX7XX)
 #define DEVCFG3_UNIMPLEMENTED   0x38F80000
 #define DEVCFG3_DEFAULT         0x00000000
 #define DEVCFG3_INVERTED        0x07000000
@@ -202,6 +248,10 @@
 
 #define DEVCFG3_FUSBIDIO        0x40000000 /* USBID controlled by port function */
 #define DEVCFG3_FVBUSONIO       0x80000000 /* VBUS_ON controlled by port function */
+#else
+#error Unknown PIC32MX MCU
+#endif
+
 /*===========================================================================*/
 
 /*===========================================================================*/

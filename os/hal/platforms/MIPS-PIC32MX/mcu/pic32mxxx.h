@@ -173,6 +173,99 @@
 #error Unknown PIC32MX MCU
 #endif
 
+
+#if   defined(__32MX110F016B__) \
+   || defined(__32MX110F016C__) \
+   || defined(__32MX110F016D__) \
+   || defined(__32MX120F032B__) \
+   || defined(__32MX120F032C__) \
+   || defined(__32MX120F032D__) \
+   || defined(__32MX130F064B__) \
+   || defined(__32MX130F064C__) \
+   || defined(__32MX130F064D__) \
+   || defined(__32MX150F128B__) \
+   || defined(__32MX150F128C__) \
+   || defined(__32MX150F128D__)
+#define PIC32MX1XX
+#elif defined(__32MX210F016B__) \
+   || defined(__32MX210F016C__) \
+   || defined(__32MX210F016D__) \
+   || defined(__32MX220F032B__) \
+   || defined(__32MX220F032C__) \
+   || defined(__32MX220F032D__) \
+   || defined(__32MX230F064B__) \
+   || defined(__32MX230F064C__) \
+   || defined(__32MX230F064D__) \
+   || defined(__32MX250F128B__) \
+   || defined(__32MX250F128C__) \
+   || defined(__32MX250F128D__)
+#define PIC32MX2XX
+#elif defined(__32MX320F032H__) \
+   || defined(__32MX320F064H__) \
+   || defined(__32MX320F128H__) \
+   || defined(__32MX320F128L__) \
+   || defined(__32MX330F064H__) \
+   || defined(__32MX330F064L__) \
+   || defined(__32MX340F128H__) \
+   || defined(__32MX340F128L__) \
+   || defined(__32MX340F256H__) \
+   || defined(__32MX340F512H__) \
+   || defined(__32MX350F128H__) \
+   || defined(__32MX350F128L__) \
+   || defined(__32MX350F256H__) \
+   || defined(__32MX350F256L__) \
+   || defined(__32MX360F256L__) \
+   || defined(__32MX360F512L__)
+#define PIC32MX3XX
+#elif defined(__32MX420F032H__) \
+   || defined(__32MX430F064H__) \
+   || defined(__32MX430F064L__) \
+   || defined(__32MX440F128H__) \
+   || defined(__32MX440F128L__) \
+   || defined(__32MX440F256H__) \
+   || defined(__32MX440F512H__) \
+   || defined(__32MX450F128H__) \
+   || defined(__32MX450F128L__) \
+   || defined(__32MX450F256H__) \
+   || defined(__32MX450F256L__) \
+   || defined(__32MX460F256L__) \
+   || defined(__32MX460F512L__)
+#define PIC32MX4XX
+#elif defined(__32MX534F064H__) \
+   || defined(__32MX534F064L__) \
+   || defined(__32MX564F064H__) \
+   || defined(__32MX564F064L__) \
+   || defined(__32MX564F128H__) \
+   || defined(__32MX564F128L__) \
+   || defined(__32MX575F256H__) \
+   || defined(__32MX575F256L__) \
+   || defined(__32MX575F512H__) \
+   || defined(__32MX575F512L__)
+#define PIC32MX5XX
+#elif defined(__32MX664F064H__) \
+   || defined(__32MX664F064L__) \
+   || defined(__32MX664F128H__) \
+   || defined(__32MX664F128L__) \
+   || defined(__32MX675F256H__) \
+   || defined(__32MX675F256L__) \
+   || defined(__32MX675F512H__) \
+   || defined(__32MX675F512L__) \
+   || defined(__32MX695F512H__) \
+   || defined(__32MX695F512L__)
+#define PIC32MX6XX
+#elif defined(__32MX764F128H__) \
+   || defined(__32MX764F128L__) \
+   || defined(__32MX775F256H__) \
+   || defined(__32MX775F256L__) \
+   || defined(__32MX775F512H__) \
+   || defined(__32MX775F512L__) \
+   || defined(__32MX795F512H__) \
+   || defined(__32MX795F512L__)
+#define PIC32MX7XX
+#else
+#error Unknown PIC32MX MCU
+#endif
+
 /* Base addresses for non-standard peripherals */
 #define _EXT_BASE_ADDRESS ((unsigned long)&CNCON)
   
