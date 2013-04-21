@@ -75,15 +75,27 @@ void _pal_lld_setgroupmode(ioportid_t port, ioportmask_t mask, iomode_t mode) {
     case PAL_MODE_OUTPUT_OPENDRAIN:
       port->odc.set = mask;
     case PAL_MODE_OUTPUT:
+#if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGSET = mask;
+#else
+      port->ansel.set = mask;
+#endif
       port->tris.clear = mask;
       break;
     case PAL_MODE_INPUT:
+#if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGSET = mask;
+#else
+      port->ansel.set = mask;
+#endif
       port->tris.set = mask;
       break;
     case PAL_MODE_INPUT_ANALOG:
+#if defined(_AD1PCFG_PCFG_POSITION)
       AD1PCFGCLR = mask;
+#else
+      port->ansel.clear = mask;
+#endif
       port->tris.set = mask;
       break;
   }

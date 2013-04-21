@@ -88,6 +88,9 @@ typedef uint32_t iomode_t;
  * @brief   Port Identifier.
  */
 typedef volatile struct PicReg {
+#if !defined(_AD1PCFG_PCFG_POSITION)
+  PicReg ansel;
+#endif
   PicReg tris;
   PicReg port;
   PicReg latch;
