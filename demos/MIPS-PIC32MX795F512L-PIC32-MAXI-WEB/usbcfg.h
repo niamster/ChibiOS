@@ -20,8 +20,9 @@
 #ifndef _USBCFG_H_
 #define _USBCFG_H_
 
+extern SerialUSBDriver SDU1;
 extern const USBConfig usbCfg;
-extern SerialUSBConfig serUsbCfg;
+extern const SerialUSBConfig serUsbCfg;
 
 #endif  /* _USBCFG_H_ */
 

@@ -49,7 +49,6 @@ static dmaDriver DMA1;
 static dmaChannel DMACH1;
 
 static SerialDriver SD1;
-static SerialUSBDriver SDU1;
 
 void dbgprintf(const char *fmt, ...) {
   va_list ap;
