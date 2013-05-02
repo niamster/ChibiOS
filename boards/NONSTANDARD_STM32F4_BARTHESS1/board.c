@@ -52,3 +52,30 @@ void __early_init(void) {
  */
 void boardInit(void) {
 }
+
+/**
+ * @brief   Insertion monitor function.
+ *
+ * @param[in] sdcp      pointer to the @p SDCDriver object
+ *
+ * @notapi
+ */
+bool_t sdc_lld_is_card_inserted(SDCDriver *sdcp) {
+
+  (void)sdcp;
+  return !palReadPad(GPIOE, GPIOE_SDIO_DETECT);
+}
+
+/**
+ * @brief   Protection detection.
+ * @note    Not supported, always not protected.
+ *
+ * @param[in] sdcp      pointer to the @p SDCDriver object
+ *
+ * @notapi
+ */
+bool_t sdc_lld_is_write_protected(SDCDriver *sdcp) {
+
+  (void)sdcp;
+  return FALSE;
+}

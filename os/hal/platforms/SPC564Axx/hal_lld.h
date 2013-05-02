@@ -132,8 +132,8 @@
  * @brief   External clock pre-divider.
  * @note    Must be in range 1...15.
  */
-#if !defined(SPC5_CLK_PREDIV) || defined(__DOXYGEN__)
-#define SPC5_CLK_PREDIV_VALUE               8
+#if !defined(SPC5_CLK_PREDIV_VALUE) || defined(__DOXYGEN__)
+#define SPC5_CLK_PREDIV_VALUE               2
 #endif
 
 /**
@@ -141,7 +141,7 @@
  * @note    Must be in range 32...96.
  */
 #if !defined(SPC5_CLK_MFD_VALUE) || defined(__DOXYGEN__)
-#define SPC5_CLK_MFD_VALUE                  60
+#define SPC5_CLK_MFD_VALUE                  75
 #endif
 
 /**
@@ -153,7 +153,7 @@
 
 /**
  * @brief   Flash buffer and prefetching settings.
- * @note    Please refer to the SPC563M64 reference manual about the meaning
+ * @note    Please refer to the SPC564Axx reference manual about the meaning
  *          of the following bits, if in doubt DO NOT MODIFY IT.
  * @note    Do not specify the APC, WWSC, RWSC bits in this value because
  *          those are calculated from the system clock and ORed with this
@@ -239,6 +239,15 @@
 #define SPC5_FLASH_WS       (BIUCR_APC_3 | BIUCR_RWSC_3 | BIUCR_WWSC_3)
 #else
 #define SPC5_FLASH_WS       (BIUCR_APC_4 | BIUCR_RWSC_4 | BIUCR_WWSC_3)
+#endif
+
+/**
+ * @brief   RAM wait states are a function of the system clock.
+ */
+#if (SPC5_SYSCLK <= 98000000) || defined(__DOXYGEN__)
+#define SPC5_RAM_WS         0
+#else
+#define SPC5_RAM_WS         0x40000000
 #endif
 
 /*===========================================================================*/

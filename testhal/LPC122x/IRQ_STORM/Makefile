@@ -5,7 +5,7 @@
 
 # Compiler options here.
 ifeq ($(USE_OPT),)
-  USE_OPT = -O2 -ggdb -fomit-frame-pointer -falign-functions=16
+  USE_OPT = -O2 -ggdb -fomit-frame-pointer
 endif
 
 # C specific options here (added to USE_OPT).
@@ -41,11 +41,6 @@ endif
 # Architecture or project specific options
 #
 
-# Enable this if you really want to use the STM FWLib.
-ifeq ($(USE_FWLIB),)
-  USE_FWLIB = no
-endif
-
 #
 # Architecture or project specific options
 ##############################################################################
@@ -59,15 +54,15 @@ PROJECT = ch
 
 # Imported source files and paths
 CHIBIOS = ../../..
-include $(CHIBIOS)/boards/ST_STM32L_DISCOVERY/board.mk
-include $(CHIBIOS)/os/hal/platforms/STM32L1xx/platform.mk
+include $(CHIBIOS)/boards/OLIMEX_LPC-P1227/board.mk
+include $(CHIBIOS)/os/hal/platforms/LPC122x/platform.mk
 include $(CHIBIOS)/os/hal/hal.mk
-include $(CHIBIOS)/os/ports/GCC/ARMCMx/STM32L1xx/port.mk
+include $(CHIBIOS)/os/ports/GCC/ARMCMx/LPC122x/port.mk
 include $(CHIBIOS)/os/kernel/kernel.mk
-#include $(CHIBIOS)/test/test.mk
+include $(CHIBIOS)/test/test.mk
 
 # Define linker script file here
-LDSCRIPT= $(PORTLD)/STM32L152xB.ld
+LDSCRIPT= $(PORTLD)/LPC1227.ld
 
 # C sources that can be compiled in ARM or THUMB mode depending on the global
 # setting.
@@ -77,6 +72,8 @@ CSRC = $(PORTSRC) \
        $(HALSRC) \
        $(PLATFORMSRC) \
        $(BOARDSRC) \
+       $(CHIBIOS)/os/various/evtimer.c \
+       $(CHIBIOS)/os/various/syscalls.c \
        main.c
 
 # C++ sources that can be compiled in ARM or THUMB mode depending on the global
@@ -118,9 +115,8 @@ INCDIR = $(PORTINC) $(KERNINC) $(TESTINC) \
 # Compiler settings
 #
 
-MCU  = cortex-m3
+MCU  = cortex-m0
 
-#TRGT = arm-elf-
 TRGT = arm-none-eabi-
 CC   = $(TRGT)gcc
 CPPC = $(TRGT)g++
@@ -156,7 +152,7 @@ CPPWARN = -Wall -Wextra
 #
 
 # List all default C defines here, like -D_DEBUG=1
-DDEFS =
+DDEFS = -DLPC1227 -D__NEWLIB__
 
 # List all default ASM defines here, like -D_DEBUG=1
 DADEFS =
@@ -196,12 +192,5 @@ ULIBS =
 #
 # End of user defines
 ##############################################################################
-
-ifeq ($(USE_FWLIB),yes)
-  include $(CHIBIOS)/ext/stm32lib/stm32lib.mk
-  CSRC += $(STM32SRC)
-  INCDIR += $(STM32INC)
-  USE_OPT += -DUSE_STDPERIPH_DRIVER
-endif
 
 include $(CHIBIOS)/os/ports/GCC/ARMCMx/rules.mk

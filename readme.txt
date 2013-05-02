@@ -89,6 +89,13 @@
 *****************************************************************************
 
 *** 2.5.2 ***
+- FIX: Fixed USB driver possible deadlock under certain configurations (bug
+  #406)(backported to 2.4.4).
+- FIX: Fixed USB driver cannot be stopped (bug #405)(backported to 2.4.4).
+- FIX: Fixed several spelling errors (bug #404).
+- FIX: Fixed serial port in STM32F3 discovery test case (bug #402).
+- FIX: Fixed add %i to chprintf (bug #401).
+- FIX: Fixed STM32F051 various (bug #400).
 - FIX: Fixed STM32F103 HSI configuration (bug #399).
 - FIX: Fixed patch to allow simulator to be restarted quicker (bug #398).
 - FIX: Fixed blkDisconnect macro typo (bug #397).

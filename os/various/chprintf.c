@@ -212,6 +212,8 @@ void chvprintf(BaseSequentialStream *chp, const char *fmt, va_list ap) {
       break;
     case 'D':
     case 'd':
+    case 'I':
+    case 'i':
       if (is_long)
         l = va_arg(ap, long);
       else
