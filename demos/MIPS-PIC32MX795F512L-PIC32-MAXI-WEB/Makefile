@@ -11,6 +11,7 @@ ifeq ($(USE_OPT),)
   USE_OPT += -falign-functions=16
   USE_OPT += -D__32MX795F512L__
   USE_OPT += -DCHPRINTF_CR_INSERT=TRUE
+  USE_OPT += -DCHPRINTF_USE_FLOAT=TRUE
 endif
 
 # C specific options here (added to USE_OPT).

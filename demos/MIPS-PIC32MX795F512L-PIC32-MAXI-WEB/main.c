@@ -43,7 +43,16 @@
 
 #include "mcu/pic32mxxx.h"
 
-RTCDriver RTC;
+static I2CConfig I2CC = {
+  .frequency = 10000,
+  .bus_irq = EIC_IRQ_I2C2_BUS,
+  .slave_irq = EIC_IRQ_I2C2_SLAVE,
+  .master_irq = EIC_IRQ_I2C2_MASTER,
+  .base = _I2C2_BASE_ADDRESS,
+};
+static I2CDriver I2CD;
+
+static RTCDriver RTC;
 
 static dmaDriver DMA1;
 static dmaChannel DMACH1;
@@ -79,7 +88,7 @@ void dbgPanic(const char *m) {
   hal_lld_reset();
 }
 
-void pNotifyEXT1(EXTDriver *extd, expchannel_t channel) {
+static void pNotifyEXT1(EXTDriver *extd, expchannel_t channel) {
   const EXTChannelConfig *ch = &extd->config->channels[channel];
 
   dbgprintf("Channel %d, value %d\n",
@@ -535,6 +544,41 @@ static void cmd_fs(BaseSequentialStream *chp, int argc, char *argv[]) {
 }
 #endif
 
+static void cmd_accel(BaseSequentialStream *chp, int argc, char *argv[]) {
+  const i2caddr_t addr = 0x38;
+  uint8_t data[7] = {0, }, id = 0;
+  uint8_t reg;
+  msg_t ret;
+
+  (void)argc;
+  (void)argv;
+
+  i2cAcquireBus(&I2CD);
+
+  reg = 0x00;
+  ret = i2cMasterTransmit(&I2CD, addr,
+      &reg, 1, &id, 1);
+  if (ret != RDY_OK)
+    goto out;
+  chprintf(chp, "accel id: %d\n", id);
+
+  reg = 0x02;
+  ret = i2cMasterTransmit(&I2CD, addr,
+      &reg, 1, data, 7);
+  if (ret != RDY_OK)
+    goto out;
+  chprintf(chp, "x: %d, y %d, z %d\n",
+      (((uint16_t)data[1]) << 2) | (data[0] >> 6),
+      (((uint16_t)data[3]) << 2) | (data[2] >> 6),
+      (((uint16_t)data[5]) << 2) | (data[4] >> 6));
+  chprintf(chp, "temp %f\n", ((float)data[6] * 0.5f) - 30.0f);
+
+ out:
+  if (ret)
+    chprintf(chp, "ret: %d, err: %d\n", ret, i2cGetErrors(&I2CD));
+  i2cReleaseBus(&I2CD);
+}
+
 static void cmd_dmatest(BaseSequentialStream *chp, int argc, char *argv[]) {
   dmaChannelCfg ccfg = {.prio = DMA_CHANNEL_PRIO_LOWEST, .evt = FALSE};
   (void)argc;
@@ -574,6 +618,7 @@ static const ShellCommand shCmds[] = {
 #if defined(FATFS_DEMO)
   {"fs",        cmd_fs},
 #endif
+  {"accel",     cmd_accel},
   {"dmatest",   cmd_dmatest},
   {NULL, NULL}
 };
@@ -875,6 +920,9 @@ void __attribute__((constructor)) ll_init(void) {
   gptObjectInit(&GPT1);
   gptStart(&GPT1, &GPTC1);
   gptStartContinuous(&GPT1, GPT_COUNT);
+
+  i2cObjectInit(&I2CD);
+  i2cStart(&I2CD, &I2CC);
 }
 
 /*
