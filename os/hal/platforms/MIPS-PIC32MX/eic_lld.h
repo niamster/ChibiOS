@@ -63,6 +63,21 @@
 #define EIC_IRQ_OC3         _OUTPUT_COMPARE_3_IRQ
 #define EIC_IRQ_OC4         _OUTPUT_COMPARE_4_IRQ
 #define EIC_IRQ_OC5         _OUTPUT_COMPARE_5_IRQ
+#define EIC_IRQ_I2C1_BUS    _I2C1_BUS_IRQ
+#define EIC_IRQ_I2C1_SLAVE  _I2C1_SLAVE_IRQ
+#define EIC_IRQ_I2C1_MASTER _I2C1_MASTER_IRQ
+#define EIC_IRQ_I2C2_BUS    _I2C2_BUS_IRQ
+#define EIC_IRQ_I2C2_SLAVE  _I2C2_SLAVE_IRQ
+#define EIC_IRQ_I2C2_MASTER _I2C2_MASTER_IRQ
+#define EIC_IRQ_I2C3_BUS    _I2C3_BUS_IRQ
+#define EIC_IRQ_I2C3_SLAVE  _I2C3_SLAVE_IRQ
+#define EIC_IRQ_I2C3_MASTER _I2C3_MASTER_IRQ
+#define EIC_IRQ_I2C4_BUS    _I2C4_BUS_IRQ
+#define EIC_IRQ_I2C4_SLAVE  _I2C4_SLAVE_IRQ
+#define EIC_IRQ_I2C4_MASTER _I2C4_MASTER_IRQ
+#define EIC_IRQ_I2C5_BUS    _I2C5_BUS_IRQ
+#define EIC_IRQ_I2C5_SLAVE  _I2C5_SLAVE_IRQ
+#define EIC_IRQ_I2C5_MASTER _I2C5_MASTER_IRQ
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

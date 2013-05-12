@@ -95,3 +95,17 @@
  * .
  * @ingroup MIPS_PIC32MX
  */
+
+/**
+ * @defgroup MIPS_PIC32MX_PWM PIC32MX PWM Support
+ * @details The PWM driver supports PWM controller.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
+
+/**
+ * @defgroup MIPS_PIC32MX_I2C PIC32MX I2C Support
+ * @details The I2C driver supports I2C controller.
+ * .
+ * @ingroup MIPS_PIC32MX
+ */
