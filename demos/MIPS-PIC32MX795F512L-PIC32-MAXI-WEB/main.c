@@ -656,7 +656,7 @@ static msg_t rtcThread(void *p) {
   return 0;
 }
 
-#if defined(GFX_DEMO)
+#if defined(GFX_DEMO) && GINPUT_NEED_MOUSE
 #define MOUSE_THREAD_WORKAREA_SIZE 1024
 static WORKING_AREA(waMouseThread, MOUSE_THREAD_WORKAREA_SIZE);
 
@@ -814,7 +814,11 @@ void __attribute__((constructor)) ll_init(void) {
 
     width = gdispGetWidth();
     height = gdispGetHeight();
+
+#if GINPUT_NEED_MOUSE
     ginputGetMouse(0);
+    chThdCreateStatic(waMouseThread, sizeof(waMouseThread), LOWPRIO, mouseThread, NULL);
+#endif
 
     gdispClear(Fuchsia);
 
@@ -826,8 +830,6 @@ void __attribute__((constructor)) ll_init(void) {
     
     /* for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20) */
     /* 	gdispDrawPixel (i, j, White); */
-
-    chThdCreateStatic(waMouseThread, sizeof(waMouseThread), LOWPRIO, mouseThread, NULL);
   }
 #endif
 
