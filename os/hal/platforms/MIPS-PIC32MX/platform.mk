@@ -11,7 +11,8 @@ PLATFORMSRC = ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/hal_lld.c \
               ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/adc_lld.c \
               ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/gpt_lld.c \
               ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/pwm_lld.c \
-              ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/i2c_lld.c
+              ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/i2c_lld.c \
+              ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/mac_lld.c
 
 PLATFORMASM = ${CHIBIOS}/os/hal/platforms/MIPS-PIC32MX/mcu/pic32mxxx.s
 

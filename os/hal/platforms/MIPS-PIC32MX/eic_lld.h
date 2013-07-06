@@ -78,6 +78,7 @@
 #define EIC_IRQ_I2C5_BUS    _I2C5_BUS_IRQ
 #define EIC_IRQ_I2C5_SLAVE  _I2C5_SLAVE_IRQ
 #define EIC_IRQ_I2C5_MASTER _I2C5_MASTER_IRQ
+#define EIC_ETH_IRQ         _ETHERNET_IRQ
 
 /*===========================================================================*/
 /* Driver pre-compile time settings.                                         */

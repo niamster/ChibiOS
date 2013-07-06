@@ -170,7 +170,7 @@ static void lld_serve_interrupt(uint32_t irq, void *data) {
 #if HAL_USE_EIC
     eicAckIrq(sd->rxirq);
 #endif
-    
+
     sdIncomingDataI(sd, b);
   }
 
@@ -189,6 +189,16 @@ void sd_lld_putc(SerialDriver *sd, uint8_t c) {
   uartTxByte(port, c);
 
   while (!uartTxComplete(port));
+}
+
+void sd_lld_start_dbg(SerialDriver *sd, const SerialConfig *cfg) {
+    if (!sd || !cfg)
+      return;
+
+    sd->base = (void *)MIPS_UNCACHED(cfg->sc_port);
+    sd->debug = 1;
+
+    uartInit(sd, cfg);
 }
 
 /**
@@ -215,7 +225,8 @@ void sd_lld_start(SerialDriver *sd, const SerialConfig *cfg) {
 
   sd->base = (void *)MIPS_UNCACHED(cfg->sc_port);
 
-  uartInit(sd, cfg);
+  if (!sd->debug)
+      uartInit(sd, cfg);
 
   sd->rxirq = cfg->sc_rxirq;
 #if HAL_USE_EIC

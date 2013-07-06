@@ -200,13 +200,16 @@ sys_thread_t sys_thread_new(const char *name, lwip_thread_fn thread,
 
   size_t wsz;
   void *wsp;
+  Thread *th;
 
   (void)name;
   wsz = THD_WA_SIZE(stacksize);
   wsp = chCoreAlloc(wsz);
   if (wsp == NULL)
     return NULL;
-  return (sys_thread_t)chThdCreateStatic(wsp, wsz, prio, (tfunc_t)thread, arg);
+  th = chThdCreateStatic(wsp, wsz, prio, (tfunc_t)thread, arg);
+  if (th) th->p_name = name;
+  return (sys_thread_t)th;
 }
 
 sys_prot_t sys_arch_protect(void) {
