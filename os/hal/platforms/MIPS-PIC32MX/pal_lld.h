@@ -240,7 +240,7 @@ typedef volatile struct PicReg {
  *
  * @notapi
  */
-#define pal_lld_setgroupmode(p, mask, offset, mode) _pal_lld_setgroupmode(p, mask << offset, mode)
+#define pal_lld_setgroupmode(p, mask, offset, mode) _pal_lld_setgroupmode(p, (mask) << (offset), mode)
 
 /**
  * @note Following accessors are very well simulated by PAL API

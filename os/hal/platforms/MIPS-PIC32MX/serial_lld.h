@@ -86,7 +86,9 @@ typedef struct {
   /* @brief   RX IRQ number.*/                        \
   uint8_t                   rxirq;                    \
   /* UART port.*/                                     \
-  void                      *base;
+  void                      *base;                    \
+  /* Debug port? */                                   \
+  uint8_t                   debug;
 
 /*===========================================================================*/
 /* Driver macros.                                                            */
@@ -104,6 +106,7 @@ extern "C" {
   void sd_lld_stop(SerialDriver *sd);
 
   void sd_lld_putc(SerialDriver *sd, unsigned char c);
+  void sd_lld_start_dbg(SerialDriver *sd, const SerialConfig *config);
 #ifdef __cplusplus
 }
 #endif
