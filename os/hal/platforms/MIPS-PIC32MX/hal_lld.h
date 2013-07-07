@@ -37,7 +37,7 @@
 /**
  * @brief   Defines the support for realtime counters in the HAL.
  */
-#define HAL_IMPLEMENTS_COUNTERS FALSE
+#define HAL_IMPLEMENTS_COUNTERS TRUE
 
 /**
  * @brief   Platform name.
@@ -266,6 +266,16 @@
 /*===========================================================================*/
 
 /**
+ * @brief   Type representing a system clock frequency.
+ */
+typedef uint32_t halclock_t;
+
+/**
+ * @brief   Type of the realtime free counter value.
+ */
+typedef uint32_t halrtcnt_t;
+
+/**
  * @brief   Defines generic PIC32 register block.
  */
 typedef volatile struct {
@@ -279,21 +289,54 @@ typedef volatile struct {
 /* Driver macros.                                                            */
 /*===========================================================================*/
 
-#define __PIC32MX_DEVCFG(c, v)                                          \
-  const uint32_t __DEVCFG ## c ## __                                    \
-  __attribute__ ((section (".devcfg" #c))) =                            \
-    ((v) | DEVCFG ## c ## _UNIMPLEMENTED | DEVCFG ## c ## _DEFAULT) ^ DEVCFG ## c ## _INVERTED;
+/**
+ * @brief   Returns the current value of the system free running counter.
+ * @note    This service is implemented by returning the content of the
+ *          DWT_CYCCNT register.
+ *
+ * @return              The value of the system free running counter of
+ *                      type halrtcnt_t.
+ *
+ * @notapi
+ */
+#define hal_lld_get_counter_value()         c0_get_count()
 
-#define PIC32MX_DEVCFG0(c) __PIC32MX_DEVCFG(0, c)
-#define PIC32MX_DEVCFG1(c) __PIC32MX_DEVCFG(1, c)
-#define PIC32MX_DEVCFG2(c) __PIC32MX_DEVCFG(2, c)
-#define PIC32MX_DEVCFG3(c) __PIC32MX_DEVCFG(3, c)
+/**
+ * @brief   Realtime counter frequency.
+ * @note    The DWT_CYCCNT register is incremented directly by the system
+ *          clock so this function returns STM32_HCLK.
+ *
+ * @return              The realtime counter frequency of type halclock_t.
+ *
+ * @notapi
+ */
+#define hal_lld_get_counter_frequency()     MIPS_TIMER_FREQ
+
+#define __PIC32MX_DEVCFG_DECLARE(c)                                     \
+  const uint32_t __DEVCFG ## c ## __                                    \
+  __attribute__ ((section (".devcfg" #c)))
+
+#define __PIC32MX_DEVCFG(c, v)                                          \
+  __PIC32MX_DEVCFG_DECLARE(c) =                                            \
+((v) | DEVCFG ## c ## _UNIMPLEMENTED | DEVCFG ## c ## _DEFAULT) ^ DEVCFG ## c ## _INVERTED;
+
+#define PIC32MX_DEVCFG_GET(c) __DEVCFG ## c ## __
+
+#define PIC32MX_DEVCFG0(v) __PIC32MX_DEVCFG(0, v)
+#define PIC32MX_DEVCFG1(v) __PIC32MX_DEVCFG(1, v)
+#define PIC32MX_DEVCFG2(v) __PIC32MX_DEVCFG(2, v)
+#define PIC32MX_DEVCFG3(v) __PIC32MX_DEVCFG(3, v)
 
 #define PIC32MX_DEVCFG3_UID(x) (x&0xFFFF)
 
 /*===========================================================================*/
 /* External declarations.                                                    */
 /*===========================================================================*/
+
+extern __PIC32MX_DEVCFG_DECLARE(0);
+extern __PIC32MX_DEVCFG_DECLARE(1);
+extern __PIC32MX_DEVCFG_DECLARE(2);
+extern __PIC32MX_DEVCFG_DECLARE(3);
 
 #ifdef __cplusplus
 extern "C" {
