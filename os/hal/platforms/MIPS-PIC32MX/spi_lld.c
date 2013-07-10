@@ -65,7 +65,7 @@ typedef volatile struct {
   PicReg   con;
   PicReg   status;
   volatile uint32_t buf;
-  uint32_t pad0[4];
+  uint32_t pad0[3];
   PicReg   brg;
 } SpiPort;
 
